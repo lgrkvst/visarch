@@ -6,19 +6,40 @@ var inpath = 'rsa/';
 var filename = 'Fund & Portfolio Management.emx';
 var outpath = 'json/';
 
-var Node = function(filename, id, x, y, name, compartment) {
-	this.filename = filename; this.id = id; this.x = x; this.y = y; this.name = name; this.compartment = compartment;
-}
+// uml:Usage
+var Link = function(id, name, description, supplier, client) {
+	this.id = id; this.name = name; this.description = description; this.supplier = supplier; this.client = client;
+};
 
-var nodes = function() {	
+// uml:Component
+var Node = function(filename, id, x, y, name, description, compartment, keywords) {
+	this.filename = filename; this.id = id; this.x = x; this.y = y; this.name = name; this.description = description; this.compartment = compartment; this.keywords = keywords; this.links = [];
+	this.add = function (n) { // adds a link to this node (i.e. a Usage to this Component)
+
+		for (var i = 0; i<this.links.length;i++) { // assert unique id before inserting
+			if (this.links[i].id == n.id) return;
+		}
+
+		this.links.push(n);
+		};
+};
+
+var foreign = new Node("foreign", "0", "0", "0", "foreign", "uml:Usage with suppliers or clients outside compartment");
+
+// uml:Package
+var Nodelist = function() {	
 	this.list = [];
 	this.add = function(n) {
-		for (var i = 0; i<list.length;i++) {
-			if (list[i].id == n.id) return;
-		}
-		list.push(n);
+		if (this.getNode()) return;
+		this.list.push(n);
 	};
+	this.getNode = function(id) {
+		for (var i = 0; i<this.list.length;i++)	if (this.list[i].id == id) return this.list[i];
+		return false;
+	}
 };
+
+var nodes = new Nodelist();
 
 fs.readFile(inpath + filename, 'utf8', function (err,data) {
 	if (err) {
@@ -36,6 +57,85 @@ fs.readFile(inpath + filename, 'utf8', function (err,data) {
 			
 		// get compartment name
 		var compartment = result["xmi:XMI"]["uml:Package"][0]["$"]["name"];
+		for (r in result["xmi:XMI"]["uml:Package"][0]["packagedElement"]) {
+			var n = result["xmi:XMI"]["uml:Package"][0]["packagedElement"][r]["packagedElement"];
+			for (rr in result["xmi:XMI"]["uml:Package"][0]["packagedElement"][r]["packagedElement"]) { //should probably be recursive...
+				var n = result["xmi:XMI"]["uml:Package"][0]["packagedElement"][r]["packagedElement"][rr];
+				if (n["$"]["xmi:type"] == "uml:Component") {
+					var node = new Node();
+					node.compartment = compartment;
+
+					// inline, i.e. no fragment
+					if (!!n["$"]["name"]) {
+						node.id = n["$"]["xmi:id"]
+						node.name = n["$"]["name"];
+						if (!!n["eAnnotations"]) {
+							node.description = n["eAnnotations"][0]["details"][0]["$"]["key"];
+						}
+					}
+					// fragment, i.e has href attr
+					if (!!n["$"]["href"]) {
+						var filename = n["$"]["href"].split("#")[0];
+						filename = filename.replace(/&amp;/g, "&");
+						filename = filename.replace(/%20/g, " ");
+						node.filename = filename;
+						node.id = n["$"]["href"].match(/[#]([^?]+)[?]/)[1];
+					}
+					
+					nodes.add(node);
+				}
+				else if(n["$"]["xmi:type"] == "uml:Usage"){
+					var l = new Link();
+
+					l.id = n["$"]["xmi:id"]
+					if (!!n["$"]["name"]) {	l.name = n["$"]["name"]; }
+/*					if (!!n["eAnnotations"]) {
+						if(!!n["eAnnotations"][0]["details"]) {
+							l.description = n["eAnnotations"][0]["details"][0]["$"]["key"];
+						}
+					}
+	*/
+					if (!!n["$"]["supplier"]) { l.supplier = n["$"]["supplier"]; }					// inline suppliers (i.e. no fragments) are attributes of uml:Usage, instead of children(!). Thanks IBM...
+					else if (!!n["supplier"]) {	
+						var filename = n["supplier"][0]["$"]["href"].split("#")[0];
+						filename = filename.replace(/&amp;/g, "&");
+						filename = filename.replace(/%20/g, " ");
+						l.filename = filename;
+						l.supplier = n["supplier"][0]["$"]["href"].match(/[#]([^?]+)[?]/)[1];
+					}
+
+					if (!!n["$"]["client"]) { l.client = n["$"]["client"]; }								// inline clients (i.e. no fragments) are attributes of uml:Usage, instead of children(!). Thanks IBM...
+					else if (!!n["client"]) {	
+						var filename = n["client"][0]["$"]["href"].split("#")[0];
+						filename = filename.replace(/&amp;/g, "&");
+						filename = filename.replace(/%20/g, " ");
+						l.filename = filename;
+						l.client = n["client"][0]["$"]["href"].match(/[#]([^?]+)[?]/)[1];
+					}
+
+					var candidateNode = nodes.getNode(l.supplier);
+					if (!!candidateNode){
+						candidateNode.add(l);
+					}	else foreign.add(l);
+
+					var candidateNode = nodes.getNode(l.client);
+					if (!!candidateNode){
+						candidateNode.add(l);
+					}	else foreign.add(l);
+
+				}
+			}
+		}
+
+
+
+/*	var inspect = 4;
+		console.log("name: "+result["xmi:XMI"]["uml:Package"][0]["packagedElement"][inspect]["$"]["name"]);
+		console.log(JSON.stringify(result["xmi:XMI"]["uml:Package"][0]["packagedElement"][inspect]["packagedElement"][0]));
+*/
+	//	console.log(result["xmi:XMI"]["uml:Package"][0]["packagedElement"][1]["$"]);
+/*
+		// <gammal>
 		for (r in result["xmi:XMI"]["uml:Package"][0]["eAnnotations"][0]["references"]) {
 			if (result["xmi:XMI"]["uml:Package"][0]["eAnnotations"][0]["references"][r]["$"]["xmi:type"] == "uml:Component") {
 				// these should all be fragments:
@@ -46,7 +146,7 @@ fs.readFile(inpath + filename, 'utf8', function (err,data) {
 				nodes.add(n);
 				}
 		}
-/*
+		// </gammal>
 		var r = result["umlnotation:UMLDiagram"];
 		if (typeof r == "undefined") {
 			console.log("ERR: Top node must be umlnotation:UMLDiagram");
