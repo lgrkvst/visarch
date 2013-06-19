@@ -2,24 +2,23 @@ fs = require('fs')
 xml2js = require('xml2js');
 //crossfilter = require('crossfilter');
 
-var inpath = 'C:/CC/EAModels/Maintenance object level/';
+var inpath = 'rsa/';
 var filename = 'Fund & Portfolio Management.emx';
 var outpath = 'json/';
-var Node = function(id, url, x, y, name) {
-	this.id = id; this.url = url; this.x = x; this.y = y, this.name = name;
-	}
+
+var Node = function(filename, id, x, y, name, compartment) {
+	this.filename = filename; this.id = id; this.x = x; this.y = y; this.name = name; this.compartment = compartment;
+}
 
 var nodes = function() {	
-	var nodelist = [];
-	return {
-		add: function(id, url, x, y, name) {
-
-			var n = new Node(id, url, x, y, name);
-			nodelist.push(n);
-		},
-		list: function() {return nodelist;}
-	}
-}();
+	this.list = [];
+	this.add = function(n) {
+		for (var i = 0; i<list.length;i++) {
+			if (list[i].id == n.id) return;
+		}
+		list.push(n);
+	};
+};
 
 fs.readFile(inpath + filename, 'utf8', function (err,data) {
 	if (err) {
@@ -39,7 +38,12 @@ fs.readFile(inpath + filename, 'utf8', function (err,data) {
 		var compartment = result["xmi:XMI"]["uml:Package"][0]["$"]["name"];
 		for (r in result["xmi:XMI"]["uml:Package"][0]["eAnnotations"][0]["references"]) {
 			if (result["xmi:XMI"]["uml:Package"][0]["eAnnotations"][0]["references"][r]["$"]["xmi:type"] == "uml:Component") {
-				console.log(result["xmi:XMI"]["uml:Package"][0]["eAnnotations"][0]["references"][r]["$"]["href"]);
+				// these should all be fragments:
+				// <eAnnotations xmi:id="_6IMQQKHMEeKtYoxsgUitoA" source="com.ibm.xtools.uml.msl.fragments">
+				// example href: Alfons_1.efx#_j2aw0JI1EeKAG8JDQZGr8A?Fund%20&%20Portfolio%20Management/Fund%20&%20Portfolio%20systems/Alfons?
+				var href = result["xmi:XMI"]["uml:Package"][0]["eAnnotations"][0]["references"][r]["$"]["href"];
+				var n = new Node(href.split("#")[0], href.match(/[#]([^?]+)[?]/)[1]);
+				nodes.add(n);
 				}
 		}
 /*
