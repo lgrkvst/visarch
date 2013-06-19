@@ -4,7 +4,6 @@ xml2js = require('xml2js');
 
 var inpath = 'rsa/';
 var filename = 'Fund & Portfolio Management.emx';
-var filename = 'Front System.emx';
 var outpath = 'json/';
 
 // uml:Usage
@@ -58,95 +57,83 @@ fs.readFile(inpath + filename, 'utf8', function (err,data) {
 			
 		// get compartment name
 		var compartment = result["xmi:XMI"]["uml:Package"][0]["$"]["name"];
-			var n = result["xmi:XMI"]["uml:Package"]; // outer xmi can be omitted...
-			function parsePackagedElement(n, depth) {
-				try {
-
-				for (var i=0;i<n.length;i++) {
-					if (!!n[i]["packagedElement"]) { parsePackagedElement(n[i]["packagedElement"], depth+1); }
-					else if (n[i]["$"]["xmi:type"] == "uml:Component") {
+		for (r in result["xmi:XMI"]["uml:Package"][0]["packagedElement"]) {
+			var n = result["xmi:XMI"]["uml:Package"][0]["packagedElement"][r]["packagedElement"];
+			for (rr in result["xmi:XMI"]["uml:Package"][0]["packagedElement"][r]["packagedElement"]) { //should probably be recursive...
+				var n = result["xmi:XMI"]["uml:Package"][0]["packagedElement"][r]["packagedElement"][rr];
+				if (n["$"]["xmi:type"] == "uml:Component") {
 					var node = new Node();
 					node.compartment = compartment;
 
 					// inline, i.e. no fragment
-					if (!!n[i]["$"]["name"]) {
-						node.id = n[i]["$"]["xmi:id"]
-						node.name = n[i]["$"]["name"];
-						try {
-							if (!!n[i]["eAnnotations"]) {
-								node.description = n[i]["eAnnotations"][0]["details"][0]["$"]["key"];
-							}
-						} catch (err) {}
+					if (!!n["$"]["name"]) {
+						node.id = n["$"]["xmi:id"]
+						node.name = n["$"]["name"];
+						if (!!n["eAnnotations"]) {
+							node.description = n["eAnnotations"][0]["details"][0]["$"]["key"];
+						}
 					}
 					// fragment, i.e has href attr
-					if (!!n[i]["$"]["href"]) {
-						var filename = n[i]["$"]["href"].split("#")[0];
+					if (!!n["$"]["href"]) {
+						var filename = n["$"]["href"].split("#")[0];
 						filename = filename.replace(/&amp;/g, "&");
 						filename = filename.replace(/%20/g, " ");
 						node.filename = filename;
-						node.id = n[i]["$"]["href"].match(/[#]([^?]+)[?]/)[1];
+						node.id = n["$"]["href"].match(/[#]([^?]+)[?]/)[1];
 					}
-					nodes.add(node);
-
-					}
-					else if (n[i]["$"]["xmi:type"] == "uml:Usage") {
-						var l = new Link();
-	
-						l.id = n[i]["$"]["xmi:id"]
-						if (!!n[i]["$"]["name"]) {	l.name = n[i]["$"]["name"]; }
-						if (!!n[i]["eAnnotations"]) {
-						try {
-							if(!!n[i]["eAnnotations"][0]["details"]) {
-								l.description = n[i]["eAnnotations"][0]["details"][0]["$"]["key"];
-							}
-						} catch (err) {}
-						}
-		
-						if (!!n[i]["$"]["supplier"]) { l.supplier = n[i]["$"]["supplier"]; }					// inline suppliers (i.e. no fragments) are attributes of uml:Usage, instead of children(!). Thanks IBM...
-						else if (!!n[i]["supplier"]) {	
-							var filename = n[i]["supplier"][0]["$"]["href"].split("#")[0];
-							filename = filename.replace(/&amp;/g, "&");
-							filename = filename.replace(/%20/g, " ");
-							l.filename = filename;
-							l.supplier = n[i]["supplier"][0]["$"]["href"].match(/[#]([^?]+)[?]/)[1];
-						}
-	
-						if (!!n[i]["$"]["client"]) { l.client = n[i]["$"]["client"]; }								// inline clients (i.e. no fragments) are attributes of uml:Usage, instead of children(!). Thanks IBM...
-						else if (!!n[i]["client"]) {	
-							var filename = n[i]["client"][0]["$"]["href"].split("#")[0];
-							filename = filename.replace(/&amp;/g, "&");
-							filename = filename.replace(/%20/g, " ");
-							l.filename = filename;
-							l.client = n[i]["client"][0]["$"]["href"].match(/[#]([^?]+)[?]/)[1];
-						}
-						
-	
-						var candidateNode = nodes.getNode(l.supplier);
-						if (!!candidateNode){
-							candidateNode.add(l);
-						}	else foreign.add(l);
-	
-						var candidateNode = nodes.getNode(l.client);
-						if (!!candidateNode){
-							candidateNode.add(l);
-						}	else foreign.add(l);
 					
-					}
-//				else if (n[i]["$"]["xmi:type"] == "uml:Package") {console.log(JSON.stringify(n[i])); /*parsePackagedElement(n[i]["packagedElement"], depth+1)*/ }
-					}
-				}catch(err){console.log(err.line); console.log(depth + " haha!"); process.exit();}
+					nodes.add(node);
+				}
+				else if(n["$"]["xmi:type"] == "uml:Usage"){
+					var l = new Link();
 
+					l.id = n["$"]["xmi:id"]
+					if (!!n["$"]["name"]) {	l.name = n["$"]["name"]; }
+/*					if (!!n["eAnnotations"]) {
+						if(!!n["eAnnotations"][0]["details"]) {
+							l.description = n["eAnnotations"][0]["details"][0]["$"]["key"];
+						}
+					}
+	*/
+					if (!!n["$"]["supplier"]) { l.supplier = n["$"]["supplier"]; }					// inline suppliers (i.e. no fragments) are attributes of uml:Usage, instead of children(!). Thanks IBM...
+					else if (!!n["supplier"]) {	
+						var filename = n["supplier"][0]["$"]["href"].split("#")[0];
+						filename = filename.replace(/&amp;/g, "&");
+						filename = filename.replace(/%20/g, " ");
+						l.filename = filename;
+						l.supplier = n["supplier"][0]["$"]["href"].match(/[#]([^?]+)[?]/)[1];
+					}
+
+					if (!!n["$"]["client"]) { l.client = n["$"]["client"]; }								// inline clients (i.e. no fragments) are attributes of uml:Usage, instead of children(!). Thanks IBM...
+					else if (!!n["client"]) {	
+						var filename = n["client"][0]["$"]["href"].split("#")[0];
+						filename = filename.replace(/&amp;/g, "&");
+						filename = filename.replace(/%20/g, " ");
+						l.filename = filename;
+						l.client = n["client"][0]["$"]["href"].match(/[#]([^?]+)[?]/)[1];
+					}
+
+					var candidateNode = nodes.getNode(l.supplier);
+					if (!!candidateNode){
+						candidateNode.add(l);
+					}	else foreign.add(l);
+
+					var candidateNode = nodes.getNode(l.client);
+					if (!!candidateNode){
+						candidateNode.add(l);
+					}	else foreign.add(l);
+
+				}
+			}
 		}
-		parsePackagedElement(n, 0);
-
-		console.log("added " + nodes.list.length + " nodes");
 
 var tot = 0;
 for (var p = 0; p<nodes.list.length; p++) {
 	var n = nodes.list[p];
 	tot +=n.links.length
 	}
-	console.log("added " + tot + " links");
+	console.log(tot);
+
 
 /*	var inspect = 4;
 		console.log("name: "+result["xmi:XMI"]["uml:Package"][0]["packagedElement"][inspect]["$"]["name"]);
