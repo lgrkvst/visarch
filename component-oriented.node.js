@@ -8,6 +8,7 @@ xml2json = require('xml2json');
 
 // kolla clientDependency - mycket sånt i Account & Liquidity...
 var outpath = 'json/';
+var VERBOSE = true;
 
 // helper
 function isArray(test_me) {
@@ -15,7 +16,7 @@ function isArray(test_me) {
 }
 
 function L(o) {
-	console.log(o)
+	if (VERBOSE) console.log(o)
 };
 
 // uml:Usage
@@ -25,30 +26,22 @@ var Link = function(id, name, description, supplier, client) {
 		this.description = description;
 		this.supplier = supplier;
 		this.client = client;
+		this.source = supplier;
+		this.target = client;
 	};
 
 // uml:Component
 var Node = function(filename, id, x, y, name, description, compartment, keywords) {
-		this.filename = filename;
 		this.id = id;
-		this.x = x;
-		this.y = y;
 		this.name = name;
 		this.description = description;
+		this.filename = filename;
 		this.compartment = compartment;
 		this.keywords = keywords;
-		this.links = [];
-		this.add = function(n) { // adds a link to this node (i.e. a Usage to this Component)
-			for (var i = 0; i < this.links.length; i++) { // assert unique id before inserting
-				if (this.links[i].id == n.id) return;
-			}
-
-			this.links.push(n);
-		};
 	};
 
-var foreign = new Node("foreign", "0", "0", "0", "foreign", "uml:Usage with suppliers or clients outside compartment");
-var rogue = new Node("rogue", "0", "0", "0", "rogue", "Virtual node containing orphanaged links (no supplier, no client)");
+var links = [];
+var rogue = [];
 
 // uml:Package
 var Nodelist = function() {
@@ -61,6 +54,10 @@ var Nodelist = function() {
 			for (var i = 0; i < this.list.length; i++) if (this.list[i].id == id) return this.list[i];
 			return false;
 		}
+		this.getNodeIndex = function(id) {
+			for (var i = 0; i < this.list.length; i++) if (this.list[i].id == id) return i;
+			return false;
+		}
 		this.getNodeOrNew = function(id) {
 			for (var i = 0; i < this.list.length; i++) if (this.list[i].id == id) return this.list[i];
 			return new Node();
@@ -69,6 +66,7 @@ var Nodelist = function() {
 
 var nodes = new Nodelist();
 
+// replace option parsing with optimist module
 if(process.argv[2] == '-f') var filename = process.argv[3];
 if(process.argv[4] == '-f') var filename = process.argv[5];
 if(process.argv[2] == '-d') var inpath = process.argv[3];
@@ -86,31 +84,35 @@ if (typeof filename == "undefined") {
 		if (filename.match(/[.]emx$/)) emx(inpath + filename, 0);
 	});
 
-var counter = 0;
-	// put out foreign (inter-compartment) links for adoption:
-	foreign.links.forEach(function (i) {
-		
-		var candidateSupplierNode = nodes.getNode(i.supplier);
-		var candidateClientNode = nodes.getNode(i.client);
-		if ( !! candidateSupplierNode) {
-			candidateSupplierNode.add(i);
-		}
-
-		if ( !! candidateClientNode) {
-			candidateClientNode.add(i);
-		}
-		if (!candidateSupplierNode && !candidateClientNode) {
-			L("rogue node: "); L(i)
-			rogue.add(i);
-		}
-	});
-	L("found owner for " + (foreign.links.length-rogue.links.length) + " links (of " + foreign.links.length + ")");
-	L("Rogue links: " + rogue.links.length);
 } else emx(inpath + filename, nodes, 0);
+
+// resolve id's using nodelist.list indices
+var j,k;
+var linksarr = [];
+links.forEach(function (i) {
+//	if (j = nodes.getNodeIndex(i.supplier)) i.source = j;
+//	if (j = nodes.getNodeIndex(i.client)) i.target = j;
+	if ((j = nodes.getNodeIndex(i.supplier)) && (k = nodes.getNodeIndex(i.client)))
+	linksarr.push({"source":j, "target":k, "name":i.name, "description":i.description});
+});
+
+var data = {"nodes":nodes.list, "links":linksarr};
+
+fs.writeFileSync(outpath + "nodes_links.json", JSON.stringify(data, function(key, val) {if (key=="id") return undefined; else return val;}, "\t"));
+
+
+/*******************************
+  * EMX - THE ACTUAL PARSER
+  *
+  *
+  *
+  *
+  ******************************/
+
 
 function emx(filepath, depth) {
 	var data = fs.readFileSync(filepath, 'utf8');
-		console.log("Processing file " + filepath + "...");
+		L("Processing file " + filepath + "...");
 
 		var result = xml2json.toJson(data, {
 			object: true
@@ -125,7 +127,7 @@ function emx(filepath, depth) {
 		
 		if ( !! n.packagedElement) parsePackagedElement(n.packagedElement, 0);
 		else {
-			console.log("FATAL: root node MUST contain packagedElement.");
+			L("FATAL: root node MUST contain packagedElement.");
 			process.exit();
 		}
 
@@ -145,7 +147,7 @@ function emx(filepath, depth) {
 						node.filename = filename;
 						node.id = n[i]["href"].match(/[#]([^?]+)[?]/)[1];
 
-						console.log("	Processing file " + node.filename + "...");
+						L("	Processing file " + node.filename + "...");
 						var data = fs.readFileSync(inpath + node.filename, "utf-8");
 							var result = xml2json.toJson(data, {
 								object: true
@@ -154,9 +156,9 @@ function emx(filepath, depth) {
 							if ( !! result["xmi:XMI"]) var m = result["xmi:XMI"]["uml:Component"];
 							else if ( !! result["uml:Component"]) var m = result["uml:Component"];
 							else {
-								console.log("FATAL: malformed file: ");
-								console.log(result);
-								console.log("Exiting...");
+								L("FATAL: malformed file: ");
+								L(result);
+								L("Exiting...");
 								process.exit();
 							}
 
@@ -171,7 +173,7 @@ function emx(filepath, depth) {
 													// clientDependancy points to uml:Usage - probably a cross reference
 													if (!!result["uml:Component"]["clientDependency"]) {
 														for (var i=0; i<result["uml:Component"]["clientDependency"].length; i++) {
-															// console.log(result["uml:Component"]["clientDependency"][i]["$"]["href"].split("#")[0]);
+															// L(result["uml:Component"]["clientDependency"][i]["$"]["href"].split("#")[0]);
 															}	
 														}							
 														else { // fragment has no links
@@ -193,12 +195,7 @@ function emx(filepath, depth) {
 							L("no details->key for: " + node.name);
 						}
 					}
-					try {
-						nodes.add(node);
-					} catch (err) {
-						console.log(n[i]);
-						process.exit();
-					}
+					nodes.add(node);
 				} else if (n[i]["xmi:type"] == "uml:Usage") {
 					var l = new Link();
 					l.id = n[i]["xmi:id"]
@@ -237,8 +234,7 @@ function emx(filepath, depth) {
 							l.client = shouldBe_n_i_client_href["href"].match(/[#]([^?]+)[?]/)[1];
 						}
 					}
-
-					foreign.add(l);
+					links.push(l);
 
 				} else if (n[i]["xmi:type"] == "uml:Package") {
 					if (n[i]["href"]) {
@@ -248,20 +244,12 @@ function emx(filepath, depth) {
 						emx(inpath + filename, depth + 1);
 					} else { L("Warning: uml:Package without external reference: " + n[i]["name"]); }
 				} else {
-					console.log("no match for: "); console.log(n[i]); // uml:Interface
+					L("no match for: "); L(n[i]); // uml:Interface
 					// denna raden i Account & Liquidity bråkar:
 					// <packagedElement xmi:type="uml:Interface" xmi:id="_Kk4j4KEXEeKWMLRKamTaBw" name="Interface1"/>
 
 				}
 			}
 		}
-		console.log("added " + nodes.list.length + " nodes");
-
-		var tot = 0;
-		for (var p = 0; p < nodes.list.length; p++) {
-			var n = nodes.list[p];
-			tot += n.links.length
-		}
-		console.log("added " + tot + " links");
-		console.log("unaccounted for: " + foreign.links.length);
+		L(filepath + " turned up " + nodes.list.length + " nodes");
 }
