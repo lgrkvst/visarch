@@ -9,6 +9,7 @@ xml2json = require('xml2json');
 // kolla clientDependency - mycket sånt i Account & Liquidity...
 var outpath = 'json/';
 var VERBOSE = true;
+var SIZE_STEP = 0.4; // increase size of node with 2.5 per link
 
 // helper
 function isArray(test_me) {
@@ -38,6 +39,7 @@ var Node = function(filename, id, x, y, name, description, compartment, keywords
 		this.filename = filename;
 		this.compartment = compartment;
 		this.keywords = keywords;
+		this.size = 4;
 	};
 
 var links = [];
@@ -90,10 +92,12 @@ if (typeof filename == "undefined") {
 var j,k;
 var linksarr = [];
 links.forEach(function (i) {
-//	if (j = nodes.getNodeIndex(i.supplier)) i.source = j;
-//	if (j = nodes.getNodeIndex(i.client)) i.target = j;
-	if ((j = nodes.getNodeIndex(i.supplier)) && (k = nodes.getNodeIndex(i.client)))
-	linksarr.push({"source":j, "target":k, "name":i.name, "description":i.description});
+	// demand match on both supplier (source) and client (target)
+	if ((j = nodes.getNodeIndex(i.supplier)) && (k = nodes.getNodeIndex(i.client))) {
+		linksarr.push({"source":j, "target":k, "name":i.name, "description":i.description});
+		nodes.list[j].size+=SIZE_STEP;
+		nodes.list[k].size+=SIZE_STEP;
+	}
 });
 
 var data = {"nodes":nodes.list, "links":linksarr};
