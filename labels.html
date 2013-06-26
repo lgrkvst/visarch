@@ -3,78 +3,135 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Force based label placement</title>
-		<script type="text/javascript" src="http://mbostock.github.com/d3/d3.js?2.6.0"></script>
-		<script type="text/javascript" src="http://mbostock.github.com/d3/d3.layout.js?2.6.0"></script>
-		<script type="text/javascript" src="http://mbostock.github.com/d3/d3.geom.js?2.6.0"></script>
+	    <script type="text/javascript" src="js/d3.v3.min.js"></script>
+		<script type='text/javascript' src='js/jquery-1.10.1.min.js'></script>
 	</head>
 	<body>
 <script type="text/javascript" charset="utf-8">
 //https://gist.github.com/MoritzStefaner/1377729
-			var w = 960, h = 500;
+			var w = $(window).width(), h = $(window).height();
  
 			var labelDistance = 0;
  
-			var vis = d3.select("body").append("svg:svg").attr("width", w).attr("height", h);
+			var compartments = ["Account & Liquidity System","Business Intelligence","Core Systems","FinancingLoans Systems","Front System","Fund & Portfolio Management","Other SEB Systems","Payment Systems","Processing Support Systems","Securities Systems","Trading Systems","ExternalSystems","Finance Systems","Risk Systems","Compliance Systems"];
+
+			var filter = compartments[8];
+			var color = d3.scale.category20().domain(compartments);
+
+			var vis = d3.select("body").append("svg").attr("width", w).attr("height", h);
  
 			var nodes = [];
 			var labelAnchors = [];
 			var labelAnchorLinks = [];
 			var links = [];
- 
-			for(var i = 0; i < 30; i++) {
-				var node = {
-					label : "node " + i
-				};
-				nodes.push(node);
+
+
+			var force = d3.layout.force()
+		    	.linkDistance(0.1)
+				.gravity(0.5)
+				.charge(function (n) {
+					return (-n.size*200);
+				})
+			    .size([$(window).width(), $(window).height()]);
+
+			var force2 = d3.layout.force()
+				.gravity(0)
+				.linkDistance(0)
+				.linkStrength(8)
+				.charge(-100)
+				.size([$(window).width(), $(window).height()]);
+
+		d3.json("json/nodes_links.json", function(error, graph) {
+
+			graph.nodes.forEach(function(n, i) {
 				labelAnchors.push({
-					node : node
+					node : n
 				});
 				labelAnchors.push({
-					node : node
+					node : n
 				});
-			};
- 
-			for(var i = 0; i < nodes.length; i++) {
-				for(var j = 0; j < i; j++) {
-					if(Math.random() > .95)
-						links.push({
-							source : i,
-							target : j,
-							weight : Math.random()
-						});
-				}
 				labelAnchorLinks.push({
 					source : i * 2,
 					target : i * 2 + 1,
 					weight : 1
 				});
-			};
- 
-			var force = d3.layout.force().size([w, h]).nodes(nodes).links(links).gravity(1).linkDistance(50).charge(-3000).linkStrength(function(x) {
-				return x.weight * 10
 			});
- 
- 
-			force.start();
- 
-			var force2 = d3.layout.force().nodes(labelAnchors).links(labelAnchorLinks).gravity(0).linkDistance(0).linkStrength(8).charge(-100).size([w, h]);
-			force2.start();
- 
-			var link = vis.selectAll("line.link").data(links).enter().append("svg:line").attr("class", "link").style("stroke", "#CCC");
- 
-			var node = vis.selectAll("g.node").data(force.nodes()).enter().append("svg:g").attr("class", "node");
-			node.append("svg:circle").attr("r", 5).style("fill", "#555").style("stroke", "#FFF").style("stroke-width", 3);
+
+
+ 		force
+      		.nodes(graph.nodes) /* Varför gör vi detta? Vi filtrerar ju nedan. Fast bara i datat? Men vad gör då denna? */
+      		.links(graph.links)
+      		.start();
+
+		force2
+			.nodes(labelAnchors)
+			.links(labelAnchorLinks)
+			.start();
+
+			var link = vis.selectAll(".link")
+				.data(
+				function() {
+					var ret = [];
+					graph.links.forEach(function(l){
+						if (l.source.compartment==filter || l.target.compartment==filter) {
+							ret.push(l);
+						}	
+					}); console.log("links: " + ret.length); return ret;
+				})
+				.enter().append("line").attr("class", "link").style("stroke", "#CCC");
+
+			var node = vis.selectAll(".node").data(function() {
+				var ret = [];
+				graph.nodes.forEach(
+					function(n, i){
+						if (n.compartment == filter) {
+							ret.push(n); // might cause duplicates. How does d3 handle that?
+						}
+					});
+					graph.links.forEach(function(l){
+						if (l.source.compartment==filter || l.target.compartment==filter) {
+							ret.push(l.source);
+							ret.push(l.target);
+						}
+					}); console.log("nodes: " + ret.length); return ret;
+				})
+			.enter().append("g").attr("class", "node");
+			
+			node.append("circle").attr("r", function(n){return(n.size);}).style("fill", function(d) { return color(d.compartment); }) 
+	      .style("stroke", "#FFF").style("stroke-width", 3);
 			node.call(force.drag);
  
+		  node.append("title")
+		      .text(function(d) { return d.name + "::" + d.compartment; });
+
  
-			var anchorLink = vis.selectAll("line.anchorLink").data(labelAnchorLinks)//.enter().append("svg:line").attr("class", "anchorLink").style("stroke", "#999");
- 
-			var anchorNode = vis.selectAll("g.anchorNode").data(force2.nodes()).enter().append("svg:g").attr("class", "anchorNode");
-			anchorNode.append("svg:circle").attr("r", 0).style("fill", "#FFF");
-				anchorNode.append("svg:text").text(function(d, i) {
-				return i % 2 == 0 ? "" : d.node.label
-			}).style("fill", "#555").style("font-family", "Arial").style("font-size", 12);
- 
+			var anchorLink = vis.selectAll("line.anchorLink")
+			.data(labelAnchorLinks)//.enter().append("svg:line").attr("class", "anchorLink").style("stroke", "#999");
+
+			var anchorNode = vis.selectAll("g.anchorNode")
+				.data(/*labelAnchors*/ function () {
+					var ret = [];
+					vis.selectAll(".node").data().forEach(function(n) {
+						ret.push(labelAnchors[n.index*2]);
+						ret.push(labelAnchors[n.index*2+1]);
+					});
+					return ret;
+				})
+				.enter()
+				.append("svg:g")
+				.attr("class", "anchorNode");
+				
+			anchorNode.append("svg:circle")
+				.attr("r", 0).style("fill", "#FFF");
+				
+			anchorNode.append("svg:text")
+				.text(function(d, i) {
+					return i % 2 == 0 ? "" : d.node.name;
+					})
+					.style("fill", "#555")
+					.style("font-family", "Arial")
+					.style("font-size", 12);
+
 			var updateLink = function() {
 				this.attr("x1", function(d) {
 					return d.source.x;
@@ -98,10 +155,10 @@
  
 			force.on("tick", function() {
  
-				force2.start();
+//				force2.start();
  
 				node.call(updateNode);
- 
+
 				anchorNode.each(function(d, i) {
 					if(i % 2 == 0) {
 						d.x = d.node.x;
@@ -123,12 +180,12 @@
  
  
 				anchorNode.call(updateNode);
- 
+
 				link.call(updateLink);
 				anchorLink.call(updateLink);
  
 			});
- 
+ 		});
 		</script>
 	</body>
 </html>

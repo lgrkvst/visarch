@@ -16,8 +16,13 @@
 .link {
   stroke: #999;
   stroke-opacity: .6;
-  stroke-dasharray: 0,2 1;
-
+}
+.nodelabel {
+	stroke:#000;
+  stroke-opacity: .6;
+  stroke-width: 0.5px;
+	font-family:sans-serif;
+	font-size:8pt;
 }
 
 </style>
@@ -47,8 +52,8 @@ var width = 960,
 
 var compartments = ["Account & Liquidity System","Business Intelligence","Core Systems","FinancingLoans Systems","Front System","Fund & Portfolio Management","Other SEB Systems","Payment Systems","Processing Support Systems","Securities Systems","Trading Systems","ExternalSystems","Finance Systems","Risk Systems","Compliance Systems"];
 
-var filter = compartments[8];
-var color = d3.scale.category20().domain(compartments);
+var filter = compartments[4];
+var color = d3.scale.category20();
 
 var force = d3.layout.force()
     .linkDistance(function (n) {
@@ -66,7 +71,7 @@ var svg = d3.select("body").append("svg")
 
 d3.json("json/nodes_links.json", function(error, graph) {
   force
-      .nodes(graph.nodes) /* Varför gör vi detta? Vi filtrerar ju nedan. Fast bara i datat? Men vad gör då denna? */
+      .nodes(graph.nodes)
       .links(graph.links)
       .start();
 
@@ -84,7 +89,7 @@ d3.json("json/nodes_links.json", function(error, graph) {
 /*      .style("stroke-width", function(d) { return Math.sqrt(d.value); }) */
 ;
 
-  var node = svg.selectAll(".node")
+  var g = svg.selectAll("g.node")
       .data(function() {
 		var ret = [];
 		graph.nodes.forEach(function(n, i){
@@ -99,16 +104,42 @@ d3.json("json/nodes_links.json", function(error, graph) {
 			}
 		}); console.log("nodes: " + ret.length); return ret;
 		})
-    .enter().append("circle")
-      .attr("class", "node")
+    .enter()
+	.append("svg:g")
+	.attr("class", "node")
+	.attr("transform", function(d) { return "translate(" + d.x + ","
+	+ d.y + ")"; })
+	.call(force.drag);
+	
+	g.append("svg:circle")
       .attr("r", function(n){return(n.size);})
-      .style("fill", function(d) { return color(d.compartment); }) 
-      .call(force.drag);
+      .style("fill", function(d) { return color(compartments.indexOf(d.compartment)); });
 
+	  g.append("svg:text")
+	      .attr("x", 10)
+	      .attr("dy", ".31em")
+	      .attr("class", "nodelabel")	
+	      .text(function(d) { return d.name; });
+/*
+	  var text = svg.append("svg:g").selectAll("g")
+	      .data(nodes)
+	    .enter().append("svg:g");
 
-  node.append("title")
-      .text(function(d) { return d.name + "::" + d.compartment; });
+	  node.append("svg:text")
+	      .attr("x", 8)
+	      .attr("y", ".31em")
+	      .attr("class", "shadow")
+	      .text(function(d) { return d.name; });
 
+	  node.append("svg:text")
+	      .attr("x", 8)
+	      .attr("y", ".31em")
+	      .text(function(d) { return d.name; });
+  node.append("svg:text")
+	.attr("x", 8)
+	.attr("y", ".31em")
+    .text(function(d) { return d.compartment; });
+	*/
 
   force.on("tick", function() {
     link.attr("x1", function(d) { return d.source.x; })
@@ -116,8 +147,8 @@ d3.json("json/nodes_links.json", function(error, graph) {
         .attr("x2", function(d) { return d.target.x; })
         .attr("y2", function(d) { return d.target.y; });
 
-    node.attr("cx", function(d) { return d.x; })
-        .attr("cy", function(d) { return d.y; });
+		g.attr("transform", function(d) { return "translate(" + d.x + ","
+		+ d.y + ")"; })
   });
 });
 

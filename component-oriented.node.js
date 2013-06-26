@@ -39,7 +39,7 @@ var Node = function(filename, id, x, y, name, description, compartment, keywords
 		this.filename = filename;
 		this.compartment = compartment;
 		this.keywords = keywords;
-		this.size = 4;
+		this.size = 5.0;
 	};
 
 var links = [];
@@ -102,7 +102,7 @@ links.forEach(function (i) {
 
 var data = {"nodes":nodes.list, "links":linksarr};
 
-fs.writeFileSync(outpath + "nodes_links.json", JSON.stringify(data, function(key, val) {if (key=="id") return undefined; else return val;}, "\t"));
+fs.writeFileSync(outpath + "nodes_links.json", JSON.stringify(data, function(key, val) {if (key=="id") return undefined; if (key=="size") return Math.round(val*10)/10; return val;}, "\t"));
 
 
 /*******************************
