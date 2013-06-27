@@ -5,6 +5,15 @@
 		<title>Force based label placement</title>
 	    <script type="text/javascript" src="js/d3.v3.min.js"></script>
 		<script type='text/javascript' src='js/jquery-1.10.1.min.js'></script>
+		
+		<style>
+
+		
+		body {
+			background-color: #eee;
+		}
+		
+		</style>
 	</head>
 	<body>
 <script type="text/javascript" charset="utf-8">
@@ -27,23 +36,26 @@
 
 
 			var force = d3.layout.force()
-		    	.linkDistance(0.1)
-				.gravity(0.5)
-				.charge(function (n) {
-					return (-n.size*200);
+		    	.linkDistance(function (n) {
+					return 1;
+				})
+				.gravity(1)
+				.charge(function (n) { 
+					return (-n.size*200); /* function av antalet länkar? hmm... t ex om 1 så: link distance liten, och charge liten */
 				})
 			    .size([$(window).width(), $(window).height()]);
-
+/*
 			var force2 = d3.layout.force()
 				.gravity(0)
 				.linkDistance(0)
 				.linkStrength(8)
-				.charge(-100)
+				.charge(-500)
 				.size([$(window).width(), $(window).height()]);
-
+*/
 		d3.json("json/nodes_links.json", function(error, graph) {
 
 			graph.nodes.forEach(function(n, i) {
+				n.localsize = 0;
 				labelAnchors.push({
 					node : n
 				});
@@ -62,12 +74,13 @@
       		.nodes(graph.nodes) /* Varför gör vi detta? Vi filtrerar ju nedan. Fast bara i datat? Men vad gör då denna? */
       		.links(graph.links)
       		.start();
-
+/*
 		force2
 			.nodes(labelAnchors)
 			.links(labelAnchorLinks)
 			.start();
-
+*/			
+			var f = vis.append("filter").attr("id", "blurMe").append("feGaussianBlur").attr("in", "SourceGraphic").attr("stdDeviation", "1");
 			var link = vis.selectAll(".link")
 				.data(
 				function() {
@@ -97,8 +110,12 @@
 				})
 			.enter().append("g").attr("class", "node");
 			
-			node.append("circle").attr("r", function(n){return(n.size);}).style("fill", function(d) { return color(d.compartment); }) 
-	      .style("stroke", "#FFF").style("stroke-width", 3);
+			node.append("circle")
+//				.attr("filter", "url('#blurMe')")
+				.attr("r", function(n){return(n.size);})
+				.style("fill", function(d) { return color(d.compartment); }) 
+	      		.style("stroke", "#FFF").style("stroke-width", 3)
+				;
 			node.call(force.drag);
  
 		  node.append("title")
@@ -151,14 +168,13 @@
 				});
  
 			}
- 
- 
-			force.on("tick", function() {
- 
-//				force2.start();
- 
+  			
+			force.on("tick", function(e) {
+				
 				node.call(updateNode);
-
+				link.call(updateLink);
+/*				
+				force2.start();
 				anchorNode.each(function(d, i) {
 					if(i % 2 == 0) {
 						d.x = d.node.x;
@@ -178,11 +194,9 @@
 					}
 				});
  
- 
-				anchorNode.call(updateNode);
-
-				link.call(updateLink);
+ 				anchorNode.call(updateNode);
 				anchorLink.call(updateLink);
+*/				
  
 			});
  		});
