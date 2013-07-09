@@ -4,10 +4,29 @@
 		<meta charset="utf-8">
 		<title>Force based label placement</title>
 	    <script type="text/javascript" src="js/d3.v3.min.js"></script>
-		<script type='text/javascript' src='js/jquery-1.10.1.min.js'></script>
+		<script type='text/javascript' src='js/jquery-1.8.3-min.js'></script>
+		<script type='text/javascript' src='js/jquery.autoSuggest.packed.js'></script>
+		<script type='text/javascript' charset="utf-8" src='js/force_network.js'></script>		
+		<script src='js/bootstrap.min.js' type='text/javascript'></script>
+
+		<link href='css/bootstrap.min.css' rel='stylesheet' type='text/css'>
+		<link href='css/autoSuggest.css' rel='stylesheet' type='text/css'>
 		
 		<style>
+		.link { stroke: #CCC;
+				stroke-width: 10px;
+				fill:#CCC; 
+				opacity:0.5
+		}
+		.node {
+			font-family: optima, sans-serif;
+			color: #fff;
+			text-shadow: 0px 0px white;
+		}
 
+		.input-large {
+			    width: 400px;
+			}
 		
 		body {
 			background-color: #eee;
@@ -16,190 +35,17 @@
 		</style>
 	</head>
 	<body>
-<script type="text/javascript" charset="utf-8">
-//https://gist.github.com/MoritzStefaner/1377729
-			var w = $(window).width(), h = $(window).height();
- 
-			var labelDistance = 0;
- 
-			var compartments = ["Account & Liquidity System","Business Intelligence","Core Systems","FinancingLoans Systems","Front System","Fund & Portfolio Management","Other SEB Systems","Payment Systems","Processing Support Systems","Securities Systems","Trading Systems","ExternalSystems","Finance Systems","Risk Systems","Compliance Systems"];
-
-			var filter = compartments[8];
-			var color = d3.scale.category20().domain(compartments);
-
-			var vis = d3.select("body").append("svg").attr("width", w).attr("height", h);
- 
-			var nodes = [];
-			var labelAnchors = [];
-			var labelAnchorLinks = [];
-			var links = [];
-
-
-			var force = d3.layout.force()
-		    	.linkDistance(function (n) {
-					return 1;
-				})
-				.gravity(1)
-				.charge(function (n) { 
-					return (-n.size*200); /* function av antalet länkar? hmm... t ex om 1 så: link distance liten, och charge liten */
-				})
-			    .size([$(window).width(), $(window).height()]);
-/*
-			var force2 = d3.layout.force()
-				.gravity(0)
-				.linkDistance(0)
-				.linkStrength(8)
-				.charge(-500)
-				.size([$(window).width(), $(window).height()]);
-*/
-		d3.json("json/nodes_links.json", function(error, graph) {
-
-			graph.nodes.forEach(function(n, i) {
-				n.localsize = 0;
-				labelAnchors.push({
-					node : n
-				});
-				labelAnchors.push({
-					node : n
-				});
-				labelAnchorLinks.push({
-					source : i * 2,
-					target : i * 2 + 1,
-					weight : 1
-				});
-			});
-
-
- 		force
-      		.nodes(graph.nodes) /* Varför gör vi detta? Vi filtrerar ju nedan. Fast bara i datat? Men vad gör då denna? */
-      		.links(graph.links)
-      		.start();
-/*
-		force2
-			.nodes(labelAnchors)
-			.links(labelAnchorLinks)
-			.start();
-*/			
-			var f = vis.append("filter").attr("id", "blurMe").append("feGaussianBlur").attr("in", "SourceGraphic").attr("stdDeviation", "1");
-			var link = vis.selectAll(".link")
-				.data(
-				function() {
-					var ret = [];
-					graph.links.forEach(function(l){
-						if (l.source.compartment==filter || l.target.compartment==filter) {
-							ret.push(l);
-						}	
-					}); console.log("links: " + ret.length); return ret;
-				})
-				.enter().append("line").attr("class", "link").style("stroke", "#CCC");
-
-			var node = vis.selectAll(".node").data(function() {
-				var ret = [];
-				graph.nodes.forEach(
-					function(n, i){
-						if (n.compartment == filter) {
-							ret.push(n); // might cause duplicates. How does d3 handle that?
-						}
-					});
-					graph.links.forEach(function(l){
-						if (l.source.compartment==filter || l.target.compartment==filter) {
-							ret.push(l.source);
-							ret.push(l.target);
-						}
-					}); console.log("nodes: " + ret.length); return ret;
-				})
-			.enter().append("g").attr("class", "node");
-			
-			node.append("circle")
-//				.attr("filter", "url('#blurMe')")
-				.attr("r", function(n){return(n.size);})
-				.style("fill", function(d) { return color(d.compartment); }) 
-	      		.style("stroke", "#FFF").style("stroke-width", 3)
-				;
-			node.call(force.drag);
- 
-		  node.append("title")
-		      .text(function(d) { return d.name + "::" + d.compartment; });
-
- 
-			var anchorLink = vis.selectAll("line.anchorLink")
-			.data(labelAnchorLinks)//.enter().append("svg:line").attr("class", "anchorLink").style("stroke", "#999");
-
-			var anchorNode = vis.selectAll("g.anchorNode")
-				.data(/*labelAnchors*/ function () {
-					var ret = [];
-					vis.selectAll(".node").data().forEach(function(n) {
-						ret.push(labelAnchors[n.index*2]);
-						ret.push(labelAnchors[n.index*2+1]);
-					});
-					return ret;
-				})
-				.enter()
-				.append("svg:g")
-				.attr("class", "anchorNode");
-				
-			anchorNode.append("svg:circle")
-				.attr("r", 0).style("fill", "#FFF");
-				
-			anchorNode.append("svg:text")
-				.text(function(d, i) {
-					return i % 2 == 0 ? "" : d.node.name;
-					})
-					.style("fill", "#555")
-					.style("font-family", "Arial")
-					.style("font-size", 12);
-
-			var updateLink = function() {
-				this.attr("x1", function(d) {
-					return d.source.x;
-				}).attr("y1", function(d) {
-					return d.source.y;
-				}).attr("x2", function(d) {
-					return d.target.x;
-				}).attr("y2", function(d) {
-					return d.target.y;
-				});
- 
-			}
- 
-			var updateNode = function() {
-				this.attr("transform", function(d) {
-					return "translate(" + d.x + "," + d.y + ")";
-				});
- 
-			}
-  			
-			force.on("tick", function(e) {
-				
-				node.call(updateNode);
-				link.call(updateLink);
-/*				
-				force2.start();
-				anchorNode.each(function(d, i) {
-					if(i % 2 == 0) {
-						d.x = d.node.x;
-						d.y = d.node.y;
-					} else {
-						var b = this.childNodes[1].getBBox();
- 
-						var diffX = d.x - d.node.x;
-						var diffY = d.y - d.node.y;
- 
-						var dist = Math.sqrt(diffX * diffX + diffY * diffY);
- 
-						var shiftX = b.width * (diffX - dist) / (dist * 2);
-						shiftX = Math.max(-b.width, Math.min(0, shiftX));
-						var shiftY = 5;
-						this.childNodes[1].setAttribute("transform", "translate(" + shiftX + "," + shiftY + ")");
-					}
-				});
- 
- 				anchorNode.call(updateNode);
-				anchorLink.call(updateLink);
-*/				
- 
-			});
- 		});
-		</script>
+		<div class="container-fluid">
+			<div class="row-fluid">
+				<div class="span12">
+					<input type="text" id="q" class="input-large search-query" name="q"/>				
+				</div>
+			</div>
+			<div class="row-fluid">
+				<div class="span12">
+					<script type='text/javascript' charset="utf-8" src='js/force_with_labels.js'></script>
+				</div>
+			</div>
+		</div>
 	</body>
 </html>
