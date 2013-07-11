@@ -98,12 +98,10 @@ function update(filter) {
 //	node = node.data(net.nodes).enter().append("g").attr("class", "node");
 
 
-	node = svg.selectAll("circle").data(net.nodes, function(n){return n.name;});
+	node = node.data(net.nodes, function(n){return n.name;});
 	node.enter().append("circle").attr("class", function(d) { return "node " + d.name; }).attr("r", function(n) {
 		return (4+n.size*0.5);
 	})
-	.attr("cx", function(d) { return d.x; })
-    .attr("cy", function(d) { return d.y; })
 	.style("fill", function(d) { return color(d.compartment);})
 	.style("stroke", "#FFF").style("stroke-width", 3);
 	
