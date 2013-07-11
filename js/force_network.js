@@ -45,19 +45,13 @@ var net = function() {
 			}
 		},
 		dropLink: function(ix) { // Takes an array LINK index
-			this.dump();
 			this.links.splice(ix,1);
-			this.dump();
 		},
 		addNode: function(n) {
 			var i = this.ix(n.name);
 			if (i<0) {
-				L("node not in set - adding " + n.name);
 				n.link_count = 0;
 				i = nodes.push(n)-1;
-			} else {
-				L(n.name + " found in set with id " + i + ":");
-				L(n[i]);
 			}
 			return i;
 		},
@@ -73,7 +67,6 @@ var net = function() {
 			// check if link exists
 			var k = this.links.forEach(function (l) {
 				if (l.source == link.source && l.target == link.target) {
-					L("link exists ({source:" + l.source + ", target:" + l.target + "}) - exiting without adding");
 					found = true;
 					return;
 				}
@@ -95,23 +88,13 @@ var net = function() {
 			if (link.source != -1 && link.target != -1) {
 				var k = links.forEach(function (l) {
 					if (l.source == link.source && l.target == link.target) {
-						L("link exists ({source:" + l.source + ", target:" + l.target + "}) - exiting without adding");
 						found = true;
 						return;
 					}
 				}); // does not exist - add it!
 				if (!found) {
-					L("link does not exist - adding the following:");
-					L("a");
-					L(link);
-					L("b");
-					L(link.source);
-					L("c");
-					L(link.target);
-					L("d");
 					nodes[link.source].link_count++
 					nodes[link.target].link_count++
-					L("link_count increase done. Now just push it!");
 					return this.links.push(link);
 				}
 			}

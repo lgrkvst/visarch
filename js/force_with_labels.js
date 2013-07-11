@@ -1,4 +1,7 @@
 var compartments = ["Account & Liquidity System", "Business Intelligence", "Core Systems", "FinancingLoans Systems", "Front System", "Fund & Portfolio Management", "Other SEB Systems", "Payment Systems", "Processing Support Systems", "Securities Systems", "Trading Systems", "ExternalSystems", "Finance Systems", "Risk Systems", "Compliance Systems"];
+var labels2force = false;
+var rotateLabels = false;
+var color = d3.scale.category20().domain(compartments);
 
 // http://stackoverflow.com/questions/9539294/adding-new-nodes-to-force-directed-layout
 
@@ -8,8 +11,8 @@ var w = $(window).width(),
 net.setup(w,h);
 
 var svg = d3.select("body").append("svg").attr("width", w).attr("height", h);
-var node = svg.selectAll("circle");
 var link = svg.insert("g").attr("class", "links").selectAll(".link");
+var node = svg.insert("g").attr("class", "nodes").selectAll(".node");
 
 // build the arrow.
 svg.append("svg:defs").selectAll("marker")
@@ -25,6 +28,7 @@ svg.append("svg:defs").selectAll("marker")
     .append("svg:path")
     .attr("d", "M0,-5L10,0L0,5");
 
+// import nodes and links
 d3.json("json/nodes_links.json", function(error, graph) {
 
 	SS.nodes = graph.nodes;
@@ -53,105 +57,92 @@ d3.json("json/nodes_links.json", function(error, graph) {
 	$(function(){
 		$("#q").autoSuggest(autoSuggest, {selectedValuesProp: "name", selectedItemProp: "name", searchObjProps: "name", startText: "Search...", selectionClick: function(elem){ console.log("selClick");elem.fadeTo("slow", 0.33); }, selectionRemoved: function(elem){ net.drop(elem2name(elem)); update(); elem.fadeTo("fast", 0, function(){ elem.remove(); }); },resultClick: function(data){ update(data.attributes); }});
 	});
-
-//	update({compartment:"Front System", description:"compartment"});
+	
+//	update([{system:"COIS"}, {compartment:"Fund & Portfolio Management"}]);
+//	update({compartment:"Processing Support Systems", description:"compartment"});
+//	update({compartment:"Fund & Portfolio Management", description:"compartment"});
 });
-
-var labels = false;
-var color = d3.scale.category20().domain(compartments);
 
 // typeof filter = [node] Object, optional
 function update(filter) {
 	if (!!filter) {
-		if (filter.description == "compartment") {
-			delete filter.name;
-			delete filter.description;
-		}
-		var n = SS.filterNodes(filter);
-		n.forEach(function (n) {
-			net.addNode(n);
-		});
-		var l = [];
-		if (true) l = SS.filterLinks(n);
+		console.log(filter);
+		filter.forEach(function (f) {
+			if (f.description == "compartment") {
+				delete f.name;
+				delete f.description;
+			}
+			var n = SS.filterNodes(f);
+			n.forEach(function (n) {
+				net.addNode(n);
+			});
+			var l = [];
+			if (true) l = SS.filterLinks(n);
 
-		l.forEach(function (l) {
-			net.addLink(SS.nodes[l.source], SS.nodes[l.target]);
-//		net.addLinkAggressive(SS.nodes[l.source], SS.nodes[l.target]);
+			l.forEach(function (l) {
+				net.addLink(SS.nodes[l.source], SS.nodes[l.target]);
+	//		net.addLinkAggressive(SS.nodes[l.source], SS.nodes[l.target]);
+			});
 		});
-
 //	var f = svg.append("filter").attr("id", "blurMe").append("feGaussianBlur").attr("in", "SourceGraphic").attr("stdDeviation", "1");
 	}
 
+	// call start before doing svg stuff, since we want any new nodes instantiated
 	net.force.start();
-
 
 	link = link.data(net.force.links(), function (l) {
 		return l.source.name + "-" + l.target.name;});
 	link.enter().insert("line", ".node").attr("class", "link");
-	link.exit().remove();
-	
+	link.exit().remove();	
 	
 	/*.append("line")
 		.attr("class", "link")
 		.attr("marker-end", "url(#end)");
-*/
-//	node = node.data(net.nodes).enter().append("g").attr("class", "node");
-
+	*/
 
 	node = node.data(net.nodes, function(n){return n.name;});
-	node.enter().append("circle").attr("class", function(d) { return "node " + d.name; }).attr("r", function(n) {
-		return (4+n.size*0.5);
-	})
-	.style("fill", function(d) { return color(d.compartment);})
-	.style("stroke", "#FFF").style("stroke-width", 3);
-	
-/*	
-	node = node.data(net.force.nodes(), function (n) {return "node"+n.index;});
-	node_g = node.enter().append("g").attr("class", "node");
-	node_g.append("circle")
-	//				.attr("filter", "url('#blurMe')")
-	.attr("r", function(n) {
+	// draw an svg:group for each node
+	var g = node.enter().append("g").attr("class", function(d) { return "node " + d.name; });
+	// type the node name in each group
+	if (!labels2force)
+		{
+		var g_label = g.append("g").attr("class", "nodelabel");	
+		g_label.append("text")
+		    .attr("dy", ".35em")
+			.attr("x", function(n) {
+				return 10+0.5*n.size;
+			})
+			.attr("font-size", function(n){
+				return 14+0.1*n.size;
+			})
+		    .text(function(n) { return n.name; });
+		// add a hover:title in each group
+		g.append("title").text(function(d) {
+			return d.size + " links\n[" + d.compartment + "]";
+		});
+	}
+	// put a circle in each group
+	g.append("circle").attr("r", function(n) {
 		return (4+n.size*0.5);
 	})
 	.style("fill", function(d) { return color(d.compartment);})
 	.style("stroke", "#FFF").style("stroke-width", 3);
 
-	node_g.append("text")
-	    .attr("x", function(n) {
-			return 10+0.5*n.size;
-	})
-	    .attr("dy", ".35em")
-		.attr("font-size", function(n){
-			return 14+0.1*n.size;
-		})
-	    .text(function(n) { return n.name; });
-	// add the text 
-	node_g.append("title").text(function(d) {
-		return d.size + " links\n[" + d.compartment + "]";
-	});
-*/	
 	node.exit().remove();
-/*
-	node.attr("id", function(n) {return n.name;})
-	.attr("r", function(n) {
-		return (4+n.size*0.5);
-	})
-	.style("fill", function(d) { return color(d.compartment);})
-	.style("stroke", "#FFF").style("stroke-width", 3);
-	
-*/	
+
 	node.call(net.force.drag);
 	
-
-	if (labels) {
+	if (labels2force) {
 		var labelAnchors = [];
 		var labelAnchorLinks = [];
 
 		var force2 = d3.layout.force()
-			.gravity(1.0)
+			.gravity(0)
 			.linkDistance(0)
-			.linkStrength(8)
-			.charge(-500)
+			.linkStrength(6)
+			.charge(function (n, i) {
+				if (i%2) return -0; else return -300;
+			})
 			.size([$(window).width(), $(window).height()]);
 
 		net.nodes.forEach(function(n, i) {
@@ -167,7 +158,7 @@ function update(filter) {
 				weight: 1
 			});
 		});
-		var anchorLink = svg.selectAll("line.anchorLink").data(labelAnchorLinks).enter().append("svg:line").attr("class", "anchorLink").style("stroke", "#999");
+		var anchorLink = svg.selectAll("line.anchorLink").data(labelAnchorLinks).enter().append("svg:line").attr("class", "anchorLink")/*.style("stroke", "#999")*/;
 		var anchorNode = svg.selectAll("g.anchorNode").data( /*labelAnchors*/
 		function() {
 			var ret = [];
@@ -207,12 +198,28 @@ function update(filter) {
 		}
 
 	var updateNode = function() {
-/*			this.attr("transform", function(d) {
-				return "translate(" + d.x + "," + d.y + ")";
+			this.attr("transform", function(d,i) {
+				var angle = 0;
+				if (!labels2force) {
+					var offset = 10+0.5*d.size;
+
+					if (text = this.childNodes[0].childNodes[0]) {
+						var dX = d.x-w/2;
+						var dY = d.y-h/2;
+
+						if (rotateLabels) angle = 180*Math.atan(dY/dX) / Math.PI;
+
+						if (dX > -10) {
+							text.setAttribute("x", offset);
+							text.setAttribute("text-anchor", "start");
+						} else {
+							text.setAttribute("x", -offset);
+							text.setAttribute("text-anchor", "end");			
+						}
+					}
+				}
+				return "translate(" + d.x + "," + d.y + ") rotate("+angle+")";
 			});
-			*/
-			this.attr("cx", function(n) {return n.x;});
-			this.attr("cy", function(n) {return n.y;});
 		}
 
 	net.force.on("tick", function(e) {
@@ -220,13 +227,26 @@ function update(filter) {
 		node.call(updateNode);
 		link.call(updateLink);
 
-		if (labels) {
-//			force2.start();
+		if (labels2force) {
+			force2.start();
+			var angle = 0;
 			anchorNode.each(function(d, i) {
 				if(i % 2 == 0) {
 					d.x = d.node.x;
 					d.y = d.node.y;
 				} else {
+						if (rotateLabels) {
+							var dX = d.x-w/2;
+							var dY = d.y-h/2;
+
+							angle = 180*Math.atan(dY/dX) / Math.PI;
+							if (dX > -10) {
+								this.setAttribute("text-anchor", "start");
+							} else {
+								this.setAttribute("text-anchor", "end");			
+							}
+							this.childNodes[1].setAttribute("dy", ".35em")
+						}
 					var b = this.childNodes[1].getBBox();
 
 					var diffX = d.x - d.node.x;
@@ -236,8 +256,9 @@ function update(filter) {
 
 					var shiftX = b.width * (diffX - dist) / (dist * 2);
 					shiftX = Math.max(-b.width, Math.min(0, shiftX));
-					var shiftY = 5;
-					this.childNodes[1].setAttribute("transform", "translate(" + shiftX + "," + shiftY + ")");
+					var shiftY = 0;
+				    
+					this.childNodes[1].setAttribute("transform", "translate(" + shiftX + "," + shiftY + ") rotate(" + angle + ")");
 				}
 			});
 
