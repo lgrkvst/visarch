@@ -110,6 +110,25 @@ var net = function() {
 				.friction(0.7)
 				.size([w, h])
 				.nodes(nodes).links(links);
+				
+				/*
+				this.force = d3.layout.force()
+			      .linkDistance(function(l, i) {
+			      var n1 = l.source, n2 = l.target;
+			    return 60 +
+			      Math.min(20 * Math.min((n1.size || (n1.group != n2.group ? n1.size : 0)),
+			                             (n2.size || (n1.group != n2.group ? n2.size : 0))),
+			           -30 +
+			           30 * Math.min((n1.link_count || (n1.group != n2.group ? n1.link_count : 0)),
+			                         (n2.link_count || (n1.group != n2.group ? n2.link_count : 0))),
+			           100);
+			    })
+			    .gravity(0.05)   // gravity+charge tweaked to ensure good 'grouped' view (e.g. green group not smack between blue&orange, ... CLA CHANGED FROM 0.05 for SMALL CLUSTERS
+			    .charge(-600)    // ... charge is important to turn single-linked groups to the outside
+			    .friction(0.5)   // friction adjusted to get dampened display: less bouncy bouncy ball [Swedish Chef, anyone?]
+					.size([$(window).width(), $(window).height()])
+					.nodes(nodes).links(links);
+				*/
 		},			
 		dump: function() {
 			console.log("Nodes in network:");
@@ -214,34 +233,10 @@ function elem2name(elem) {
 	return nodeName;
 }
 
-
-// alternativa force settings:
-/*
-		// MÅSTE HA LOCAL LINK COUNT för att smånoder ska pressas ut mot kanterna
-		var force = d3.layout.force()
-	      .linkDistance(function(l, i) {
-	      var n1 = l.source, n2 = l.target;
-	    // larger distance for bigger groups:
-	    // both between single nodes and _other_ groups (where size of own node group still counts),
-	    // and between two group nodes.
-	    //
-	    // reduce distance for groups with very few outer links,
-	    // again both in expanded and grouped form, i.e. between individual nodes of a group and
-	    // nodes of another group or other group node or between two group nodes.
-	    //
-	    // The latter was done to keep the single-link groups ('blue', rose, ...) close.
-	    return 60 +
-	      Math.min(20 * Math.min((n1.size || (n1.group != n2.group ? n1.size : 0)),
-	                             (n2.size || (n1.group != n2.group ? n2.size : 0))),
-	           -30 +
-	           30 * Math.min((n1.link_count || (n1.group != n2.group ? n1.link_count : 0)),
-	                         (n2.link_count || (n1.group != n2.group ? n2.link_count : 0))),
-	           100);
-	      //return 150;
-	    })
-	    .gravity(0.05)   // gravity+charge tweaked to ensure good 'grouped' view (e.g. green group not smack between blue&orange, ... CLA CHANGED FROM 0.05 for SMALL CLUSTERS
-	    .charge(-600)    // ... charge is important to turn single-linked groups to the outside
-	    .friction(0.5)   // friction adjusted to get dampened display: less bouncy bouncy ball [Swedish Chef, anyone?]
-			.size([$(window).width(), $(window).height()]);
-
-		*/
+function autoSuggestFilter2js(p) {
+	var s = "update([";
+	p.split("×").forEach(function (str) { if (!!str) s+="{name: \""+str+"\"},";});
+	s = s.substring(0, s.length-1);
+	s += "]);"
+	return s;
+}

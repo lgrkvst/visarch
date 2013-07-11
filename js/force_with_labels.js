@@ -55,9 +55,10 @@ d3.json("json/nodes_links.json", function(error, graph) {
 	autoSuggest.push({name:"[Finance & Risk] Compliance Systems", compartment:"Compliance Systems", description:"compartment"});
 
 	$(function(){
-		$("#q").autoSuggest(autoSuggest, {selectedValuesProp: "name", selectedItemProp: "name", searchObjProps: "name", startText: "Search...", selectionClick: function(elem){ console.log("selClick");elem.fadeTo("slow", 0.33); }, selectionRemoved: function(elem){ net.drop(elem2name(elem)); update(); elem.fadeTo("fast", 0, function(){ elem.remove(); }); },resultClick: function(data){ update(data.attributes); }});
+		$("#q").autoSuggest(autoSuggest, {selectedValuesProp: "name", selectedItemProp: "name", searchObjProps: "name", startText: "Search...", selectionClick: function(elem){ console.log("selClick");elem.fadeTo("slow", 0.33); }, selectionRemoved: function(elem){ net.drop(elem2name(elem)); update(); elem.fadeTo("fast", 0, function(){ elem.remove(); }); },resultClick: function(data){ update([data.attributes]); }});
 	});
-	
+
+	update([{name: "ODS"},{name: "WODS"},{name: "GLOBUS"},{name: "FinanceKit"},{name: "TradeSec"},{name: "Porse"},{name: "BIW Core SE"},{name: "BNYM"},{name: "Compass"},{name: "FAS"}]);
 //	update([{system:"COIS"}, {compartment:"Fund & Portfolio Management"}]);
 //	update({compartment:"Processing Support Systems", description:"compartment"});
 //	update({compartment:"Fund & Portfolio Management", description:"compartment"});
@@ -65,6 +66,7 @@ d3.json("json/nodes_links.json", function(error, graph) {
 
 // typeof filter = [node] Object, optional
 function update(filter) {
+	console.log(filter);
 	if (!!filter) {
 		console.log(filter);
 		filter.forEach(function (f) {
@@ -102,7 +104,9 @@ function update(filter) {
 
 	node = node.data(net.nodes, function(n){return n.name;});
 	// draw an svg:group for each node
-	var g = node.enter().append("g").attr("class", function(d) { return "node " + d.name; });
+	var g = node.enter().append("g")
+		.attr("class", function(d) { return "node " + d.name; })
+		.attr("transform", function() {return "translate(" + w/2 + "," + h/2 + ")"});
 	// type the node name in each group
 	if (!labels2force)
 		{
