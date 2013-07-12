@@ -14,6 +14,21 @@ var net = function() {
 		nodes: nodes,
 		links: links,
 		force: force,
+		getOpticalCenter: function() {
+			var top_sizes = nodes.sort(function (n1,n2) { return n2.size-n1.size;});
+			var ret = {};
+			var x = y = 0;
+			var i = 0;
+			do {
+				x += top_sizes[i].x;
+				y += top_sizes[i].y;
+				i++;
+			} while (i<3 && i<nodes.length);
+			
+			ret.x = x/i;
+			ret.y = y/i;
+			return ret;
+		},
 		ix: function(name) {
 			var i = nodes.length;
 			if (!i) {
@@ -21,6 +36,23 @@ var net = function() {
 			}
 			while (nodes[--i] && nodes[i].name != name);
 			return i;
+		},
+		getLinksIx: function(n) {
+			var i = this.ix(n.name);
+			var m = [];
+			links.forEach(function (l, li) {
+				if (l.target.index == i || l.source.index == i) m.push(li);
+			})
+			return m;
+		},
+		getNeighbors: function(n) {
+			var i = this.ix(n.name);
+			var m = [];
+			links.forEach(function (l, li) {
+				if (l.target.index == i) m.push(l.source);
+				if (l.source.index == i) m.push(l.target);
+			})
+			return m;
 		},
 		drop: function(name) {
 			var i = this.ix(name);
@@ -53,10 +85,16 @@ var net = function() {
 				n.link_count = 0;
 				i = nodes.push(n)-1;
 			}
+			
+			// add n:s links from SuperSet
+			SS.getLinks(n).forEach(function (l) {
+				net.addLink(SS.nodes[l.source], SS.nodes[l.target]);
+			//	this.hungryAddLink(SS.nodes[l.source], SS.nodes[l.target]);
+			});
 			return i;
 		},
 		// adds a link along with its source and target nodes
-		addLinkAggressive: function(source, target, attributes) { // attr: link description etc, currently not supported
+		hungryAddLink: function(source, target, attributes) { // attr: link description etc, currently not supported
 			var link = {source:source, target:target}; // waste of space? we're settings this 3-4 lines further down
 			var found = false;
 
@@ -101,6 +139,7 @@ var net = function() {
 			return false;
 		},
 		setup: function(w,h) {
+			/*
 			this.force = d3.layout.force()
 				.linkDistance(function(n) {
 					return 60;
@@ -110,8 +149,7 @@ var net = function() {
 				.friction(0.7)
 				.size([w, h])
 				.nodes(nodes).links(links);
-				
-				/*
+				*/
 				this.force = d3.layout.force()
 			      .linkDistance(function(l, i) {
 			      var n1 = l.source, n2 = l.target;
@@ -123,12 +161,12 @@ var net = function() {
 			                         (n2.link_count || (n1.group != n2.group ? n2.link_count : 0))),
 			           100);
 			    })
-			    .gravity(0.05)   // gravity+charge tweaked to ensure good 'grouped' view (e.g. green group not smack between blue&orange, ... CLA CHANGED FROM 0.05 for SMALL CLUSTERS
+			    .gravity(0.1)   // gravity+charge tweaked to ensure good 'grouped' view (e.g. green group not smack between blue&orange, ... CLA CHANGED FROM 0.05 for SMALL CLUSTERS
 			    .charge(-600)    // ... charge is important to turn single-linked groups to the outside
 			    .friction(0.5)   // friction adjusted to get dampened display: less bouncy bouncy ball [Swedish Chef, anyone?]
 					.size([$(window).width(), $(window).height()])
 					.nodes(nodes).links(links);
-				*/
+			
 		},			
 		dump: function() {
 			console.log("Nodes in network:");
@@ -143,7 +181,10 @@ var net = function() {
 				tmp.push(l.source.name + " -> " + l.target.name);
 			});
 			console.log(tmp);
-		}
+		},
+		export: function() {
+			return JSON.stringify(nodes);
+		},
 	}
 }();
 
@@ -179,7 +220,6 @@ if (false) {
 	net.dump();
 }
 
-
 var SS = function() {
 	var nodes, links;
 	return {
@@ -190,7 +230,7 @@ var SS = function() {
 		 *	 Returns [array of] all nodes in [node list] haystack that match [object] filter, AND-wise
 		 **/
 		filterNodes: function(filter, haystack){
-			var filtered = (typeof haystack == "undefined") ? this.nodes: haystack;
+			var filtered = (typeof haystack == "undefined") ? SS.nodes: haystack;
 			var subset = [];
 			for (a in filter) {
 				console.log("<filter attr=\"" + a + "\">" + filter[a] + "</filter>");
@@ -204,20 +244,15 @@ var SS = function() {
 			}
 			return filtered;
 		},
-		filterLinks: function(haystack){ // haystack is an array of nodes
-			var filtered = (typeof haystack == "undefined") ? this.nodes: haystack;
+		getLinks: function(n){ // returns all links involving n(ode)
 			var subset = [];
-			var superNodes = this.nodes;
-			this.links.forEach(function (l){
-				// cannot access this.nodes inside this forEach. Hence superNodes... Odd...
-				filtered.forEach(function(n) {
-					if (n.name == superNodes[l.target].name) {
-						subset.push(l);
-					}
-					else if (n.name == superNodes[l.source].name) {
-						subset.push(l);
-					}
-				});
+			SS.links.forEach(function (l){
+				if (n.name == SS.nodes[l.target].name) {
+					subset.push(l);
+				}
+				else if (n.name == SS.nodes[l.source].name) {
+					subset.push(l);
+				}
 			});
 			// contains links to nodes OUTSIDE nodes!!
 			// determine "local size" before returning

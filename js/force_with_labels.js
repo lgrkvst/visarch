@@ -57,36 +57,36 @@ d3.json("json/nodes_links.json", function(error, graph) {
 	$(function(){
 		$("#q").autoSuggest(autoSuggest, {selectedValuesProp: "name", selectedItemProp: "name", searchObjProps: "name", startText: "Search...", selectionClick: function(elem){ console.log("selClick");elem.fadeTo("slow", 0.33); }, selectionRemoved: function(elem){ net.drop(elem2name(elem)); update(); elem.fadeTo("fast", 0, function(){ elem.remove(); }); },resultClick: function(data){ update([data.attributes]); }});
 	});
-
-	update([{name: "ODS"},{name: "WODS"},{name: "GLOBUS"},{name: "FinanceKit"},{name: "TradeSec"},{name: "Porse"},{name: "BIW Core SE"},{name: "BNYM"},{name: "Compass"},{name: "FAS"}]);
+	var json = JSON.parse('[{"name":"ODS","filename":"ODS_1.efx","compartment":"Fund & Portfolio Management","size":24,"link_count":1,"x":505.0909352338646,"y":305.37534861735395,"index":0,"weight":1,"px":505.117194568156,"py":305.34901234101943,"fixed":0},{"name":"MasterOfFunds","filename":"MasterOfFunds_1.efx","compartment":"Fund & Portfolio Management","size":5,"link_count":2,"x":565.078983423413,"y":279.1570968859196,"index":1,"weight":2,"px":565.0452118794856,"py":279.1471278562317,"fixed":0},{"name":"Freppen","filename":"Freppen_1.efx","compartment":"Fund & Portfolio Management","size":1,"link_count":1,"x":528.9779040231492,"y":224.54077385536712,"index":2,"weight":1,"px":528.9856256578644,"py":224.5771649834173,"fixed":0}]');
+	var json2 = JSON.parse('[{"name":"COIS","description":"Output Management","compartment":"Processing Support Systems","size":6,"link_count":3,"index":0,"weight":3,"x":640.5575947907769,"y":249.7652401041375,"px":640.5575947907769,"py":249.7652401041375,"fixed":0},{"name":"VDR","description":"Archive","compartment":"Processing Support Systems","size":7,"link_count":3,"index":1,"weight":3,"x":541.7989785102069,"y":322.39137862214375,"px":541.831351837862,"py":322.40132546749464},{"name":"TCM Externa Fonder","filename":"TCM Externa Fonder_1.efx","compartment":"Fund & Portfolio Management","size":12,"link_count":1,"index":2,"weight":1,"x":526.1723849318851,"y":384.66751194136975,"px":526.2176643726731,"py":384.62993356567966,"fixed":0},{"name":"TCM Globala Fonder","filename":"TCM Globala Fonder_1.efx","compartment":"Fund & Portfolio Management","size":13,"link_count":2,"index":3,"weight":2,"x":551.0179168751013,"y":233.9042855525833,"px":551.0179168751013,"py":233.9042855525833,"fixed":0},{"name":"WODS","filename":"WODS_1.efx","compartment":"Fund & Portfolio Management","size":15,"link_count":0,"index":4,"weight":0,"x":615.9143308545406,"y":423.1853308247315,"px":615.9147650657752,"py":423.1309942729926,"fixed":0},{"name":"Amods","filename":"AMODS_1.efx","compartment":"Fund & Portfolio Management","size":6,"link_count":0,"index":5,"weight":0,"x":704.101934690794,"y":391.06552481692455,"px":704.0596022740817,"py":391.0347485599973},{"name":"BIW Core SE","description":"information warehouse","compartment":"Business Intelligence","size":15,"link_count":1,"index":6,"weight":1,"x":657.9475481256861,"y":310.8758987642387,"px":657.9475481256861,"py":310.8758987642387,"fixed":0}]');
+//	update(json2);
+//	update([{name: "ODS", x: 513.4825233096831, y:379.96832292114186}, {name: "MasterOfFunds", x: 484.98527632050804, y:321.02790120387453}, {name: "Freppen", x: 547.9421420574942, y:303.0621468436555}]);
+//	update([{name: "ODS"},{name: "WODS"},{name: "GLOBUS"},{name: "FinanceKit"},{name: "TradeSec"},{name: "Porse"},{name: "BIW Core SE"},{name: "BNYM"},{name: "Compass"},{name: "FAS"}]);
 //	update([{system:"COIS"}, {compartment:"Fund & Portfolio Management"}]);
 //	update({compartment:"Processing Support Systems", description:"compartment"});
-//	update({compartment:"Fund & Portfolio Management", description:"compartment"});
+//	update([{compartment:"Fund & Portfolio Management", description:"compartment"}]);
 });
 
 // typeof filter = [node] Object, optional
 function update(filter) {
-	console.log(filter);
 	if (!!filter) {
+		var n;
+		console.log(typeof filter);
 		console.log(filter);
 		filter.forEach(function (f) {
 			if (f.description == "compartment") {
 				delete f.name;
 				delete f.description;
 			}
-			var n = SS.filterNodes(f);
-			n.forEach(function (n) {
+			if (!!f.size) /* explicit node declaration */ {
+				n = [f];
+			} else n = SS.filterNodes(f);
+			n.forEach(function (n, i) {
 				net.addNode(n);
-			});
-			var l = [];
-			if (true) l = SS.filterLinks(n);
-
-			l.forEach(function (l) {
-				net.addLink(SS.nodes[l.source], SS.nodes[l.target]);
-	//		net.addLinkAggressive(SS.nodes[l.source], SS.nodes[l.target]);
 			});
 		});
 //	var f = svg.append("filter").attr("id", "blurMe").append("feGaussianBlur").attr("in", "SourceGraphic").attr("stdDeviation", "1");
+		net.addNode({name:"[0,0]", size:"4", compartment:"ExternalSystems"});
 	}
 
 	// call start before doing svg stuff, since we want any new nodes instantiated
@@ -129,7 +129,7 @@ function update(filter) {
 	g.append("circle").attr("r", function(n) {
 		return (4+n.size*0.5);
 	})
-	.style("fill", function(d) { return color(d.compartment);})
+	.style("fill", function(d) { if (d.name == "[0,0]") return "#000"; return color(d.compartment);})
 	.style("stroke", "#FFF").style("stroke-width", 3);
 
 	node.exit().remove();
@@ -177,7 +177,15 @@ function update(filter) {
 
 		anchorNode.append("svg:text").text(function(d, i) {
 			return i % 2 == 0 ? "" : d.node.name;
-		}).style("fill", "#555").style("font-family", "Arial").style("font-size", 12);
+		})
+		.attr("x", function(n) {
+			return 10+0.7*n.size;
+		})
+		.attr("font-size", function(n){
+			return 14+0.1*n.node.size;
+		})
+		
+
 
 		force2
 			.nodes(labelAnchors)
@@ -202,6 +210,7 @@ function update(filter) {
 		}
 
 	var updateNode = function() {
+			
 			this.attr("transform", function(d,i) {
 				var angle = 0;
 				if (!labels2force) {
@@ -211,8 +220,47 @@ function update(filter) {
 						var dX = d.x-w/2;
 						var dY = d.y-h/2;
 
-						if (rotateLabels) angle = 180*Math.atan(dY/dX) / Math.PI;
+								var asd = d.name;
+								console.log(asd);
+								if (p = net.getNeighbors(d)[0]) {
+									var link_dX=d.x-p.x;
+									var link_dY=d.y-p.y;
 
+									if (rotateLabels) {
+										angle = 180*Math.atan(link_dY/link_dX) / Math.PI;
+									}
+									if (link_dX>0) {
+										var anchor = "start";
+										text.setAttribute("x", offset);
+									} else {
+										var anchor = "end";
+										text.setAttribute("x", -offset);
+									}
+									text.setAttribute("text-anchor", anchor);
+								}
+/*							if (d.link_count==2) {
+								var p1 = net.getNeighbors(d)[0];
+								var p2 = net.getNeighbors(d)[1];
+								var link_dX=d.x-p1.x;
+								var link_dY=d.y-p1.y;
+								var link2_dX=d.x-p2.x;
+								var link2_dY=d.y-p2.y;
+
+								angle1 = 180*Math.atan(link_dY/link_dX) / Math.PI;
+								angle2 = 180*Math.atan(link2_dY/link2_dX) / Math.PI;
+
+								angle = (angle1 + angle2) / 2
+								if (link_dX>0) {
+									var anchor = "start";
+									text.setAttribute("x", offset);
+								} else {
+									var anchor = "end";
+									text.setAttribute("x", -offset);
+								}
+								text.setAttribute("text-anchor", anchor);
+							}
+							*/
+/*
 						if (dX > -10) {
 							text.setAttribute("x", offset);
 							text.setAttribute("text-anchor", "start");
@@ -220,8 +268,14 @@ function update(filter) {
 							text.setAttribute("x", -offset);
 							text.setAttribute("text-anchor", "end");			
 						}
-					}
+						*/
+					} else console.log("fail");
 				}
+				if (d.name=="[0,0]") {
+					d.x = net.getOpticalCenter().x;
+					d.y = net.getOpticalCenter().y;
+				}
+				
 				return "translate(" + d.x + "," + d.y + ") rotate("+angle+")";
 			});
 		}
@@ -239,7 +293,7 @@ function update(filter) {
 					d.x = d.node.x;
 					d.y = d.node.y;
 				} else {
-						if (rotateLabels) {
+						if (rotateLabels && i==0) {
 							var dX = d.x-w/2;
 							var dY = d.y-h/2;
 
