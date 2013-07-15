@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Force based label placement</title>
+	    <script type="text/javascript" src="js/d3.v3.min.js"></script>
+		<script type='text/javascript' src='js/jquery-1.8.3-min.js'></script>
+		<script type='text/javascript' src='js/jquery.autoSuggest.packed.js'></script>
+		<script type='text/javascript' charset="utf-8" src='js/force_network.js'></script>		
+		<script src='js/bootstrap.min.js' type='text/javascript'></script>
+		<link href='css/bootstrap.min.css' rel='stylesheet' type='text/css'>
+		<link href='css/autoSuggest.css' rel='stylesheet' type='text/css'>
+		
+		<style>
+		.link { stroke: #CCC;
+				stroke-width: 10px;
+				fill:#CCC; 
+				opacity:0.1;
+				filter:none !important;
+		}
+
+		.nodes {
+/*			filter: url(#blurMe);*/
+		}
+
+		.node {
+			opacity:0.8;
+			fill:#a0b9cb;
+			filter:none !important;
+		}
+		.nodelabel {
+			font-family: optima, sans-serif;
+			stroke: #fff;
+			fill:none !important;
+			filter:none !important;
+		}
+		
+		body {
+		  background-color: #000000;
+		  background-image: url('img/bg.jpg');
+		  background-position: top center;
+		  background-repeat: no-repeat;
+		  background-attachment: fixed;
+		  margin: 0px;
+		  font-family:Arial,Verdana,Helvetica,sans-serif;
+		  font-size:12px;
+		  color:#FFFFFF;
+		}
+		
+		</style>
+	</head>
+	
+	<body>
+		<div class="container-fluid">
+			<div class="row-fluid">
+				<div class="span12">
+					<input type="text" id="q" class="input-large search-query" name="q"/>
+				</div>
+			</div>
+			<div class="row-fluid">
+				<div class="span12">
+					<script type='text/javascript' charset="utf-8">
+
+					var diameter = 960;
+
+					var tree = d3.layout.tree()
+					    .size([360, diameter / 2 - 120])
+					    .separation(function(a, b) { return (a.parent == b.parent ? 1 : 2) / a.depth; });
+
+					var diagonal = d3.svg.diagonal.radial()
+					    .projection(function(d) { return [d.y, d.x / 180 * Math.PI]; });
+
+					var svg = d3.select("body").append("svg")
+					    .attr("width", diameter)
+					    .attr("height", diameter - 150)
+					  .append("g")
+					    .attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
+
+					d3.json("json/nodes_links.json", function(error, root) {
+						tree.children(function(n){
+							var arr = [];
+							console.log(n);
+							if (n.name != "Konny") return arr;
+							root.links.forEach(function(l){
+								if (root.nodes[l.source].name == n.name && arr.indexOf(root.nodes[l.source]) == -1) arr.push(root.nodes[l.target]);
+							});
+							
+							return arr;
+						});
+						tree.value(function(n){
+							return n.size;
+						});
+					  var nodes = tree.nodes(root.nodes[1]),
+					      links = tree.links(nodes);
+
+					  var link = svg.selectAll(".link")
+					      .data(links)
+					    .enter().append("path")
+					      .attr("class", "link")
+						  .style("fill", "none")
+					      .attr("d", diagonal);
+
+					  var node = svg.selectAll(".node")
+					      .data(nodes)
+					    .enter().append("g")
+					      .attr("class", "node")
+					      .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; })
+
+					  node.append("circle")
+					      .attr("r", 4.5);
+
+					  node.append("text")
+					      .attr("dy", ".31em")
+					      .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
+					      .attr("transform", function(d) { return d.x < 180 ? "translate(8)" : "rotate(180)translate(-8)"; })
+					      .text(function(d) { return d.name; });
+					});
+
+					d3.select(self.frameElement).style("height", diameter - 150 + "px");
+
+					
+					
+					</script>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

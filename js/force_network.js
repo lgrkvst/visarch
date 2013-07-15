@@ -1,7 +1,7 @@
 var net = function() {
 	/*** Captain's log
 	 *		Ibland kan jag inte söka efter just compartment [Processing Support], t ex om jag lägger till COIS först...
-	 *		Söljstöd 2 gånger?!
+	 *		Söljstöd 2 gånger?! Propub 2 gånger?!
 	 */
 	
 	var L = function(str) {
@@ -9,25 +9,29 @@ var net = function() {
 		if (debug) console.log(str);
 	}
 	var force;
-	var nodes = []; var links = [];
+	var nodes = []; var links = []; var center = [];
 	return {
 		nodes: nodes,
 		links: links,
 		force: force,
-		getOpticalCenter: function() {
-			var top_sizes = nodes.sort(function (n1,n2) { return n2.size-n1.size;});
-			var ret = {};
+		center: center,
+		determineCenter: function() {
+			this.center = [];
+			nodes.forEach(function (n,i) {
+				net.center.push({index: i, size:n.size});
+			});
+			this.center.sort(function(a,b) {return a.size < b.size;});
+			this.center.splice(3, this.center.length-3);
+		},
+		getCenter: function() {
 			var x = y = 0;
-			var i = 0;
-			do {
-				x += top_sizes[i].x;
-				y += top_sizes[i].y;
-				i++;
-			} while (i<3 && i<nodes.length);
 			
-			ret.x = x/i;
-			ret.y = y/i;
-			return ret;
+			this.center.forEach(function (c) {
+				var n = nodes[c.index];
+				x += n.x;
+				y += n.y;
+			});
+			return {x: x/this.center.length, y: y/this.center.length};
 		},
 		ix: function(name) {
 			var i = nodes.length;
@@ -59,6 +63,7 @@ var net = function() {
 			if (i != -1) {
 				this.dropNode(i);
 				this.dropLinks(i);
+				this.determineCenter();
 				this.dump();
 			} else {
 				console.log("No such node to drop: ");
@@ -79,7 +84,9 @@ var net = function() {
 		dropLink: function(ix) { // Takes an array LINK index
 			this.links.splice(ix,1);
 		},
-		addNode: function(n) {
+		addNode: function(n, hungry) {
+			if (typeof hungry == "undefined") hungry = false;
+			
 			var i = this.ix(n.name);
 			if (i<0) {
 				n.link_count = 0;
@@ -88,35 +95,12 @@ var net = function() {
 			
 			// add n:s links from SuperSet
 			SS.getLinks(n).forEach(function (l) {
-				net.addLink(SS.nodes[l.source], SS.nodes[l.target]);
-			//	this.hungryAddLink(SS.nodes[l.source], SS.nodes[l.target]);
+				net.addLink(SS.nodes[l.source], SS.nodes[l.target], hungry);
 			});
+			this.determineCenter();
 			return i;
 		},
-		// adds a link along with its source and target nodes
-		hungryAddLink: function(source, target, attributes) { // attr: link description etc, currently not supported
-			var link = {source:source, target:target}; // waste of space? we're settings this 3-4 lines further down
-			var found = false;
-
-			// add source
-			link.source = this.addNode(link.source);
-			link.target = this.addNode(link.target);
-
-			// check if link exists
-			var k = this.links.forEach(function (l) {
-				if (l.source == link.source && l.target == link.target) {
-					found = true;
-					return;
-				}
-			}); // does not exist - add it!
-			if (!found) {
-				nodes[link.source].link_count++
-				nodes[link.target].link_count++
-				return links.push(link);
-			}
-			return false;
-		},
-		addLink: function(source, target, attributes) { // attr: link description etc, currently not supported
+		addLink: function(source, target, hungry, attributes) { // attr: link description etc, currently not supported
 			var link = {};
 			var found = false;
 			link.source = this.ix(source.name);
@@ -135,10 +119,17 @@ var net = function() {
 					nodes[link.target].link_count++
 					return this.links.push(link);
 				}
+			} else if (hungry) {
+				this.addNode(source);
+				this.addNode(target);
 			}
 			return false;
 		},
 		setup: function(w,h) {
+			/* Fund & Portfolio management har 91 länkar
+			 * 
+			 *
+			 */
 			/*
 			this.force = d3.layout.force()
 				.linkDistance(function(n) {
@@ -274,4 +265,53 @@ function autoSuggestFilter2js(p) {
 	s = s.substring(0, s.length-1);
 	s += "]);"
 	return s;
+}
+
+var FPS = function() {
+	var s, tick, tot = [];
+	return {
+		init: function() {
+			tick = 0;
+			s = (new Date()).getSeconds();			
+		},
+		sample: function(){
+			tick++;
+			var d = (new Date()).getSeconds();
+			if (d!=s) {
+				tot.push(tick);
+				s = d;
+				this.report();
+				tick = 0;
+			} else {
+				tick++;
+			}
+		},
+		report: function() {
+			var total = 0;
+			tot.forEach(function(t){
+				total += t;
+			});
+			console.log("this: " + tick + " - average: " + total/tot.length);
+			// false: false: 56, 64, 60, 63
+			// rotate_labels = true: 34, 32, 37
+			// force2: 28, 28
+			// rot & force2: 
+		}
+	};
+}();
+
+
+function myAtan(y, x) { // http://dspguru.com/dsp/tricks/fixed-point-atan2-with-self-normalization
+    var coeff_1 = Math.PI / 4;
+    var coeff_2 = 3 * coeff_1;
+    var abs_y = y > 0 ? y : -y;
+    var angle, r;
+    if (x >= 0) {
+            r = (x - abs_y) / (x + abs_y);
+            angle = coeff_1 - coeff_1 * r;
+    } else {
+            r = (x + abs_y) / (abs_y - x);
+            angle = coeff_2 - coeff_1 * r;
+    }
+    return y < 0 ? -angle : angle;
 }

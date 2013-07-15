@@ -1,6 +1,8 @@
 var compartments = ["Account & Liquidity System", "Business Intelligence", "Core Systems", "FinancingLoans Systems", "Front System", "Fund & Portfolio Management", "Other SEB Systems", "Payment Systems", "Processing Support Systems", "Securities Systems", "Trading Systems", "ExternalSystems", "Finance Systems", "Risk Systems", "Compliance Systems"];
 var labels2force = false;
 var rotateLabels = false;
+var drawOrigo = false;
+var drawAngles = false;
 var color = d3.scale.category20().domain(compartments);
 
 // http://stackoverflow.com/questions/9539294/adding-new-nodes-to-force-directed-layout
@@ -13,6 +15,8 @@ net.setup(w,h);
 var svg = d3.select("body").append("svg").attr("width", w).attr("height", h);
 var link = svg.insert("g").attr("class", "links").selectAll(".link");
 var node = svg.insert("g").attr("class", "nodes").selectAll(".node");
+
+svg.append("filter").attr("id", "blurMe").append("feGaussianBlur").attr("in", "SourceGraphic").attr("stdDeviation", "2.5");
 
 // build the arrow.
 svg.append("svg:defs").selectAll("marker")
@@ -59,11 +63,14 @@ d3.json("json/nodes_links.json", function(error, graph) {
 	});
 	var json = JSON.parse('[{"name":"ODS","filename":"ODS_1.efx","compartment":"Fund & Portfolio Management","size":24,"link_count":1,"x":505.0909352338646,"y":305.37534861735395,"index":0,"weight":1,"px":505.117194568156,"py":305.34901234101943,"fixed":0},{"name":"MasterOfFunds","filename":"MasterOfFunds_1.efx","compartment":"Fund & Portfolio Management","size":5,"link_count":2,"x":565.078983423413,"y":279.1570968859196,"index":1,"weight":2,"px":565.0452118794856,"py":279.1471278562317,"fixed":0},{"name":"Freppen","filename":"Freppen_1.efx","compartment":"Fund & Portfolio Management","size":1,"link_count":1,"x":528.9779040231492,"y":224.54077385536712,"index":2,"weight":1,"px":528.9856256578644,"py":224.5771649834173,"fixed":0}]');
 	var json2 = JSON.parse('[{"name":"COIS","description":"Output Management","compartment":"Processing Support Systems","size":6,"link_count":3,"index":0,"weight":3,"x":640.5575947907769,"y":249.7652401041375,"px":640.5575947907769,"py":249.7652401041375,"fixed":0},{"name":"VDR","description":"Archive","compartment":"Processing Support Systems","size":7,"link_count":3,"index":1,"weight":3,"x":541.7989785102069,"y":322.39137862214375,"px":541.831351837862,"py":322.40132546749464},{"name":"TCM Externa Fonder","filename":"TCM Externa Fonder_1.efx","compartment":"Fund & Portfolio Management","size":12,"link_count":1,"index":2,"weight":1,"x":526.1723849318851,"y":384.66751194136975,"px":526.2176643726731,"py":384.62993356567966,"fixed":0},{"name":"TCM Globala Fonder","filename":"TCM Globala Fonder_1.efx","compartment":"Fund & Portfolio Management","size":13,"link_count":2,"index":3,"weight":2,"x":551.0179168751013,"y":233.9042855525833,"px":551.0179168751013,"py":233.9042855525833,"fixed":0},{"name":"WODS","filename":"WODS_1.efx","compartment":"Fund & Portfolio Management","size":15,"link_count":0,"index":4,"weight":0,"x":615.9143308545406,"y":423.1853308247315,"px":615.9147650657752,"py":423.1309942729926,"fixed":0},{"name":"Amods","filename":"AMODS_1.efx","compartment":"Fund & Portfolio Management","size":6,"link_count":0,"index":5,"weight":0,"x":704.101934690794,"y":391.06552481692455,"px":704.0596022740817,"py":391.0347485599973},{"name":"BIW Core SE","description":"information warehouse","compartment":"Business Intelligence","size":15,"link_count":1,"index":6,"weight":1,"x":657.9475481256861,"y":310.8758987642387,"px":657.9475481256861,"py":310.8758987642387,"fixed":0}]');
+	var json3 = JSON.parse('[{"name":"COIS","description":"Output Management","compartment":"Processing Support Systems","size":6,"link_count":1,"index":0,"weight":1,"x":647.210128940091,"y":414.4309034812764,"px":647.2232026565242,"py":414.4042045289921},{"name":"VDR","description":"Archive","compartment":"Processing Support Systems","size":7,"link_count":1,"index":1,"weight":1,"x":680.2222633257404,"y":360.50271244339194,"px":680.2104216467378,"py":360.51671495527694}]');
+
+//	update(json3);
 //	update(json2);
 //	update([{name: "ODS", x: 513.4825233096831, y:379.96832292114186}, {name: "MasterOfFunds", x: 484.98527632050804, y:321.02790120387453}, {name: "Freppen", x: 547.9421420574942, y:303.0621468436555}]);
 //	update([{name: "ODS"},{name: "WODS"},{name: "GLOBUS"},{name: "FinanceKit"},{name: "TradeSec"},{name: "Porse"},{name: "BIW Core SE"},{name: "BNYM"},{name: "Compass"},{name: "FAS"}]);
 //	update([{system:"COIS"}, {compartment:"Fund & Portfolio Management"}]);
-//	update({compartment:"Processing Support Systems", description:"compartment"});
+	update([{compartment:"Processing Support Systems", description:"compartment"}]);
 //	update([{compartment:"Fund & Portfolio Management", description:"compartment"}]);
 });
 
@@ -71,8 +78,6 @@ d3.json("json/nodes_links.json", function(error, graph) {
 function update(filter) {
 	if (!!filter) {
 		var n;
-		console.log(typeof filter);
-		console.log(filter);
 		filter.forEach(function (f) {
 			if (f.description == "compartment") {
 				delete f.name;
@@ -82,11 +87,9 @@ function update(filter) {
 				n = [f];
 			} else n = SS.filterNodes(f);
 			n.forEach(function (n, i) {
-				net.addNode(n);
+				net.addNode(n, false);
 			});
 		});
-//	var f = svg.append("filter").attr("id", "blurMe").append("feGaussianBlur").attr("in", "SourceGraphic").attr("stdDeviation", "1");
-		net.addNode({name:"[0,0]", size:"4", compartment:"ExternalSystems"});
 	}
 
 	// call start before doing svg stuff, since we want any new nodes instantiated
@@ -119,7 +122,9 @@ function update(filter) {
 			.attr("font-size", function(n){
 				return 14+0.1*n.size;
 			})
-		    .text(function(n) { return n.name; });
+			.attr("class", "nodelabeltext")
+		    .text(function(n) {
+				return n.name; });
 		// add a hover:title in each group
 		g.append("title").text(function(d) {
 			return d.size + " links\n[" + d.compartment + "]";
@@ -129,12 +134,35 @@ function update(filter) {
 	g.append("circle").attr("r", function(n) {
 		return (4+n.size*0.5);
 	})
-	.style("fill", function(d) { if (d.name == "[0,0]") return "#000"; return color(d.compartment);})
-	.style("stroke", "#FFF").style("stroke-width", 3);
-
+	.style("fill", function(d) { return "#fff";/*color(d.compartment);*/});
+	/*
+	if (!!filter && filter.length == 1) {
+		//console.log(g.data());
+		g.append("circle").attr("r", function(n) {
+			return (16+n.size*0.5);
+		})
+		.attr("class", function(d) { return "node " + d.name; })
+		.style("fill", function(d) { return "none";})
+		.style("stroke", function(d) {return "#fff" }) //color(d.compartment);
+		.style("stroke-width", "2px")
+		.style("stroke-dasharray", "4,2");
+	}
+	*/
+	
 	node.exit().remove();
-
+	g.selectAll("circle").on("click", function(n){
+		n.fixed=true;
+		console.log(n);
+	});
+	
+	
 	node.call(net.force.drag);
+	
+	if (drawOrigo) {
+		var origo = svg.append("g").attr("id", "origo");
+		origo.append("circle").attr("r", 4).style("fill", "#fff");
+		origo.append("circle").attr("r", 7).style("stroke", "#fff").style("fill", "none").style("stroke-width", "1.5px");
+	}
 	
 	if (labels2force) {
 		var labelAnchors = [];
@@ -145,7 +173,7 @@ function update(filter) {
 			.linkDistance(0)
 			.linkStrength(6)
 			.charge(function (n, i) {
-				if (i%2) return -0; else return -300;
+				if (i%2) return 0; else return -300;
 			})
 			.size([$(window).width(), $(window).height()]);
 
@@ -184,8 +212,7 @@ function update(filter) {
 		.attr("font-size", function(n){
 			return 14+0.1*n.node.size;
 		})
-		
-
+		.attr("class", "nodelabeltext")
 
 		force2
 			.nodes(labelAnchors)
@@ -196,6 +223,7 @@ function update(filter) {
 
 
 /* ---------------------------- FOR SIMULATION ----------------------------- */
+
 	var updateLink = function() {
 			this.attr("x1", function(d) {
 				return d.source.x;
@@ -210,35 +238,25 @@ function update(filter) {
 		}
 
 	var updateNode = function() {
+		var center = net.getCenter();
+		if (drawOrigo) svg.select("#origo").attr("transform", "translate("+center.x+","+center.y+")");
 			
 			this.attr("transform", function(d,i) {
 				var angle = 0;
 				if (!labels2force) {
-					var offset = 10+0.5*d.size;
-
 					if (text = this.childNodes[0].childNodes[0]) {
-						var dX = d.x-w/2;
-						var dY = d.y-h/2;
+						var offset = 10+0.5*d.size;
 
-								var asd = d.name;
-								console.log(asd);
+						if (rotateLabels) {
+							if (d.link_count==1) {
 								if (p = net.getNeighbors(d)[0]) {
-									var link_dX=d.x-p.x;
-									var link_dY=d.y-p.y;
-
-									if (rotateLabels) {
-										angle = 180*Math.atan(link_dY/link_dX) / Math.PI;
-									}
-									if (link_dX>0) {
-										var anchor = "start";
-										text.setAttribute("x", offset);
-									} else {
-										var anchor = "end";
-										text.setAttribute("x", -offset);
-									}
-									text.setAttribute("text-anchor", anchor);
+										var link_dX=d.x-p.x;
+										var link_dY=d.y-p.y;
+										angle = 57*myAtan(link_dY, link_dX);
+										if (drawAngles) text.textContent = Math.floor(angle);
 								}
-/*							if (d.link_count==2) {
+							}
+							if (d.link_count==2) {
 								var p1 = net.getNeighbors(d)[0];
 								var p2 = net.getNeighbors(d)[1];
 								var link_dX=d.x-p1.x;
@@ -246,42 +264,59 @@ function update(filter) {
 								var link2_dX=d.x-p2.x;
 								var link2_dY=d.y-p2.y;
 
-								angle1 = 180*Math.atan(link_dY/link_dX) / Math.PI;
-								angle2 = 180*Math.atan(link2_dY/link2_dX) / Math.PI;
+								angle1 = 57*myAtan(link_dY, link_dX);
+								angle2 = 57*myAtan(link2_dY, link2_dX);
 
 								angle = (angle1 + angle2) / 2
-								if (link_dX>0) {
-									var anchor = "start";
-									text.setAttribute("x", offset);
-								} else {
-									var anchor = "end";
-									text.setAttribute("x", -offset);
-								}
-								text.setAttribute("text-anchor", anchor);
+								if (drawAngles) text.textContent = Math.floor(angle);
 							}
-							*/
-/*
-						if (dX > -10) {
+							if (Math.abs(angle) > 90) {
+								var anchor = "end";
+								var offset = -offset
+								var rotate = 180;
+							} else {
+								var anchor = "start";
+								var rotate = 0;
+							}
+							text.setAttribute("transform", "rotate("+rotate+")");
 							text.setAttribute("x", offset);
-							text.setAttribute("text-anchor", "start");
+							text.setAttribute("text-anchor", anchor);
+
+/*
+							// always do:
+							if (link_dX>0) {
+								var anchor = "start";
+								text.setAttribute("x", offset);
+							} else {
+								var anchor = "end";
+								text.setAttribute("x", -offset);
+							}
+							text.setAttribute("text-anchor", anchor);
+*/
 						} else {
-							text.setAttribute("x", -offset);
-							text.setAttribute("text-anchor", "end");			
+							var dX = d.x-center.x;
+	//						var dY = d.y-center.y;
+
+							if (dX>0) {
+								var anchor = "start";
+								text.setAttribute("x", offset);
+							} else {
+								var anchor = "end";
+								text.setAttribute("x", -offset);
+							}
+							text.setAttribute("text-anchor", anchor);
+
 						}
-						*/
-					} else console.log("fail");
-				}
-				if (d.name=="[0,0]") {
-					d.x = net.getOpticalCenter().x;
-					d.y = net.getOpticalCenter().y;
+					} else console.log("node " + d.index + " has no label to align");
 				}
 				
 				return "translate(" + d.x + "," + d.y + ") rotate("+angle+")";
 			});
 		}
-
+FPS.init();
 	net.force.on("tick", function(e) {
-
+	//	FPS.sample();
+		
 		node.call(updateNode);
 		link.call(updateLink);
 
