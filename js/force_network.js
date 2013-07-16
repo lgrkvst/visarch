@@ -16,12 +16,13 @@ var net = function() {
 		force: force,
 		center: center,
 		determineCenter: function() {
+			var weight = 3;
 			this.center = [];
 			nodes.forEach(function (n,i) {
 				net.center.push({index: i, size:n.size});
 			});
 			this.center.sort(function(a,b) {return a.size < b.size;});
-			this.center.splice(3, this.center.length-3);
+			this.center.splice(weight, this.center.length-weight);
 		},
 		getCenter: function() {
 			var x = y = 0;
@@ -59,16 +60,24 @@ var net = function() {
 			return m;
 		},
 		drop: function(name) {
-			var i = this.ix(name);
-			if (i != -1) {
-				this.dropNode(i);
-				this.dropLinks(i);
-				this.determineCenter();
-				this.dump();
+			if (name.substring(0,1) == "[") {
+				name = Compartments.name2RSA(name);
+				for (var i=nodes.length;i!=0;i--) {
+					var n = nodes[i-1];
+					if (n.compartment == name) {
+							net.drop(n.name);
+						}
+				}
 			} else {
-				console.log("No such node to drop: ");
-				console.log(name);
-			}			
+				var i = this.ix(name);
+				if (i != -1) {
+					this.dropNode(i);
+					this.dropLinks(i);
+					this.determineCenter();
+				} else {
+					console.log("No such node to drop: " + name);
+				}
+			}
 		},
 		dropNode: function(ix) { // Takes an array index
 			if (nodes[ix]) nodes.splice(ix, 1);
@@ -315,3 +324,25 @@ function myAtan(y, x) { // http://dspguru.com/dsp/tricks/fixed-point-atan2-with-
     }
     return y < 0 ? -angle : angle;
 }
+
+var Compartments = function() {
+	var compartments = [{name:"[Account & Liquidity]", compartment:"Account & Liquidity System", description:"compartment"},{name:"[Business Intelligence]", compartment:"Business Intelligence", description:"compartment"},{name:"[Core]", compartment:"Core Systems", description:"compartment"},{name:"[Financing & Loans]", compartment:"FinancingLoans Systems", description:"compartment"},{name:"[Front]", compartment:"Front System", description:"compartment"},{name:"[Fund & Portfolio Management]", compartment:"Fund & Portfolio Management", description:"compartment"},{name:"[Rogue Systems]", compartment:"Other SEB Systems", description:"compartment"},{name:"[Payments]", compartment:"Payment Systems", description:"compartment"},{name:"[Processing Support]", compartment:"Processing Support Systems", description:"compartment"},{name:"[Securities]", compartment:"Securities Systems", description:"compartment"},{name:"[Trading]", compartment:"Trading Systems", description:"compartment"},{name:"[Outside SEB]", compartment:"ExternalSystems", description:"compartment"},{name:"[Finance & Risk] Finance systems", compartment:"Finance Systems", description:"compartment"},{name:"[Finance & Risk] Risk systems", compartment:"Risk Systems", description:"compartment"},{name:"[Finance & Risk] Compliance Systems", compartment:"Compliance Systems", description:"compartment"}];
+	return {
+		all: compartments,
+		RSA: function() {
+			var a=[];compartments.forEach(function(c){a.push(c.compartment);});return a;
+		},
+		name2RSA: function(name) {
+			var match = false; var i=0;
+			while (!match && i<compartments.length) {
+				if (name == compartments[i].name) match = compartments[i].compartment;
+				i++;
+			}
+			return match;
+		},
+		RSA2name: function(RSA) {
+			compartments.forEach(function(c){if (RSA == c.compartment) return c.name});
+		}
+		
+	};
+}();
