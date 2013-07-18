@@ -45,13 +45,8 @@
 			
 		</style>
 	</head>
-	<body                              > 
+	<body>
 		<div class="container-fluid">
-			<div class="row-fluid">
-				<div class="span12"> 
-					<input type="text" id="q" class="input-large search-query" name="q" />
-				</div>
-			</div>
 			<div class="row-fluid">
 				<div class="span12">
 					<script>
@@ -65,119 +60,232 @@
 						var svg = d3.select("body").append("svg").attr("width", w).attr("height", h);
 					</script>
 					<script type='text/javascript' charset="utf-8">
-										var radius = Math.min(w, h) / 2;
-										var radius = 100;
+						var arc = d3.svg.arc()
+							.startAngle(function(d) {
+							return d.x;
+						}) /* d.x+0.05 = tänder... */
+							.endAngle(function(d) {
+							return d.x + d.dx;
+						})
+							.innerRadius(function(d) {
+							return Math.sqrt(d.y);
+						})
+							.outerRadius(function(d) {
+							return Math.sqrt(d.y + d.dy);
+						});
 
+						function drawRadial(root, n) {
+							var radius = 240; // lagom för size = 7
+							//						console.log(arc.innerRadius(215))
 
-										var partition = d3.layout.partition()
-											.sort(null)
-											.size([2*Math.PI, radius*radius])
-											.value(function (d) {
-											return 1; // try d.size for action
-										});
+							var partition = d3.layout.partition()
+								.sort(function(a,b){return d3.ascending(a.name,b.name);})
+								.size([2 * Math.PI, radius * radius])
+								.value(function(d) {
+								return 1; // try d.size for action
+							});
 
-
-
-										var arc = d3.svg.arc()
-										    .startAngle(function(d) { return d.x; }) /* d.x+0.05 = tänder... */
-										    .endAngle(function(d) { return d.x + d.dx; })
-										    .innerRadius(function(d) { return Math.sqrt(d.y); })
-										    .outerRadius(function(d) { return Math.sqrt(d.y + d.dy); });
-
-										function drawRadial(root, n) {
-											console.log(n.size)
-//											console.log(arc.innerRadius("150"));
-											var sunburst = svg.append("g").attr("class", "radial");
-											sunburst.attr("transform", "translate(" + n.x + "," + n.y + ")");
-											var g = sunburst.datum(root)
-												.selectAll("g")
-												.data(partition.nodes)
-												.enter()
-												.append("g")
-												.on("mouseover", function (n) {
-													var path = this.childNodes[0];
-													path.style.fill = d3.rgb(path.style.fill).darker();
-												})
-												.on("mouseout", function (n) {
-													var path = this.childNodes[0];
-													path.style.fill = d3.rgb(path.style.fill).brighter();
-												})
-												.on("mouseup", function(n) {
-													update([{"name": n.name}]);
-													sunburst.remove();
-												});
-											g.append("path")
-												.attr("display", function (d) {
-														return d.depth ? null : "none";
-													}) // hide inner ring
-												.attr("d", arc)
-												.attr("id", function (d,i) {return "path"+i;})
-												.style("stroke", "#fff")
-												.style("fill", function (d) {
-													if (d.name=="source") return "#444";
-													if (d.name=="target") return "#888";
-													return color(d.compartment);
-												})
-												.style("fill-rule", "evenodd");
-
-											// visar namnet längs med varje båge
-											// funkar för små menyer
-											var text = g.append("text")
-												.attr("dy", "12")
-												.attr("letter-spacing", function(d){
-													if (d.depth > 1) return 0;
-													return 2
-												});
-
-											text.append("textPath")
-												.attr("xlink:href", function(n,i) {return "#path"+i;})
-												.text(function (n){if (n.name.length > 9) return n.name.substring(0,9)+"."; else return n.name})
-												.attr("startOffset", "23%")
-												.attr("text-anchor", "middle");
-
-					//  			      	.attr("transform", function(d) {
-					//  							return "translate("+arc.centroid(d)+")"; 
-					//  						})
-					//  				      	.attr("x", "6") // margin
-					//  				      	.attr("dy", ".35em") // vertical-align
-					//  						.attr("font-size", function (n) {
-					//  							return 14 + 0.1 * n.size;
-					//  						})
-					//  						.attr("class", "nodelabeltext")
-					//  						.text(function (n) {
-					//  							return n.name;
-					//  						})
-					//  						.attr("text-anchor", function(d) {
-					//  							console.log(this.getBBox())
-					//  							console.log(d);
-					//  							if (d.depth == 1) return "middle"
-					//  							if (arc.centroid(d)[0]<0) return "end";
-					//  							else return "start";
-					//  						})
-					//  						.attr("display", function(d) {return d.depth ? null : "none"; }); // hide inner
+							//	console.log(arc.innerRadius("150"));
+							var sunburst = svg.append("g").attr("class", "radial");
+							sunburst.attr("transform", "translate(" + n.x + "," + n.y + ")");
+							var g = sunburst.datum(root)
+								.selectAll("g")
+								.data(partition.nodes)
+								.enter()
+								.append("g")
+								.on("mouseover", function(n) {
+								var path = this.childNodes[0];
+								path.style.fill = d3.rgb(path.style.fill).darker();
+							})
+								.on("mouseout", function(n) {
+								var path = this.childNodes[0];
+								path.style.fill = d3.rgb(path.style.fill).brighter();
+							})
+								.on("mouseup", function(node) {
+								if (node.name == "SOURCE") {
+									net.addNode(n, true)
+									update();
+								} else if (node.name == "REMOVE") {
+									net.drop(n.name);
+									update();
+								} else {
+									update([{
+											"name": node.name
 										}
+									]);
+								}
+								sunburst.remove();
+							});
+							g.append("path")
+								.attr("display", function(d) {
+								return d.depth ? null : "none";
+							}) // hide inner ring
+							.attr("d", arc)
+								.attr("id", function(d, i) {
+								return "path" + i;
+							})
+								.style("stroke", "#fff")
+								.style("fill", function(d) {
+								if (d.name == "SOURCE") return "#444";
+								if (d.name == "TARGET") return "#888";
+								if (d.name == "REMOVE") return "#c00";
+								if (d.compartment) {
+									var hsl = d3.hsl(color(d.compartment));
+									//				hsl.s = 0.1;
+									//				hsl.l = 0.4;
+									return hsl.darker();
+								}
+							})
+								.style("fill-rule", "evenodd");
+							
+							
+							var text = curved(g);
+							
+							
+							
+									function horizontal(g) {
+										return text = g.append("text")
+	   				  			      	.attr("transform", function(d) {
+												var sizefactor = 1.15;
+	   											var x = arc.centroid(d)[0]*sizefactor;
+	   											var y = arc.centroid(d)[1]*sizefactor;	   											
+	   				  							return "translate("+x+","+y+")"; 
+	   				  						})
+										.attr("dy", function(d) {
+											return ".35em";
+										})
+										.attr("class", "nodelabeltext")
+										.text(function(d) {
+											return d.name;
+										})
+   				  						.attr("text-anchor", function(d) {
+   				  							if (d.depth == 1) return "middle"
+   				  							if (arc.centroid(d)[0]<0) return "end";
+   				  							else return "start";
+   				  						})
+									}
+							function radial(g) {
+								return text = g.append("text")
+									.attr("dy", function(d) {
+									if (d.depth == 1) return "23";
+									return "18";
+								})
+									.attr("transform", function(d) {
+									if (d.name == "SOURCE") return "0";
+								 	 if (d.name == "TARGET") return "0";
+									if (d.name == "REMOVE") return "0";
+
+									return "rotate(" + (d.x + d.dx / 2 - Math.PI / 2) / Math.PI * 180 + ")";
+								})
+									.attr("x", function(d) {
+									if (d.name == "SOURCE") return "-1.5em";
+									if (d.name == "TARGET") return "-1.5em";
+									if (d.name == "REMOVE") return "-1.5em";
+									return Math.sqrt(d.y+d.dy);
+								})
+
+								.attr("dx", "6") // margin
+								.attr("dy", function(d) {
+									if (d.name == "SOURCE") return "1.6em";
+									if (d.name == "TARGET") return "1.6em";
+									if (d.name == "REMOVE") return "1.6em";
+
+									return ".35em"
+								}) // vertical-align
+								.attr("font-size", function(n) {
+									return 14 + 0.1 * n.size;
+								})
+									.attr("class", "nodelabeltext")
+									.text(function(d) {
+									if (d.name == "SOURCE") return "";
+									if (d.name == "TARGET") return "";
+									if (d.name == "REMOVE") return "";
+									return d.name;
+								})
+								.append("textPath")
+									.attr("xlink:href", function(n, i) {
+									return "#path" + i;
+								})
+									.text(function(n) {
+									if (n.name != "SOURCE" && n.name != "TARGET" && n.name != "REMOVE") return "";
+									if (!n.depth) return "";
+									if (n.name.length > 9) return n.name.substring(0, 9) + ".";
+									else return n.name
+								})
+									.attr("text-anchor", "middle")
+									.attr("startOffset", "23%");
+							}
+									function curved(g) {
+										return text = g.append("text")
+											.attr("dy", function(d) {
+											if (d.depth == 1) return "23";
+											return "18";
+										})
+											.attr("letter-spacing", function(d) {
+											if (d.depth > 1) return 0;
+											return 2
+										})
+											.attr("x", function(d) {
+											if (d.name == "SOURCE") return "0";
+											if (d.name == "TARGET") return "0";
+											if (d.name == "REMOVE") return "0";
+											return Math.sqrt(d.y);
+										})
+
+										//   									// RUNTOMKRING
+										//   				  			      	.attr("transform", function(d) {
+										//   											var x = arc.centroid(d)[0];
+										//   											var y = arc.centroid(d)[1];
+										//   											if (x<0) x-=this.getBBox().width;
+										//   											
+										//   				  							return "translate("+x+","+y+")"; 
+										//   				  						})
+
+										.attr("dx", "6") // margin
+										.attr("dy", function(d) {
+											return "25";
+										})
+										.attr("font-size", function(n) {
+											return 14 + 0.1 * n.size;
+										})
+										.attr("class", "nodelabeltext")
+										.attr("display", function(d) {
+											return d.depth ? null : "none";
+										}) // hide inner
+										// visar namnet längs med varje båge
+										// funkar för små menyer
+
+										.append("textPath")
+											.attr("xlink:href", function(n, i) {
+											return "#path" + i;
+										})
+										.text(function(n) {
+											if (n.name.length > 9) return n.name.substring(0, 9) + ".";
+											else return n.name
+										})
+										.attr("startOffset", "30%")
+										.attr("text-anchor", "middle");
+									}
+						}
 					</script>
-					<script> 
-					
+					<script>
+						var cois = {};
+						cois.tree = JSON.parse('{"name":"","children":[{"name":"TARGET","children":[{"name":"TCM Globala Fonder","size":18,"compartment":"Fund & Portfolio Management","children":[]}]},{"name":"SOURCE","children":[{"name":"Kurre","size":54,"compartment":"Core Systems","children":[]},{"name":"BIW Core SE","size":18,"compartment":"Business Intelligence","children":[]},{"name":"BIW Core SE","size":18,"compartment":"Business Intelligence","children":[]},{"name":"PARC","size":25,"compartment":"Core Systems","children":[]},{"name":"VDR","size":12,"compartment":"Processing Support Systems","children":[]},{"name":"Senior","size":25,"compartment":"Securities Systems","children":[]}]}]}');
 
-		
-var cois = {};
-cois.tree = JSON.parse('{"name":"root","children":[{"name":"TARGET","children":[{"name":"TCM Globala Fonder","size":18,"compartment":"Fund & Portfolio Management","children":[]}]},{"name":"SOURCE","children":[{"name":"Kurre","size":54,"compartment":"Core Systems","children":[]},{"name":"BIW Core SE","size":18,"compartment":"Business Intelligence","children":[]},{"name":"BIW Core SE","size":18,"compartment":"Business Intelligence","children":[]},{"name":"PARC","size":25,"compartment":"Core Systems","children":[]},{"name":"VDR","size":12,"compartment":"Processing Support Systems","children":[]},{"name":"Senior","size":25,"compartment":"Securities Systems","children":[]}]}]}'); 
-						
-						
-cois.n = JSON.parse('{"name":"COIS","compartment":"Other SEB Systems","size":7,"link_count":1,"index":2,"weight":1,"x":340,"y":200,"px":517.3507510368443,"py":433.1139941057485,"fixed":6}');
 
-var inlan = {};
-inlan.tree = JSON.parse('{"name":"root","size":85,"children":[{"name":"TARGET","children":[{"name":"IRS","size":3,"compartment":"Account & Liquidity System","children":[]},{"name":"KK på fil","size":3,"compartment":"Account & Liquidity System","children":[]},{"name":"Coco","size":13,"compartment":"Account & Liquidity System","children":[]},{"name":"ICP","size":10,"compartment":"Account & Liquidity System","children":[]},{"name":"BIW Core SE","size":18,"compartment":"Business Intelligence","children":[]},{"name":"Bankprodukter","size":1,"compartment":"Cards","children":[]},{"name":"Laban","size":1,"compartment":"Cards","children":[]},{"name":"Elixir","size":3,"compartment":"Cards","children":[]},{"name":"Klara","size":2,"compartment":"Cards","children":[]},{"name":"Klara","size":2,"compartment":"Cards","children":[]},{"name":"SIMBA","size":1,"compartment":"Cards","children":[]},{"name":"Leonardo","size":1,"compartment":"Cards","children":[]},{"name":"CAS","size":21,"compartment":"Core Systems","children":[]},{"name":"PARC","size":25,"compartment":"Core Systems","children":[]},{"name":"SELMA","size":1,"compartment":"Core Systems","children":[]},{"name":"Ö-skatt","size":1,"compartment":"Core Systems","children":[]},{"name":"Skval","size":7,"compartment":"Finance Systems","children":[]},{"name":"Skval","size":7,"compartment":"Finance Systems","children":[]},{"name":"Ekot","size":7,"compartment":"Finance Systems","children":[]},{"name":"Kupa","size":7,"compartment":"Finance Systems","children":[]},{"name":"Rink","size":3,"compartment":"Finance Systems","children":[]},{"name":"IRK BIW","size":20,"compartment":"Risk Systems","children":[]},{"name":"Nova","size":5,"compartment":"Financing&Loans Systems","children":[]},{"name":"ULF","size":5,"compartment":"Financing&Loans Systems","children":[]},{"name":"KÅBRA","size":4,"compartment":"Financing&Loans Systems","children":[]},{"name":"KredBev","size":2,"compartment":"Financing&Loans Systems","children":[]},{"name":"Hypotek2000","size":4,"compartment":"Financing&Loans Systems","children":[]},{"name":"Garp","size":4,"compartment":"Financing&Loans Systems","children":[]},{"name":"SEBTrans","size":2,"compartment":"Front System","children":[]},{"name":"OCM","size":3,"compartment":"Front System","children":[]},{"name":"Internetkontoret Privat - IKP","size":6,"compartment":"Front System","children":[]},{"name":"Internetkontoret Företag - IKF","size":4,"compartment":"Front System","children":[]},{"name":"OSS Online Securities Service","size":4,"compartment":"Front System","children":[]},{"name":"SEBTEL","size":2,"compartment":"Front System","children":[]},{"name":"Klöver","size":3,"compartment":"Front System","children":[]},{"name":"Direktbetalningar","size":1,"compartment":"Front System","children":[]},{"name":"Elektronisk Faktura","size":1,"compartment":"Front System","children":[]},{"name":"Bank på Telefon (BPT)","size":3,"compartment":"Front System","children":[]},{"name":"Kassa","size":2,"compartment":"Front System","children":[]},{"name":"Säljstöd","size":8,"compartment":"Front System","children":[]},{"name":"ÖKA","size":2,"compartment":"Front System","children":[]},{"name":"Boka","size":1,"compartment":"Front System","children":[]},{"name":"BokaNet","size":1,"compartment":"Front System","children":[]},{"name":"SENG","size":3,"compartment":"Front System","children":[]},{"name":"Retail Payment Provider","size":4,"compartment":"Front System","children":[]},{"name":"Depåbetalningar","size":5,"compartment":"Fund & Portfolio Management","children":[]},{"name":"Fondkonto","size":23,"compartment":"Fund & Portfolio Management","children":[]},{"name":"Fondkonto","size":23,"compartment":"Fund & Portfolio Management","children":[]},{"name":"TCM Globala Fonder","size":18,"compartment":"Fund & Portfolio Management","children":[]},{"name":"Depåbetalningar","size":5,"compartment":"Fund & Portfolio Management","children":[]},{"name":"PAL","size":3,"compartment":"HR","children":[]},{"name":"IPSAD - IPS Administration","size":1,"compartment":"Life insurance","children":[]},{"name":"Fondförsäkringssystemet(SEBF)","size":2,"compartment":"Life insurance","children":[]},{"name":"Silvi2","size":4,"compartment":"Other SEB Systems","children":[]},{"name":"PALS Stockholm","size":12,"compartment":"Payment Systems","children":[]},{"name":"Bokningspumpen","size":28,"compartment":"Payment Systems","children":[]},{"name":"PACS","size":13,"compartment":"Payment Systems","children":[]},{"name":"AG90","size":4,"compartment":"Payment Systems","children":[]},{"name":"Balero","size":6,"compartment":"Payment Systems","children":[]},{"name":"Betsy","size":24,"compartment":"Payment Systems","children":[]},{"name":"BG Primus","size":7,"compartment":"Payment Systems","children":[]},{"name":"Edit","size":12,"compartment":"Payment Systems","children":[]},{"name":"PUTS","size":4,"compartment":"Payment Systems","children":[]},{"name":"SII","size":2,"compartment":"Payment Systems","children":[]},{"name":"Hubert","size":24,"compartment":"Payment Systems","children":[]},{"name":"SISU","size":18,"compartment":"Payment Systems","children":[]},{"name":"Physical Mail","size":4,"compartment":"Processing Support Systems","children":[]},{"name":"Beda","size":5,"compartment":"Processing Support Systems","children":[]},{"name":"Fomexa","size":4,"compartment":"Securities Systems","children":[]},{"name":"Visir","size":11,"compartment":"Securities Systems","children":[]},{"name":"Fansy","size":11,"compartment":"Securities Systems","children":[]},{"name":"Senior","size":25,"compartment":"Securities Systems","children":[]},{"name":"Kupol","size":2,"compartment":"Securities Systems","children":[]},{"name":"Emilia","size":1,"compartment":"Securities Systems","children":[]},{"name":"Vera","size":2,"compartment":"Securities Systems","children":[]},{"name":"Finess Custody Gränssnittet","size":2,"compartment":"Securities Systems","children":[]},{"name":"Prime Brokerage","size":4,"compartment":"Trading Systems","children":[]},{"name":"RESPEKT","size":5,"compartment":"Trading Systems","children":[]}]},{"name":"SOURCE","children":[{"name":"Silvi2","size":4,"compartment":"Other SEB Systems","children":[]},{"name":"ICP","size":10,"compartment":"Account & Liquidity System","children":[]},{"name":"Konny","size":12,"compartment":"Account & Liquidity System","children":[]},{"name":"Kurre","size":54,"compartment":"Core Systems","children":[]},{"name":"Ebba","size":4,"compartment":"Core Systems","children":[]},{"name":"PARC","size":25,"compartment":"Core Systems","children":[]},{"name":"Loro","size":27,"compartment":"Account & Liquidity System","children":[]}]}]}');
+						cois.n = JSON.parse('{"name":"COIS","compartment":"Other SEB Systems","size":7,"link_count":1,"index":2,"weight":1,"x":340,"y":200,"px":517.3507510368443,"py":433.1139941057485,"fixed":6}');
 
-inlan.n = JSON.parse('{"name":"INLÅN","description":"Ledger","compartment":"Account & Liquidity System","size":85,"link_count":1,"index":0,"weight":1,"x":505.9010831973544,"y":365.99913139506896,"px":505.9010831973544,"py":365.99913139506896,"fixed":6}'); 
+						var inlan = {};
+						inlan.tree = JSON.parse('{"name":"","size":85,"children":[{"name":"TARGET","children":[{"name":"IRS","size":3,"compartment":"Account & Liquidity System","children":[]},{"name":"KK på fil","size":3,"compartment":"Account & Liquidity System","children":[]},{"name":"Coco","size":13,"compartment":"Account & Liquidity System","children":[]},{"name":"ICP","size":10,"compartment":"Account & Liquidity System","children":[]},{"name":"BIW Core SE","size":18,"compartment":"Business Intelligence","children":[]},{"name":"Bankprodukter","size":1,"compartment":"Cards","children":[]},{"name":"Laban","size":1,"compartment":"Cards","children":[]},{"name":"Elixir","size":3,"compartment":"Cards","children":[]},{"name":"Klara","size":2,"compartment":"Cards","children":[]},{"name":"Klara","size":2,"compartment":"Cards","children":[]},{"name":"SIMBA","size":1,"compartment":"Cards","children":[]},{"name":"Leonardo","size":1,"compartment":"Cards","children":[]},{"name":"CAS","size":21,"compartment":"Core Systems","children":[]},{"name":"PARC","size":25,"compartment":"Core Systems","children":[]},{"name":"SELMA","size":1,"compartment":"Core Systems","children":[]},{"name":"Ö-skatt","size":1,"compartment":"Core Systems","children":[]},{"name":"Skval","size":7,"compartment":"Finance Systems","children":[]},{"name":"Skval","size":7,"compartment":"Finance Systems","children":[]},{"name":"Ekot","size":7,"compartment":"Finance Systems","children":[]},{"name":"Kupa","size":7,"compartment":"Finance Systems","children":[]},{"name":"Rink","size":3,"compartment":"Finance Systems","children":[]},{"name":"IRK BIW","size":20,"compartment":"Risk Systems","children":[]},{"name":"Nova","size":5,"compartment":"Financing&Loans Systems","children":[]},{"name":"ULF","size":5,"compartment":"Financing&Loans Systems","children":[]},{"name":"KÅBRA","size":4,"compartment":"Financing&Loans Systems","children":[]},{"name":"KredBev","size":2,"compartment":"Financing&Loans Systems","children":[]},{"name":"Hypotek2000","size":4,"compartment":"Financing&Loans Systems","children":[]},{"name":"Garp","size":4,"compartment":"Financing&Loans Systems","children":[]},{"name":"SEBTrans","size":2,"compartment":"Front System","children":[]},{"name":"OCM","size":3,"compartment":"Front System","children":[]},{"name":"Internetkontoret Privat - IKP","size":6,"compartment":"Front System","children":[]},{"name":"Internetkontoret Företag - IKF","size":4,"compartment":"Front System","children":[]},{"name":"OSS Online Securities Service","size":4,"compartment":"Front System","children":[]},{"name":"SEBTEL","size":2,"compartment":"Front System","children":[]},{"name":"Klöver","size":3,"compartment":"Front System","children":[]},{"name":"Direktbetalningar","size":1,"compartment":"Front System","children":[]},{"name":"Elektronisk Faktura","size":1,"compartment":"Front System","children":[]},{"name":"Bank på Telefon (BPT)","size":3,"compartment":"Front System","children":[]},{"name":"Kassa","size":2,"compartment":"Front System","children":[]},{"name":"Säljstöd","size":8,"compartment":"Front System","children":[]},{"name":"ÖKA","size":2,"compartment":"Front System","children":[]},{"name":"Boka","size":1,"compartment":"Front System","children":[]},{"name":"BokaNet","size":1,"compartment":"Front System","children":[]},{"name":"SENG","size":3,"compartment":"Front System","children":[]},{"name":"Retail Payment Provider","size":4,"compartment":"Front System","children":[]},{"name":"Depåbetalningar","size":5,"compartment":"Fund & Portfolio Management","children":[]},{"name":"Fondkonto","size":23,"compartment":"Fund & Portfolio Management","children":[]},{"name":"Fondkonto","size":23,"compartment":"Fund & Portfolio Management","children":[]},{"name":"TCM Globala Fonder","size":18,"compartment":"Fund & Portfolio Management","children":[]},{"name":"Depåbetalningar","size":5,"compartment":"Fund & Portfolio Management","children":[]},{"name":"PAL","size":3,"compartment":"HR","children":[]},{"name":"IPSAD - IPS Administration","size":1,"compartment":"Life insurance","children":[]},{"name":"Fondförsäkringssystemet(SEBF)","size":2,"compartment":"Life insurance","children":[]},{"name":"Silvi2","size":4,"compartment":"Other SEB Systems","children":[]},{"name":"PALS Stockholm","size":12,"compartment":"Payment Systems","children":[]},{"name":"Bokningspumpen","size":28,"compartment":"Payment Systems","children":[]},{"name":"PACS","size":13,"compartment":"Payment Systems","children":[]},{"name":"AG90","size":4,"compartment":"Payment Systems","children":[]},{"name":"Balero","size":6,"compartment":"Payment Systems","children":[]},{"name":"Betsy","size":24,"compartment":"Payment Systems","children":[]},{"name":"BG Primus","size":7,"compartment":"Payment Systems","children":[]},{"name":"Edit","size":12,"compartment":"Payment Systems","children":[]},{"name":"PUTS","size":4,"compartment":"Payment Systems","children":[]},{"name":"SII","size":2,"compartment":"Payment Systems","children":[]},{"name":"Hubert","size":24,"compartment":"Payment Systems","children":[]},{"name":"SISU","size":18,"compartment":"Payment Systems","children":[]},{"name":"Physical Mail","size":4,"compartment":"Processing Support Systems","children":[]},{"name":"Beda","size":5,"compartment":"Processing Support Systems","children":[]},{"name":"Fomexa","size":4,"compartment":"Securities Systems","children":[]},{"name":"Visir","size":11,"compartment":"Securities Systems","children":[]},{"name":"Fansy","size":11,"compartment":"Securities Systems","children":[]},{"name":"Senior","size":25,"compartment":"Securities Systems","children":[]},{"name":"Kupol","size":2,"compartment":"Securities Systems","children":[]},{"name":"Emilia","size":1,"compartment":"Securities Systems","children":[]},{"name":"Vera","size":2,"compartment":"Securities Systems","children":[]},{"name":"Finess Custody Gränssnittet","size":2,"compartment":"Securities Systems","children":[]},{"name":"Prime Brokerage","size":4,"compartment":"Trading Systems","children":[]},{"name":"RESPEKT","size":5,"compartment":"Trading Systems","children":[]}]},{"name":"SOURCE","children":[{"name":"Silvi2","size":4,"compartment":"Other SEB Systems","children":[]},{"name":"ICP","size":10,"compartment":"Account & Liquidity System","children":[]},{"name":"Konny","size":12,"compartment":"Account & Liquidity System","children":[]},{"name":"Kurre","size":54,"compartment":"Core Systems","children":[]},{"name":"Ebba","size":4,"compartment":"Core Systems","children":[]},{"name":"PARC","size":25,"compartment":"Core Systems","children":[]},{"name":"Loro","size":27,"compartment":"Account & Liquidity System","children":[]}]}]}');
 
-																				// ----------------------------
-																							var lazy = cois;
-																				// ----------------------------
+						inlan.n = JSON.parse('{"name":"INLÅN","description":"Ledger","compartment":"Account & Liquidity System","size":85,"link_count":1,"index":0,"weight":1,"x":505.9010831973544,"y":365.99913139506896,"px":505.9010831973544,"py":365.99913139506896,"fixed":6}');
 
-lazy.n.x = "300";
-lazy.n.y="200";
+						 // ----------------------------
+						var lazy = cois;
+						 // ----------------------------
+
+						lazy.n.x = w / 2;
+						lazy.n.y = h / 2;
 
 
 						drawRadial(lazy.tree, lazy.n);
@@ -188,164 +296,3 @@ lazy.n.y="200";
 	</body>
 
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-       
