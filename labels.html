@@ -3,66 +3,60 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Force based label placement</title>
-	    <script type="text/javascript" src="js/d3.v3.min.js"></script>
+		<script type="text/javascript" src="js/d3.v3.min.js"></script>
 		<script type='text/javascript' src='js/jquery-1.8.3-min.js'></script>
 		<script type='text/javascript' src='js/jquery.autoSuggest.packed.js'></script>
-		<script type='text/javascript' charset="utf-8" src='js/force_network.js'></script>		
-		<script src='js/bootstrap.min.js' type='text/javascript'></script>
-
+		<script type='text/javascript' charset="utf-8" src='js/force_network.js'></script>
+		<script type='text/javascript' src='js/bootstrap.min.js'></script>
 		<link href='css/bootstrap.min.css' rel='stylesheet' type='text/css'>
 		<link href='css/autoSuggest.css' rel='stylesheet' type='text/css'>
-		
 		<style>
-		.link { stroke: #CCC;
+			.link {
+				stroke: #CCC;
 				stroke-width: 10px;
-				fill:#CCC; 
 				opacity:0.1;
+			}
+			.node {
+				opacity:0.8;
+			}
+			.nodelabel {
+				font-family: optima, sans-serif;
 				filter:none !important;
-		}
-
-		.nodes {
-/*			filter: url(#blurMe);*/
-		}
-
-		.node {
-			opacity:0.8;
-			fill:#eee;
-			filter:none !important;
-		}
-		.nodelabel {
-			font-family: optima, sans-serif;
-			stroke:#a0b9cb;
-			fill:none !important;
-			filter:none !important;
-		}
-		
-		body {
-		  background-color: #000000;
-		  background-image: url('img/bg.jpg');
-		  background-position: top center;
-		  background-repeat: no-repeat;
-		  background-attachment: fixed;
-		  margin: 0px;
-		  font-family:Arial,Verdana,Helvetica,sans-serif;
-		  font-size:12px;
-		  color:#FFFFFF;
-		}
-		
+			}
+			text {
+				fill:#fff;
+			}
+			.radial {
+				opacity:0.6;
+			}
+			body {
+				background-color: #000000;
+				background-image: url('img/bg.jpg');
+				background-position: top center;
+				background-repeat: no-repeat;
+				background-attachment: fixed;
+				margin: 0px;
+				font-family:Arial, Verdana, Helvetica, sans-serif;
+				font-size:12px;
+				color:#fff;
+			}
+			
 		</style>
 	</head>
-	
-	<body>
+	<body oncontextmenu="return false;">
 		<div class="container-fluid">
 			<div class="row-fluid">
 				<div class="span12">
-					<input type="text" id="q" class="input-large search-query" name="q"/>
+					<input type="text" id="q" class="input-large search-query" name="q" />
 				</div>
 			</div>
 			<div class="row-fluid">
 				<div class="span12">
 					<script type='text/javascript' charset="utf-8" src='js/force_with_labels.js'></script>
+					<script type='text/javascript' charset="utf-8" src='js/sunburst.js'></script>
 				</div>
 			</div>
 		</div>
 	</body>
+
 </html>

@@ -19,16 +19,32 @@ function L(o) {
 	if (VERBOSE) console.log(o)
 };
 
-// uml:Usage
-var Link = function(id, name, description, supplier, client) {
-		this.id = id;
-		this.name = name;
-		this.description = description;
-		this.supplier = supplier;
-		this.client = client;
-		this.source = supplier;
-		this.target = client;
-	};
+// Link is up to shape and encapsulated - also supports function chaining, i.e link.name("daName").type("uml:Usage");
+function Link(id) {
+	if (!id) throw ("Error: Link must be invoked with id");
+ 	this._id = id;
+	this._name = this._type = this._description = this._source = this._target = this._filename = undefined;
+}
+
+Link.prototype.id = function(a)			{ if (a) { this._id = a; 			return this; } return this._id; }
+Link.prototype.name = function(a)		{ if (a) { this._name = a; 			return this; } return this._name; }
+Link.prototype.description = function(a){ if (a) { this._description = a;	return this; } return this._description; }
+Link.prototype.filename = function(a)	{ if (a) { this._filename = a;		return this; } return this._filename; }
+Link.prototype.source = function(a)		{ if (a) { this._source = a; 		return this; } return this._source; }
+Link.prototype.target = function(a)		{ if (a) { this._target = a; 		return this; } return this._target; }
+Link.prototype.type = function(a)		{ if (a) { if (a == "uml:Usage" || a == "uml:InformationFlow") { this._type = a; return this; } else throw("Error: Link object only supports uml:Usage and uml:InformationFlow (tried to pass: " + a + ")") } return this._type; }
+Link.prototype.sourceString = function(){
+	if (!this._type) throw("Error: cannot get sourceString without a _type");
+	if (this._type == "uml:Usage") return "supplier";
+	if (this._type == "uml:InformationFlow") return "informationSource";
+	throw("Cannot return sourceString for _type: "+this._type);
+}
+Link.prototype.targetString = function(){
+	if (!this._type) throw("Error: cannot get targetString without a _type");
+	if (this._type == "uml:Usage") return "client";
+	if (this._type == "uml:InformationFlow") return "informationTarget";
+	throw("Cannot return targetString for _type: "+this._type);
+}
 
 // uml:Component
 var Node = function(filename, id, x, y, name, description, compartment, keywords) {
@@ -91,9 +107,9 @@ if (typeof filename == "undefined") {
 var j,k;
 var linksarr = [];
 links.forEach(function (i) {
-	// demand match on both supplier (source) and client (target)
-	if ((j = nodes.getNodeIndex(i.supplier)) && (k = nodes.getNodeIndex(i.client))) {
-		linksarr.push({"source":j, "target":k, "name":i.name, "description":i.description});
+	// demand match on both source and target
+	if ((j = nodes.getNodeIndex(i.source())) && (k = nodes.getNodeIndex(i.target()))) {
+		linksarr.push({"source":j, "target":k, "name":i.name(), "type": i.type(), "description":i.description()});
 		nodes.list[j].size++;
 		nodes.list[k].size++;
 	}
@@ -120,8 +136,10 @@ function emx(filepath, depth) {
 		var result = xml2json.toJson(data, {
 			object: true
 		});
-		if ( !! result["xmi:XMI"] && !!result["xmi:XMI"]["uml:Package"]) var n = result["xmi:XMI"]["uml:Package"];
-		else if ( !! result["uml:Package"]) var n = result["uml:Package"];
+		
+			 if (!!result["xmi:XMI"] && !!result["xmi:XMI"]["uml:Package"]) var n = result["xmi:XMI"]["uml:Package"];
+		else if (!!result["uml:Package"]) var n = result["uml:Package"];
+		else if (!!result["uml:Model"]) var n = result["uml:Model"];
 		else if (!!result["xmi:XMI"] && result["xmi:XMI"]["uml:Model"]) var n = result["xmi:XMI"]["uml:Model"];
 
 		// get compartment name
@@ -199,42 +217,42 @@ function emx(filepath, depth) {
 						}
 					}
 					nodes.add(node);
-				} else if (n[i]["xmi:type"] == "uml:Usage") {
-					var l = new Link();
-					l.id = n[i]["xmi:id"]
+				} else if (n[i]["xmi:type"] == "uml:Usage" || n[i]["xmi:type"] == "uml:InformationFlow") {
+					var l = new Link(n[i]["xmi:id"]);
+					l.type(n[i]["xmi:type"]);
 					if ( !! n[i]["name"]) {
-						l.name = n[i]["name"];
+						l.name(n[i]["name"]);
 					}
 					if ( !! n[i]["eAnnotations"]) {
 						try {
 							if ( !! n[i]["eAnnotations"]["details"]) {
-								l.description = n[i]["eAnnotations"]["details"]["key"];
+								l.description(n[i]["eAnnotations"]["details"]["key"]);
 							}
 						} catch (err) {}
 					}
-
-					if ( !! n[i]["supplier"]) {
-						if (typeof n[i]["supplier"] == "string") l.supplier = n[i]["supplier"];
+					
+					if ( !! n[i][l.sourceString()]) {
+						if (typeof n[i][l.sourceString()] == "string") l.source(n[i][l.sourceString()]);
 						else {
-							var filename = n[i]["supplier"]["href"].split("#")[0];
+							var filename = n[i][l.sourceString()]["href"].split("#")[0];
 							filename = filename.replace(/&amp;/g, "&");
 							filename = filename.replace(/%20/g, " ");
-							l.filename = filename;
-							l.supplier = n[i]["supplier"]["href"].match(/[#]([^?]+)[?]/)[1];
+							l.filename(filename);
+							l.source(n[i][l.sourceString()]["href"].match(/[#]([^?]+)[?]/)[1]);
 						}
 					}
 
-					if ( !! n[i]["client"]) {
-						if (typeof n[i]["client"] == "string") l.client = n[i]["client"];
+					if ( !! n[i][l.targetString()]) {
+						if (typeof n[i][l.targetString()] == "string") l.target(n[i][l.targetString()]);
 						else {
 							// Bug in RSA emx generation: multiple, identical <client... (See Core Systems.emx:192)
-							if (isArray(n[i]["client"])) var shouldBe_n_i_client_href = n[i]["client"][0];
-							else var shouldBe_n_i_client_href = n[i]["client"];
+							if (isArray(n[i][l.targetString()])) var shouldBe_n_i_client_href = n[i][l.targetString()][0];
+							else var shouldBe_n_i_client_href = n[i][l.targetString()];
 							var filename = shouldBe_n_i_client_href["href"].split("#")[0];
 							filename = filename.replace(/&amp;/g, "&");
 							filename = filename.replace(/%20/g, " ");
-							l.filename = filename;
-							l.client = shouldBe_n_i_client_href["href"].match(/[#]([^?]+)[?]/)[1];
+							l.filename(filename);
+							l.target(shouldBe_n_i_client_href["href"].match(/[#]([^?]+)[?]/)[1]);
 						}
 					}
 					links.push(l);
