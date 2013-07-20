@@ -117,7 +117,7 @@ links.forEach(function (i) {
 
 var data = {"nodes":nodes.list, "links":linksarr};
 
-fs.writeFileSync(outpath + "nodes_links.json", JSON.stringify(data, function(key, val) {if (key=="id") return undefined; return val;}, "\t"));
+fs.writeFileSync(outpath + "nodes_links.json", JSON.stringify(data, function(key, val) {return val;}, "\t"));
 
 
 /*******************************

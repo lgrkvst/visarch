@@ -3,8 +3,6 @@ var rotateLabels = true;
 var drawOrigo = false;
 var drawAngles = false;
 var color = d3.scale.category20().domain(Compartments.RSA());
-//var color = function(){return "#fff";};
-// http://stackoverflow.com/questions/9539294/adding-new-nodes-to-force-directed-layout
 
 var w = $(window).width(),
 	h = $(window).height();
@@ -75,63 +73,36 @@ d3.json("json/nodes_links.json", function (error, graph) {
 
 	SS.nodes = graph.nodes;
 	SS.links = graph.links;
-
+	
 	var autoSuggest = [];
 	graph.nodes.forEach(function (n) {
 		autoSuggest.push({
-			name: n.name
+			name: n.name,
+			id: n.id
 		});
 	});
 
 	(JSON.parse(JSON.stringify(Compartments.all))).forEach(function (c) {
 		autoSuggest.push(c);
 	});
-
-	$(function () {
-		$("#q").autoSuggest(autoSuggest, {
-			selectedValuesProp: "name",
-			selectedItemProp: "name",
-			searchObjProps: "name",
-			startText: "Search...",
-			selectionClick: function (elem) {
-				console.log("selClick");
-				elem.fadeTo("slow", 0.33);
-			},
-			selectionRemoved: function (elem) {
-				net.drop(elem2name(elem));
-				update();
-				elem.fadeTo("fast", 0, function () {
-					elem.remove();
-				});
-			},
-			resultClick: function (data) {
-				update([data.attributes]);
-			}
-		});
+	
+	$('#q').typeahead({
+		name: 'stellar',
+		local: SS.nodes,
+		valueKey: 'name',
+		template: [
+				'<p class="repo-language">{{name}}</p>',
+				'<p class="repo-name">{{compartment}}</p>',
+				'<p class="repo-description">{{description}}</p>'
+		],
+		engine: Hogan
 	});
+	
 });
 
 // typeof filter = [node] Object, optional
 
-function update(filter, hungry, reset) {
-	if (reset) net.reset(node, link);
-	
-	if ( !! filter) {
-		var n;
-		filter.forEach(function (f) {
-			if (f.description == "compartment") {
-				delete f.name;
-				delete f.description;
-				delete f.short;
-			}
-			if ( !! f.size) /* explicit node declaration */ {
-				n = [f];
-			} else n = SS.filterNodes(f);
-			n.forEach(function (n, i) {
-				net.addNode(n, hungry);
-			});
-		});
-	}
+function update() {
 
 	// everything is set up for rendering - create a bookmarklet for saving:
 	// <a id="bookmarklet" href="javascript:null;" class="btn-small btn-warning">spara</a>

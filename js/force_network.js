@@ -5,15 +5,7 @@ var net = function () {
 	 * 		Bygg om hälften med: array.every(callback[, thisObject])
 	 */
 
-	var L = function (str) {
-		var debug = true;
-		if (debug) console.log(str);
-	}
-
-	var force;
-	var nodes = [];
-	var links = [];
-	var center = [];
+	var force,nodes = [], links = [], center = [];
 	return {
 		nodes: nodes,
 		links: links,
@@ -46,115 +38,41 @@ var net = function () {
 				y: y / this.center.length
 			};
 		},
-		ix: function (name) {
-			var i = nodes.length;
-			if (!i) {
-				return -1;
-			}
-			while (nodes[--i] && nodes[i].name != name);
-			return i;
+		ix: function (id) {
+			return nodes.map(function(n) { return n.id; }).indexOf(id);
 		},
-		getLinksIx: function (n) {
-			var i = this.ix(n.name);
-			var m = [];
-			links.forEach(function (l, li) {
-				if (l.target.index == i || l.source.index == i) m.push(li);
-			})
-			return m;
+		getNeighbors: function (id) { // returns duplicates if two systems host multiple integrations
+			var neighbor_links = net.links.filter(function (l) {return l.target.id == id || l.source.id == id;});
+			return neighbor_links.map(function (l) {return l.target.id == id ? l.source.id : l.target.id;});
 		},
-		getNeighbors: function (n) {
-			var i = this.ix(n.name);
-			var m = [];
-			links.forEach(function (l, li) {
-				if (l.target.index == i) m.push(l.source);
-				if (l.source.index == i) m.push(l.target);
-			})
-			return m;
+		drop: function (id) {
+			this.dropLinks(id);
+			this.dropNode(id);
+			this.determineCenter();
 		},
-		drop: function (name) {
-			if (name.substring(0, 1) == "[") {
-				name = Compartments.name2RSA(name);
-				var j = 1;
-				for (var i = nodes.length; i != 0; i--) {
-					var n = nodes[i - 1];
-					if (n.compartment == name) {
-						j++;
-						net.drop(n.name);
-					}
-				}
-			} else {
-				var i = this.ix(name);
-				if (i != -1) {
-					this.dropNode(i);
-					this.dropLinks(i);
-					this.determineCenter();
-				} else {
-					console.log("No such node to drop: " + name);
-				}
-			}
+		dropNode: function (id) {
+			nodes.splice(this.ix(id), 1);
 		},
-		dropNode: function (ix) { // Takes an array index
-			if (nodes[ix]) nodes.splice(ix, 1);
-		},
-		dropLinks: function (ix) { // Takes an array NODE index
+		dropLinks: function (id) { // a node id!!
+			var dirty = false;
 			for (var i = links.length; i != 0; i--) {
-				var l = links[i - 1];
-				if (l.source.index == ix || l.target.index == ix) {
-					net.dropLink(i - 1);
+				if (links[i - 1].source.id == id || links[i - 1].target.id == id) {
+					net.dropLink(i - 1); dirty = true;
 				}
 			}
+			return dirty;
 		},
-		dropLink: function (ix) { // Takes an array LINK index
-			this.links.splice(ix, 1);
+		addNode: function (id) {
+			if (this.ix(id)>=0) return;
+			nodes.push(SS.n(id));
+			if (this.dropLinks(id)){ throw("Found garbage links to drop before adding node."); debugger; } 
+			links = links.concat(SS.l(id));
 		},
-		addRogue: true,
-		addNode: function (n, hungry) {
-			if (n.size == 0 && !this.addRogue) return;
-			if (typeof n.size == undefined) {throw("cannot add node without a size.");}
-
-			var i = this.ix(n.name); 
-			if (i < 0 || hungry) { // untested bugs may be lurking here...
-				n.link_count = 0;
-				if (i<0) i = nodes.push(n) - 1; // untested bugs may be lurking here...
-				// add n:s links from SuperSet
-				SS.getLinks(n).forEach(function (l) {
-					net.addLink(SS.nodes[l.source], SS.nodes[l.target], hungry);
-				});
-				this.determineCenter();
-			} else {console.log("cannot add '" + n.name + "' - alrady in there!");}
-			return i;
-		},
-		addLink: function (source, target, hungry, attributes) { // attr: link description etc, currently not supported
-			if (source == target) {
-				console.log("skipped self-referencing link for " + source.name);
-				return;
-			}
-			var link = {};
-			var found = false;
-			link.source = this.ix(source.name);
-			link.target = this.ix(target.name);
-
-			// IFF source and target are visible
-			if (link.source != -1 && link.target != -1) {
-				var k = links.forEach(function (l) {
-					if (l.source == link.source && l.target == link.target) {
-						found = true;
-						return;
-					}
-				}); // does not exist - add it!
-				if (!found) {
-					nodes[link.source].link_count++
-					nodes[link.target].link_count++
-					return this.links.push(link);
-				}
-			} else if (hungry) {
-				this.addNode(source);
-				this.addNode(target);
-			}
-			return false;
+		supernova: function (id) { // node explosion!
+			SS.l(id).forEach(function (l) { addNode(SS.n(l.source)); addNode(SS.n(l.target));})
 		},
 		toggleFixed: function(name) {
-			var n = net.nodes[this.ix(name)];
+			var n = net.nodes[this.ix(id)];
 			n.fixed = !n.fixed;
 		},
 		linkDistance: function(l,i) {
@@ -212,19 +130,13 @@ var net = function () {
 		  d.fixed &= ~6; // unset bits 2 and 3
 			leftDrag = false;
 		}),
-		dump: function () {
-			console.log("Nodes in network:");
-			var tmp = [];
-			nodes.forEach(function (n) {
-				tmp.push(n.name);
+		dump: function (n, l) {
+			n = n || nodes;
+			l = l || links;
+			console.table(n);
+			l.forEach(function (i) {
+				console.table(i);
 			});
-			console.log(tmp);
-			console.log("Links in network:");
-			var tmp = [];
-			links.forEach(function (l) {
-				tmp.push(l.source.name + " -> " + l.target.name);
-			});
-			console.log(tmp);
 		},
 		export: function () {
 			return JSON.stringify(nodes);
@@ -301,49 +213,16 @@ if (false) {
 	net.dump();
 }
 
-var SS = function ()  {
+var SS = function () {
 	var nodes, links;
 	return {
 		nodes: this.nodes,
 		links: this.links,
-		ix: function (name) {
-			var i = this.nodes.length;
-			if (!i) {
-				return -1;
-			}
-			while (this.nodes[--i] && this.nodes[i].name != name);
-			return i;
+		n: function (id) { // return node with id
+			var i=0; while (id != SS.nodes[i].id){i++;} return SS.nodes[i];
 		},
-		/*** filterNodes
-		 *	 Returns [array of] all nodes in [node list] haystack that match [object] filter, AND-wise
-		 **/
-		filterNodes: function (filter, haystack) {
-			var filtered = (typeof haystack == "undefined") ? SS.nodes : haystack;
-			var subset = [];
-			for (a in filter) {
-				console.log("<filter attr=\"" + a + "\">" + filter[a] + "</filter>");
-				filtered.forEach(function (n) {
-					if (n[a] == filter[a]) {
-						subset.push(n);
-					}
-				});
-				filtered = subset;
-				subset = [];
-			}
-			return filtered;
-		},
-		getLinks: function (n) { // returns all links involving n(ode)
-			var subset = [];
-			SS.links.forEach(function (l) {
-				if (n.name == SS.nodes[l.target].name) {
-					subset.push(l);
-				} else if (n.name == SS.nodes[l.source].name) {
-					subset.push(l);
-				}
-			});
-			// contains links to nodes OUTSIDE nodes!!
-			// determine "local size" before returning
-			return subset;
+		l: function (id) { // returns all links involving (node.)id
+			return SS.links.filter(function (l) {return l.target.id == id || l.source.id == id;});
 		}
 	}
 }();
@@ -488,7 +367,8 @@ var Compartments = function () {
 }();
 
 
-function elem2name(elem) {
+function elem2id(elem) {
+//	debugger;
 	var nodeText = elem[0].innerText; // xVDR
 	var nodeName = nodeText.substring(1, nodeText.length); // VDR
 	return nodeName;
