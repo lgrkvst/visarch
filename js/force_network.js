@@ -81,9 +81,9 @@ var net = function () {
 			n.fixed = !n.fixed;
 		},
 		linkDistance: function(l,i) {
-			var linkD = Math.sqrt(l.source.link_count*l.target.link_count);
+			var linkD = Math.sqrt(l.source.weight*l.target.weight);
 			var sizeD = Math.sqrt(l.source.size*l.source.size+l.target.size*l.target.size);
-			return  Math.floor(net.linkConstant*linkD+sizeD/net.sizeConstant); /* behöver inte round:a */
+			return  net.linkConstant*linkD+sizeD/net.sizeConstant;
 		},
 		linkConstant: 25,
 		linkConstantUpdate: function () {
@@ -442,8 +442,8 @@ function myAtan(y, x) { // http://dspguru.com/dsp/tricks/fixed-point-atan2-with-
 
 function EncodeBookmarklet(verbose) {
 	verbose = false;
-	if (verbose) console.log("update(JSON.parse('" + net.export() + "'), false, true);");
-	return MakeBM("update(JSON.parse('" + net.export() + "'), false, true);");
+	if (verbose) console.log("update(JSON.parse('" + net.export() + "'));");
+	return MakeBM("update(JSON.parse('" + net.export() + "'));");
 }
 
 /*

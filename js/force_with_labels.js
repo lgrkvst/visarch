@@ -99,12 +99,10 @@ d3.json("json/nodes_links.json", function (error, graph) {
 		engine: Hogan
 	});
 	
-//	try {
-//		JsonReady();
-//	} catch (err) {console.log(err);}
+	try {
+		JsonReady();
+	} catch (err) {console.log(err);}
 });
-
-// typeof filter = [node] Object, optional
 
 function update() {
 
@@ -122,23 +120,15 @@ function update() {
 	// call start before doing svg stuff, since we want any new nodes instantiated
 	net.force.start();
 
-	// draw an svg:group for each node
-	
-
 	link = link.data(net.links, function (n) {
 		return (n.source.id + n.target.id);
 	});
 	// 	Adding basic links
 	//	link.enter().append("line").attr("class", "link");
 
-		// om man gör xxx.data(links/nodes) innan force.start så skiter sig länkinläsningen (COIS, VDR, TCM Globala). Vilken SKA man göra först?!
-		link.enter()
-	        .append('path')
-	        .attr({'d': function(d) {return 'M '+d.source.x+' '+d.source.y+' L '+ d.target.x +' '+d.target.y},
-	               'class':'polygonlink',
-	               'id':function(d,i) {return 'edgepath'+i}})
-	        .style("pointer-events", "none");
-
+	link.enter()
+        .append('path')
+        .attr("class", "polygonlink");
 
 		/*
 	    var edgelabels = svg.selectAll(".edgelabel")
@@ -172,6 +162,7 @@ function update() {
 		return n.id;
 	});
 	
+	// draw an svg:group for each node	
 	var g = node.enter().append("g")
 		.attr("class", function (d) {
 		return d.name;
@@ -372,12 +363,7 @@ function update() {
 	/* ---------------------------- FOR SIMULATION ----------------------------- */
 
 	var updateLink = function () {
-		this.attr('d', function(d,i) {
-			if (i==0) {
-				console.log(d.source.x);
-			}
-		});
-			/*
+		this.attr('d', function(d) {
 
 			var sx = d.source.x; var sy = d.source.y; var tx = d.target.x; var ty = d.target.y;
 			var Dx = tx-sx; var Dy = ty-sy; // D as in Delta
@@ -415,7 +401,6 @@ function update() {
 						
 			return path;
 		});
-		*/
 
 		/*
 		// for svg:line objects
@@ -504,7 +489,7 @@ function update() {
 //		FPS.sample();
 
 		node.call(updateNode);
-//		link.call(updateLink);
+		link.call(updateLink);
 
 		if (labels2force) {
 			force2.start();
