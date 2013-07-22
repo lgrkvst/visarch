@@ -63,10 +63,15 @@ var net = function () {
 			return dirty;
 		},
 		addNode: function (id) {
-			if (this.ix(id)>=0) return;
-			nodes.push(SS.n(id));
+			if (this.ix(id)>=0) return; // already there
+			this.nodes.push(SS.n(id));
 			if (this.dropLinks(id)){ throw("Found garbage links to drop before adding node."); debugger; } 
-			links = links.concat(SS.l(id));
+			SS.l(id).forEach(function(l) {net.addLink(SS.nodes[l.source].id, SS.nodes[l.target].id);});
+			this.determineCenter();
+		},
+		addLink: function (sid, tid){
+			var s = net.ix(sid), t = net.ix(tid);
+			if (s>=0&&t>=0)	net.links.push({"source":net.nodes[s], "target":net.nodes[t]});
 		},
 		supernova: function (id) { // node explosion!
 			SS.l(id).forEach(function (l) { addNode(SS.n(l.source)); addNode(SS.n(l.target));})
@@ -100,8 +105,8 @@ var net = function () {
 			.gravity(0.1)
 			.charge(-600)
 			.friction(0.5)
-			.size([$(window).width(), $(window).height()])
-				.nodes(nodes).links(links);
+			.size([w, h])
+			.nodes(net.nodes).links(net.links);
 		},
 		d3_layout_forceMouseover: function(d) { // got these from d3's force.js
 		  d.fixed |= 4; // set bit 3
@@ -133,7 +138,6 @@ var net = function () {
 		dump: function (n, l) {
 			n = n || nodes;
 			l = l || links;
-			console.table(n);
 			l.forEach(function (i) {
 				console.table(i);
 			});
@@ -218,11 +222,14 @@ var SS = function () {
 	return {
 		nodes: this.nodes,
 		links: this.links,
-		n: function (id) { // return node with id
+		n: function (id) { // return node by id
 			var i=0; while (id != SS.nodes[i].id){i++;} return SS.nodes[i];
 		},
+		nByName: function (name) { // return first node by (case-insensitive) name
+			var i=0; while (name.toLowerCase() != SS.nodes[i].name.toLowerCase()){i++;} return SS.nodes[i];
+		},
 		l: function (id) { // returns all links involving (node.)id
-			return SS.links.filter(function (l) {return l.target.id == id || l.source.id == id;});
+			return SS.links.filter(function (l) {return SS.nodes[l.target].id == id || SS.nodes[l.source].id == id;});
 		}
 	}
 }();
@@ -434,6 +441,7 @@ function myAtan(y, x) { // http://dspguru.com/dsp/tricks/fixed-point-atan2-with-
 }
 
 function EncodeBookmarklet(verbose) {
+	verbose = false;
 	if (verbose) console.log("update(JSON.parse('" + net.export() + "'), false, true);");
 	return MakeBM("update(JSON.parse('" + net.export() + "'), false, true);");
 }

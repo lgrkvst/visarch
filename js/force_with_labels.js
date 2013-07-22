@@ -5,7 +5,7 @@ var drawAngles = false;
 var color = d3.scale.category20().domain(Compartments.RSA());
 
 var w = $(window).width(),
-	h = $(window).height();
+	h = $(window).height()-42*2;
 
 net.setup(w, h);
 
@@ -90,6 +90,7 @@ d3.json("json/nodes_links.json", function (error, graph) {
 		name: 'stellar',
 		local: SS.nodes,
 		valueKey: 'name',
+		limit:16,
 		template: [
 				'<p class="repo-language">{{name}}</p>',
 				'<p class="repo-name">{{compartment}}</p>',
@@ -98,6 +99,9 @@ d3.json("json/nodes_links.json", function (error, graph) {
 		engine: Hogan
 	});
 	
+//	try {
+//		JsonReady();
+//	} catch (err) {console.log(err);}
 });
 
 // typeof filter = [node] Object, optional
@@ -110,62 +114,67 @@ function update() {
 	bookmarks.push(EncodeBookmarklet(true));
 	bookmarks.shift();
 	d3bookmarks = d3bookmarks.data(bookmarks, function (n) {return n;});
-	d3bookmarks.enter().append("a").attr("href", function(d){return d;}).attr("class", "btn-small btn-warning");
-	d3bookmarks.text(function(n, i) { return (i ? "current" : "previous");});
+	d3bookmarks.enter().append("a");
+	d3bookmarks.text(function(n,i) { return (i ? "current" : "previous");});
+	d3bookmarks.attr("href", function(d){return d;}).attr("class", function (n,i) {return i ? "btn-small btn-success" : "btn-small btn-important"; });
 	d3bookmarks.exit().remove();
 	
 	// call start before doing svg stuff, since we want any new nodes instantiated
 	net.force.start();
 
+	// draw an svg:group for each node
+	
 
-	link = link.data(net.links, function (l) {
-		return l.source.name + "-" + l.target.name;
+	link = link.data(net.links, function (n) {
+		return (n.source.id + n.target.id);
 	});
-// 	Adding basic links
-//	link.enter().append("line").attr("class", "link");
+	// 	Adding basic links
+	//	link.enter().append("line").attr("class", "link");
 
-	// om man gör xxx.data(links/nodes) innan force.start så skiter sig länkinläsningen (COIS, VDR, TCM Globala). Vilken SKA man göra först?!
-	link.enter()
-        .append('path')
-        .attr({'d': function(d) {return 'M '+d.source.x+' '+d.source.y+' L '+ d.target.x +' '+d.target.y},
-               'class':'polygonlink',
-               'id':function(d,i) {return 'edgepath'+i}})
-        .style("pointer-events", "none");
+		// om man gör xxx.data(links/nodes) innan force.start så skiter sig länkinläsningen (COIS, VDR, TCM Globala). Vilken SKA man göra först?!
+		link.enter()
+	        .append('path')
+	        .attr({'d': function(d) {return 'M '+d.source.x+' '+d.source.y+' L '+ d.target.x +' '+d.target.y},
+	               'class':'polygonlink',
+	               'id':function(d,i) {return 'edgepath'+i}})
+	        .style("pointer-events", "none");
 
 
-	/*
-    var edgelabels = svg.selectAll(".edgelabel")
-        .data(net.links)
-	        .enter()
-	        .append('text')
-	        .style("pointer-events", "none")
-	        .attr({'class':'edgelabel',
-	               'id':function(d,i){return 'edgelabel'+i},
-	               'dx':50,
-	               'dy':8,
-	               'font-size':12});
+		/*
+	    var edgelabels = svg.selectAll(".edgelabel")
+	        .data(net.links)
+		        .enter()
+		        .append('text')
+		        .style("pointer-events", "none")
+		        .attr({'class':'edgelabel',
+		               'id':function(d,i){return 'edgelabel'+i},
+		               'dx':50,
+		               'dy':8,
+		               'font-size':12});
 
-	var textPath = edgelabels.append('textPath')
-	        .attr('xlink:href',function(d,i) {return '#edgepath'+i})
-	        .style("pointer-events", "none")
-	        .text(net.linkDistance);
-	*/	
+		var textPath = edgelabels.append('textPath')
+		        .attr('xlink:href',function(d,i) {return '#edgepath'+i})
+		        .style("pointer-events", "none")
+		        .text(net.linkDistance);
+		*/	
+
+
+		link.exit().remove();
+
+		/*.append("line")
+			.attr("class", "link")
+			.attr("marker-end", "url(#end)");
+		*/
+
 	
-	
-	link.exit().remove();
-
-	/*.append("line")
-		.attr("class", "link")
-		.attr("marker-end", "url(#end)");
-	*/
 
 	node = node.data(net.nodes, function (n) {
-		return n.name;
+		return n.id;
 	});
-	// draw an svg:group for each node
+	
 	var g = node.enter().append("g")
 		.attr("class", function (d) {
-		return "node " + d.name;
+		return d.name;
 	})
 		.attr("transform", function () {
 		return "translate(" + w / 2 + "," + h / 2 + ")"
@@ -206,11 +215,9 @@ function update() {
 	g.append("circle").attr("r", function (n) {
 		return (6 + n.size * 0.2);
 	})
-	//	.style("fill", function(d) { return color(d.compartment);});
-	.style("fill", function (d) {
-		return "#fff";
-	})	.on("mouseover", net.d3_layout_forceMouseover)
-		.on("mouseout", net.d3_layout_forceMouseout);
+	.attr("class", "node")
+	.on("mouseover", net.d3_layout_forceMouseover)
+	.on("mouseout", net.d3_layout_forceMouseout);
 /*
 	// mark fixed nodes
 	g.append("circle")
@@ -221,6 +228,34 @@ function update() {
 		.style("display", "none");
 */
 	node.exit().remove();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	// menu
 	g.selectAll("circle")
@@ -251,6 +286,7 @@ function update() {
 					"callback": function (node) {net.toggleFixed(node.name);update();}
 				}]
 		};
+		/*
 		links.forEach(function (l) {
 			var c = SS.nodes[l.target].name == n.name ? SS.nodes[l.source] : SS.nodes[l.target];
 			var push = {};
@@ -261,7 +297,7 @@ function update() {
 			
 			tree.children[1].children.push(push);
 		});
-		
+		*/
 //		console.log("var tree = JSON.parse('" + JSON.stringify(tree) + "');");
 //		console.log("var n = JSON.parse('" + JSON.stringify(n) + "');");
 		drawRadial(tree, n);
@@ -336,7 +372,13 @@ function update() {
 	/* ---------------------------- FOR SIMULATION ----------------------------- */
 
 	var updateLink = function () {
-		this.attr('d', function(d) {
+		this.attr('d', function(d,i) {
+			if (i==0) {
+				console.log(d.source.x);
+			}
+		});
+			/*
+
 			var sx = d.source.x; var sy = d.source.y; var tx = d.target.x; var ty = d.target.y;
 			var Dx = tx-sx; var Dy = ty-sy; // D as in Delta
 			var pDx = Dy; var pDy = -Dx; 	// p as in perpendicular
@@ -373,6 +415,7 @@ function update() {
 						
 			return path;
 		});
+		*/
 
 		/*
 		// for svg:line objects
@@ -461,7 +504,7 @@ function update() {
 //		FPS.sample();
 
 		node.call(updateNode);
-		link.call(updateLink);
+//		link.call(updateLink);
 
 		if (labels2force) {
 			force2.start();
