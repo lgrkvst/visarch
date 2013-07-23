@@ -105,13 +105,12 @@ var net = function () {
 			this.links.splice(ix, 1);
 		},
 		addNode: function (n, hungry) {
-			if (!n.size) return;
 			if (typeof hungry == "undefined") hungry = false;
 
-			var i = this.ix(n.name); 
-			if (i < 0 || hungry) { // untested bugs may be lurking here...
+			var i = this.ix(n.name);
+			if (i < 0) {
 				n.link_count = 0;
-				if (i<0) i = nodes.push(n) - 1; // untested bugs may be lurking here...
+				i = nodes.push(n) - 1;
 				// add n:s links from SuperSet
 				SS.getLinks(n).forEach(function (l) {
 					net.addLink(SS.nodes[l.source], SS.nodes[l.target], hungry);
@@ -121,10 +120,6 @@ var net = function () {
 			return i;
 		},
 		addLink: function (source, target, hungry, attributes) { // attr: link description etc, currently not supported
-			if (source == target) {
-				console.log("skipped self-referencing link for " + source.name);
-				return;
-			}
 			var link = {};
 			var found = false;
 			link.source = this.ix(source.name);
@@ -149,33 +144,37 @@ var net = function () {
 			}
 			return false;
 		},
-		linkDistance: function(l,i) {
-			var linkD = Math.sqrt(l.source.link_count*l.target.link_count);
-			var sizeD = Math.sqrt(l.source.size*l.source.size+l.target.size*l.target.size);
-			return  Math.floor(net.linkConstant*linkD+sizeD/net.sizeConstant); /* behöver inte round:a */
-		},
-		linkConstant: 25,
-		linkConstantUpdate: function () {
-		    net.linkConstant = d3.select("#linkConstant").property("value");
-		    d3.select("#linkLabel").text("linkConstant: "+d3.format("f")(net.linkConstant));
-			update();
-		    return net.linkConstant;
-		},
-		sizeConstant: 1,
-		sizeConstantUpdate: function () {
-		    net.sizeConstant = d3.select("#sizeConstant").property("value");
-		    d3.select("#sizeLabel").text("sizeConstant: "+d3.format("f")(net.sizeConstant));
-			update();
-		    return net.sizeConstant;
-		},
 		setup: function (w, h) {
+			/* Fund & Portfolio management har 91 länkar
+			 * 
+			 *
+			 */
+			/*
 			this.force = d3.layout.force()
-			.linkDistance(net.linkDistance)
-			.gravity(0.1)
-			.charge(-600)
-			.friction(0.5)
+				.linkDistance(function(n) {
+					return 60;
+				})
+				.gravity(0.7)
+				.charge(function(n) {if (n.size > 0) return -2000; else return -50;})
+				.friction(0.7)
+				.size([w, h])
+				.nodes(nodes).links(links);
+				*/
+			this.force = d3.layout.force()
+				.linkDistance(function (l, i) {
+				var n1 = l.source,
+					n2 = l.target;
+				return 60 +
+					Math.min(20 * Math.min((n1.size || (n1.group != n2.group ? n1.size : 0)), (n2.size || (n1.group != n2.group ? n2.size : 0))), -30 +
+					30 * Math.min((n1.link_count || (n1.group != n2.group ? n1.link_count : 0)), (n2.link_count || (n1.group != n2.group ? n2.link_count : 0))),
+					100);
+			})
+				.gravity(0.1) // gravity+charge tweaked to ensure good 'grouped' view (e.g. green group not smack between blue&orange, ... CLA CHANGED FROM 0.05 for SMALL CLUSTERS
+			.charge(-600) // ... charge is important to turn single-linked groups to the outside
+			.friction(0.5) // friction adjusted to get dampened display: less bouncy bouncy ball [Swedish Chef, anyone?]
 			.size([$(window).width(), $(window).height()])
 				.nodes(nodes).links(links);
+
 		},
 		d3_layout_forceMouseover: function(d) { // got these from d3's force.js
 		  d.fixed |= 4; // set bit 3
@@ -403,114 +402,67 @@ function myAtan(y, x) { // http://dspguru.com/dsp/tricks/fixed-point-atan2-with-
 var Compartments = function () {
 	var compartments = [{
 			name: "[Account & Liquidity]",
-			short: "Accounts",
 			compartment: "Account & Liquidity System",
 			description: "compartment"
 		}, {
 			name: "[Business Intelligence]",
-			short: "BI",
 			compartment: "Business Intelligence",
 			description: "compartment"
 		}, {
 			name: "[Core]",
-			short: "Core",
 			compartment: "Core Systems",
 			description: "compartment"
 		}, {
 			name: "[Financing & Loans]",
-			short: "Loans",
 			compartment: "FinancingLoans Systems",
 			description: "compartment"
 		}, {
 			name: "[Front]",
-			short: "Front",
 			compartment: "Front System",
 			description: "compartment"
 		}, {
 			name: "[Fund & Portfolio Management]",
-			short: "F&Pm",
 			compartment: "Fund & Portfolio Management",
 			description: "compartment"
 		}, {
-			name: "[Rogue]",
-			short: "?",
+			name: "[Rogue Systems]",
 			compartment: "Other SEB Systems",
 			description: "compartment"
 		}, {
 			name: "[Payments]",
-			short: "Payments",
 			compartment: "Payment Systems",
 			description: "compartment"
 		}, {
 			name: "[Processing Support]",
-			short: "ProcSup",
 			compartment: "Processing Support Systems",
 			description: "compartment"
 		}, {
 			name: "[Securities]",
-			short: "Securities",
 			compartment: "Securities Systems",
 			description: "compartment"
 		}, {
 			name: "[Trading]",
-			short: "Trading",
 			compartment: "Trading Systems",
 			description: "compartment"
 		}, {
-			name: "[External]",
-			short: "External",
+			name: "[Outside SEB]",
 			compartment: "ExternalSystems",
 			description: "compartment"
 		}, {
-			name: "[Finance Systems]",
-			short: "F&R",
-			compartment: "[Finance Systems]",
-			description: "compartment"
-		}, {
-			name: "[Finance & Risk]",
-			short: "F&R",
-			compartment: "Finance&Risk Systems",
-			description: "compartment"
-		}, {
 			name: "[Finance & Risk] Finance systems",
-			short: "F&R",
 			compartment: "Finance Systems",
 			description: "compartment"
 		}, {
 			name: "[Finance & Risk] Risk systems",
-			short: "F&R",
 			compartment: "Risk Systems",
 			description: "compartment"
 		}, {
 			name: "[Finance & Risk] Compliance Systems",
-			short: "F&R",
 			compartment: "Compliance Systems",
-			description: "compartment"
-		}, {
-			name: "[SEB Kort]",
-			short: "Kort",
-			compartment: "Cards",
-			description: "compartment"
-		}, {
-			name: "[Group Staff]",
-			short: "Group Staff",
-			compartment: "Group Staff Systems",
-			description: "compartment"
-		}, {
-			name: "[TryggLiv]",
-			short: "TL",
-			compartment: "Life insurance",
 			description: "compartment"
 		}];
 	return {
 		all: compartments,
-		RSA2short: function (RSA) {
-			var ret = undefined;
-			compartments.forEach(function (c) {
-				if (RSA == c.compartment) ret = c.short;
-			});
-			return ret;
-		},
 		RSA: function () {
 			var a = [];
 			compartments.forEach(function (c) {
@@ -528,11 +480,9 @@ var Compartments = function () {
 			return match;
 		},
 		RSA2name: function (RSA) {
-			var ret = undefined;
 			compartments.forEach(function (c) {
-				if (RSA == c.compartment) ret = c.name;
+				if (RSA == c.compartment) return c.name
 			});
-			return ret;
 		}
 
 	};
