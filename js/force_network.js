@@ -1,12 +1,11 @@
 var net = function () {
 	/*** Captain's log
 	 *		Ibland kan jag inte söka efter just compartment [Processing Support], t ex om jag lägger till COIS först...
-	 *		Slopa link_count - använd weight istället!
-	 * 		Bygg om hälften med: array.every(callback[, thisObject])
+	 *		Söljstöd 2 gånger?! Propub 2 gånger?!
 	 */
 
 	var L = function (str) {
-		var debug = true;
+		var debug = false;
 		if (debug) console.log(str);
 	}
 
@@ -74,11 +73,9 @@ var net = function () {
 		drop: function (name) {
 			if (name.substring(0, 1) == "[") {
 				name = Compartments.name2RSA(name);
-				var j = 1;
 				for (var i = nodes.length; i != 0; i--) {
 					var n = nodes[i - 1];
 					if (n.compartment == name) {
-						j++;
 						net.drop(n.name);
 					}
 				}
@@ -107,10 +104,9 @@ var net = function () {
 		dropLink: function (ix) { // Takes an array LINK index
 			this.links.splice(ix, 1);
 		},
-		addRogue: true,
 		addNode: function (n, hungry) {
-			if (n.size == 0 && !this.addRogue) return;
-			if (typeof n.size == undefined) {throw("cannot add node without a size.");}
+			if (!n.size) return;
+			if (typeof hungry == "undefined") hungry = false;
 
 			var i = this.ix(n.name); 
 			if (i < 0 || hungry) { // untested bugs may be lurking here...
@@ -152,10 +148,6 @@ var net = function () {
 				this.addNode(target);
 			}
 			return false;
-		},
-		toggleFixed: function(name) {
-			var n = net.nodes[this.ix(name)];
-			n.fixed = !n.fixed;
 		},
 		linkDistance: function(l,i) {
 			var linkD = Math.sqrt(l.source.link_count*l.target.link_count);
@@ -229,13 +221,6 @@ var net = function () {
 		export: function () {
 			return JSON.stringify(nodes);
 		},
-		reset: function(node, link) {
-			this.links = [];
-			this.nodes = [];
-			update();
-//			node.data([]);
-//			link.data([]);
-		}
 	}
 }();
 
@@ -349,6 +334,72 @@ var SS = function ()  {
 }();
 
 // helpers, not really force related
+
+function elem2name(elem) {
+	var nodeText = elem[0].innerText; // xVDR
+	var nodeName = nodeText.substring(1, nodeText.length); // VDR
+	return nodeName;
+}
+
+function autoSuggestFilter2js(p) {
+	var s = "update([";
+	p.split("×").forEach(function (str) {
+		if ( !! str) s += "{name: \"" + str + "\"},";
+	});
+	s = s.substring(0, s.length - 1);
+	s += "]);"
+	return s;
+}
+
+var FPS = function () {
+	var s, tick, tot = [];
+	return {
+		init: function () {
+			tick = 0;
+			s = (new Date()).getSeconds();
+		},
+		sample: function () {
+			tick++;
+			var d = (new Date()).getSeconds();
+			if (d != s) {
+				tot.push(tick);
+				s = d;
+				this.report();
+				tick = 0;
+			} else {
+				tick++;
+			}
+		},
+		report: function () {
+			var total = 0;
+			tot.forEach(function (t) {
+				total += t;
+			});
+			console.log("this: " + tick + " - average: " + total / tot.length);
+			// false: false: 56, 64, 60, 63
+			// rotate_labels = true: 34, 32, 37
+			// force2: 28, 28
+			// rot & force2: 
+		}
+	};
+}();
+
+
+function myAtan(y, x) { // http://dspguru.com/dsp/tricks/fixed-point-atan2-with-self-normalization
+	var coeff_1 = Math.PI / 4;
+	var coeff_2 = 3 * coeff_1;
+	var abs_y = y > 0 ? y : -y;
+	var angle, r;
+	if (x >= 0) {
+		r = (x - abs_y) / (x + abs_y);
+		angle = coeff_1 - coeff_1 * r;
+	} else {
+		r = (x + abs_y) / (abs_y - x);
+		angle = coeff_2 - coeff_1 * r;
+	}
+	return y < 0 ? -angle : angle;
+}
+
 var Compartments = function () {
 	var compartments = [{
 			name: "[Account & Liquidity]",
@@ -488,75 +539,6 @@ var Compartments = function () {
 }();
 
 
-function elem2name(elem) {
-	var nodeText = elem[0].innerText; // xVDR
-	var nodeName = nodeText.substring(1, nodeText.length); // VDR
-	return nodeName;
-}
-
-function autoSuggestFilter2js(p) {
-	var s = "update([";
-	p.split("×").forEach(function (str) {
-		if ( !! str) s += "{name: \"" + str + "\"},";
-	});
-	s = s.substring(0, s.length - 1);
-	s += "]);"
-	return s;
-}
-
-var FPS = function () {
-	var s, tick, tot = [];
-	return {
-		init: function () {
-			tick = 0;
-			s = (new Date()).getSeconds();
-		},
-		sample: function () {
-			tick++;
-			var d = (new Date()).getSeconds();
-			if (d != s) {
-				tot.push(tick);
-				s = d;
-				this.report();
-				tick = 0;
-			} else {
-				tick++;
-			}
-		},
-		report: function () {
-			var total = 0;
-			tot.forEach(function (t) {
-				total += t;
-			});
-			console.log("this: " + tick + " - average: " + total / tot.length);
-			// false: false: 56, 64, 60, 63
-			// rotate_labels = true: 34, 32, 37
-			// force2: 28, 28
-			// rot & force2: 
-		}
-	};
-}();
-
-
-function myAtan(y, x) { // http://dspguru.com/dsp/tricks/fixed-point-atan2-with-self-normalization
-	var coeff_1 = Math.PI / 4;
-	var coeff_2 = 3 * coeff_1;
-	var abs_y = y > 0 ? y : -y;
-	var angle, r;
-	if (x >= 0) {
-		r = (x - abs_y) / (x + abs_y);
-		angle = coeff_1 - coeff_1 * r;
-	} else {
-		r = (x + abs_y) / (abs_y - x);
-		angle = coeff_2 - coeff_1 * r;
-	}
-	return y < 0 ? -angle : angle;
-}
-
-function EncodeBookmarklet(verbose) {
-	if (verbose) console.log("update(JSON.parse('" + net.export() + "'), false, true);");
-	return MakeBM("update(JSON.parse('" + net.export() + "'), false, true);");
-}
 
 /*
 // SATELLITE
