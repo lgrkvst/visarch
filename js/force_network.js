@@ -14,7 +14,7 @@ var net = function () {
 		determineCenter: function () {
 			var weight = 3;
 			this.center = [];
-			nodes.forEach(function (n, i) {
+			net.nodes.forEach(function (n, i) {
 				net.center.push({
 					index: i,
 					size: n.size
@@ -29,7 +29,7 @@ var net = function () {
 			var x = y = 0;
 
 			this.center.forEach(function (c) {
-				var n = nodes[c.index];
+				var n = net.nodes[c.index];
 				x += n.x;
 				y += n.y;
 			});
@@ -39,7 +39,7 @@ var net = function () {
 			};
 		},
 		ix: function (id) {
-			return nodes.map(function(n) { return n.id; }).indexOf(id);
+			return net.nodes.map(function(n) { return n.id; }).indexOf(id);
 		},
 		getNeighbors: function (id) { // returns duplicates if two systems host multiple integrations
 			var neighbor_links = net.links.filter(function (l) {return l.target.id == id || l.source.id == id;});
@@ -51,27 +51,30 @@ var net = function () {
 			this.determineCenter();
 		},
 		dropNode: function (id) {
-			nodes.splice(this.ix(id), 1);
+			net.nodes.splice(this.ix(id), 1);
 		},
 		dropLinks: function (id) { // a node id!!
 			var dirty = false;
-			for (var i = links.length; i != 0; i--) {
-				if (links[i - 1].source.id == id || links[i - 1].target.id == id) {
+			for (var i = net.links.length; i != 0; i--) {
+				if (net.links[i - 1].source.id == id || net.links[i - 1].target.id == id) {
 					net.dropLink(i - 1); dirty = true;
 				}
 			}
 			return dirty;
 		},
 		addNode: function (id) {
-			if (this.ix(id)>=0) return; // already there
-			this.nodes.push(SS.n(id));
+			if (this.ix(id)>=0) return; // already in set
+			var ix = net.nodes.push(SS.n(id))-1;
 			if (this.dropLinks(id)){ throw("Found garbage links to drop before adding node."); debugger; } 
 			SS.l(id).forEach(function(l) {net.addLink(SS.nodes[l.source].id, SS.nodes[l.target].id);});
 			this.determineCenter();
+			return net.nodes[ix];
 		},
 		addLink: function (sid, tid){
 			var s = net.ix(sid), t = net.ix(tid);
-			if (s>=0&&t>=0)	net.links.push({"source":net.nodes[s], "target":net.nodes[t]});
+			if (s>=0&&t>=0)	{
+				net.links.push({"source":s, "target":t});
+			}
 		},
 		supernova: function (id) { // node explosion!
 			SS.l(id).forEach(function (l) { addNode(SS.n(l.source)); addNode(SS.n(l.target));})
@@ -136,18 +139,36 @@ var net = function () {
 			leftDrag = false;
 		}),
 		dump: function (n, l) {
-			n = n || nodes;
-			l = l || links;
+			n = n || net.nodes;
+			l = l || net.links;
 			l.forEach(function (i) {
 				console.table(i);
 			});
 		},
 		export: function () {
-			return JSON.stringify(nodes);
+			return JSON.stringify(net.nodes);
+		},
+		import: function (ns) {
+			if (!ns) { throw("couldn't import roughly anything =/"); return; }
+			net.nodes = [];
+			net.links = [];
+			ns.forEach(function (innode) {
+				var outnode = net.addNode(innode.id);
+				console.log(innode)
+				console.log(outnode);
+				outnode.px = 0;
+				outnode.py = 0;
+				outnode.x = 0;//innode.x;
+				outnode.y = 0;//innode.y;
+				outnode.fixed = 0;//innode.fixed;
+				console.log(innode);
+				console.log("became");
+				console.log(outnode);
+			});
 		},
 		reset: function(node, link) {
-			this.links = [];
-			this.nodes = [];
+			net.links = [];
+			net.nodes = [];
 			update();
 //			node.data([]);
 //			link.data([]);
@@ -373,24 +394,6 @@ var Compartments = function () {
 	};
 }();
 
-
-function elem2id(elem) {
-//	debugger;
-	var nodeText = elem[0].innerText; // xVDR
-	var nodeName = nodeText.substring(1, nodeText.length); // VDR
-	return nodeName;
-}
-
-function autoSuggestFilter2js(p) {
-	var s = "update([";
-	p.split("×").forEach(function (str) {
-		if ( !! str) s += "{name: \"" + str + "\"},";
-	});
-	s = s.substring(0, s.length - 1);
-	s += "]);"
-	return s;
-}
-
 var FPS = function () {
 	var s, tick, tot = [];
 	return {
@@ -442,8 +445,8 @@ function myAtan(y, x) { // http://dspguru.com/dsp/tricks/fixed-point-atan2-with-
 
 function EncodeBookmarklet(verbose) {
 	verbose = false;
-	if (verbose) console.log("update(JSON.parse('" + net.export() + "'));");
-	return MakeBM("update(JSON.parse('" + net.export() + "'));");
+	if (verbose) console.log("net.import(JSON.parse('" + net.export() + "'));");
+	return MakeBM("net.import(JSON.parse('" + net.export() + "'));");
 }
 
 /*
@@ -476,5 +479,14 @@ g.append("circle").attr("r", function (n) {
 })
 	.attr("dur", "10s")
 	.attr("repeatCount", "indefinately");
-
 */
+
+
+var p = function() {
+		this.p1 = function () {
+			return "p1";
+   		};
+		this.p2 = function() {
+			return "p2";
+		};
+	};

@@ -114,7 +114,7 @@ function update() {
 	d3bookmarks = d3bookmarks.data(bookmarks, function (n) {return n;});
 	d3bookmarks.enter().append("a");
 	d3bookmarks.text(function(n,i) { return (i ? "current" : "previous");});
-	d3bookmarks.attr("href", function(d){return d;}).attr("class", function (n,i) {return i ? "btn-small btn-success" : "btn-small btn-important"; });
+	d3bookmarks.attr("href", function(d){return d;}).attr("class", function (n,i) { return i ? "btn-small btn-success" : "btn-small btn-danger"; });
 	d3bookmarks.exit().remove();
 	
 	// call start before doing svg stuff, since we want any new nodes instantiated
