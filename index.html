@@ -4,125 +4,23 @@
 		<meta charset="utf-8">
 		<title>The Observatory</title>
 <!--		<script type='text/javascript' src='js/d3.min.bm-w.cornerradius.js'></script> -->
-		<script type='text/javascript' src='js/d3.js'></script>
-		<script type='text/javascript' src='js/jquery-1.10.2.min.js'></script>
-		<script type='text/javascript' src='js/bootstrap.min.js'></script>
-		<script type='text/javascript' src='js/typeahead.min.js'></script>
-		<script type='text/javascript' src='js/hogan-2.0.0.js'></script>
-		<script type='text/javascript' src='js/force_network.js'></script>
-		<script type='text/javascript' src='js/MakeBM.js'></script>
+		<script type='text/javascript' src='js/lib/d3.min.bm-w.cornerradius.js'></script>
+		<script type='text/javascript' src='js/lib/jquery-1.10.2.min.js'></script>
+		<script type='text/javascript' src='js/lib/bootstrap.min.js'></script>
+		<script type='text/javascript' src='js/lib/bootstrap-switch.js'></script>
+		<script type='text/javascript' src='js/lib/typeahead.min.js'></script>
+		<script type='text/javascript' src='js/lib/hogan-2.0.0.js'></script>
+		<script type='text/javascript' src='js/lib/MakeBM.js'></script>
+		<script type='text/javascript' src='js/ALL.js'></script>
+		<script type='text/javascript' src='js/Net.js'></script>
+		<script type='text/javascript' src='js/Compartments.js'></script>
+		<script type='text/javascript' src='js/helpers.js'></script>
 		<link type='text/css' href='css/bootstrap.min.css' rel='stylesheet'></link>
 		<link type='text/css' href='css/bootstrap-responsive.min.css' rel='stylesheet'></link>
+		<link rel="stylesheet" href="css/bootstrap-switch.css">
+		<link rel="stylesheet" href="css/typeahead.css">
+		<link rel="stylesheet" href="css/node.css">
 		<style>
-			.link {
-				stroke: #CCC;
-				stroke-width: 10px;
-				opacity:0.1;
-			}
-			.polygonlink {
-				fill: #CCC;
-				stroke: none;
-				stroke-width: 0;
-				opacity:0.1;
-				pointer-events: none;
-			}
-			.node {
-				fill: #fff;
-				opacity:0.8;
-			}
-			.fixed {
-				stroke: #bbb;
-				stroke-width :2.5px;
-				stroke-dasharray: 4, 2;
-				fill:none;
-			}
-			.nodelabel {
-				font-family: optima, sans-serif;
-				filter:none !important;
-			}
-			text {
-				fill:#fff;
-			}
-			.radial {
-				font-size:14px;
-			}
-/*			body {
-				font-family:Arial, Verdana, Helvetica, sans-serif;
-				font-size:12px;
-			}		
-*/				
-			
-
-			.typeahead,
-			.tt-query,
-			.tt-hint {
-			  width: 396px;
-			  height: 50px;
-			  padding: 8px 12px;
-			  font-size: 24px;
-			  line-height: 30px;
-			  border: 2px solid #ccc;
-			  -webkit-border-radius: 8px;
-			     -moz-border-radius: 8px;
-			          border-radius: 8px;
-			  outline: none;
-			}
-
-			.typeahead {
-
-			  background-color: #fff;
-			}
-
-			.typeahead:focus {
-			  border: 2px solid #0097cf;
-			}
-
-			.tt-query {
-			  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-			     -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-			          box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-			}
-
-			.tt-hint {
-			  color: #999
-			}
-
-			.tt-dropdown-menu {
-			  width: 422px;
-			  margin-top: 12px;
-			  padding: 8px 0;
-			  background-color: #fff;
-			  border: 1px solid #ccc;
-			  border: 1px solid rgba(0, 0, 0, 0.<2);
-			  -webkit-border-radius: 8px;
-			     -moz-border-radius: 8px;
-			          border-radius: 8px;
-			  -webkit-box-shadow: 0 5px 10px rgba(0,0,0,.2);
-			     -moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);
-			          box-shadow: 0 5px 10px rgba(0,0,0,.2);
-			}
-
-			.tt-suggestion {
-			  padding: 3px 20px;
-			  font-size: 18px;
-			  line-height: 24px;
-			}
-
-			.tt-suggestion.tt-is-under-cursor {
-			  color: #fff;
-			  background-color: #0097cf;
-		}
-			
-		html,body
-		{
-		height:100%;
-		margin: 0px;
-		}
-
-		#wrap
-		{
-			min-height: 100%;
-		}
 	 	#observatory {
 		  background-size: 100%;
 		  background-size: cover;
@@ -135,22 +33,38 @@
 		  color:#fff;
 		}
 
+			
+		html,body
+		{
+		height:100%;
+		}
+
+		#wrap
+		{
+			min-height: 100%;
+		}
+
 		#main
 		{
 		overflow:auto;
-		padding-bottom:42px; /* this needs to be bigger than footer height*/
+		padding-bottom:40px; /* this needs to be bigger than footer height*/
 		background:#000;
 		}
 
 		.footer 
 		{
 		position: relative;
-		margin-top: -42px; /* negative value of footer height */
+		margin-top: -80px; /* negative value of footer height */
+		height: 80;
 		clear:both;
-		height: 42;
-		padding-top:42px;
-		background-color:#000;
+/*		padding-top:40px;
+*/		background-color:#000;
 		}	
+
+		.jump {
+			color:#666;
+			text-align:center;
+		}
 	
 		.tab {
 		background-color: #888
@@ -187,7 +101,42 @@
 			box-shadow: 0 0 20px 7px rgba(0,0,0,0.15), 0 0 10px 3px rgba(0,0,0,0.35); 
 		} 
 
+
+
+		.tt-description {
+			margin:0;
+			padding:0;
+		  font-size: 0.8em;
+		}
 		</style>
+		<script>
+		var Settings = function(){
+			return {
+				drawOrigo: false,
+				rotateLabels: true,
+				drawAngles: false,
+			}
+		}();
+		$(function() {
+			$('#rotateLabels').popover({animation:false, placement: "top", trigger: "hover", title: "", content: "Each label's angle is calculated from the positions of neighbouring nodes, hoping to reduce clutter."});
+
+			$('#rotateLabels').on('switch-change', function (e, data) {
+				Settings.rotateLabels = data.value
+				update(true);
+			});
+				
+			$('#jumpref').click(function(){
+			    $('html, body').animate({
+			        scrollTop: $( $.attr(this, 'href') ).offset().top
+			    }, 500);
+			    return false;
+			});
+		});
+		$(document).ready(function() {
+			$('#q').focus();
+		});		
+
+		</script>
 	</head>
 	<body>
 		<div class="navbar navbar-inverse">
@@ -206,10 +155,15 @@
 				<form class="navbar-form pull-right">
 				  <input id="q" class="typeahead tt-query" type="text" placeholder="Search..." autocomplete="off" spellcheck="false" dir="auto"/>				
 				<script>
+				Net.node2links = ALL.node2links;
 				$('#q').on('typeahead:selected', function (e, datum) {
-					net.addNode(datum.id);
+					if(datum.description == "compartment") { // add entire compartment
+						var ns = ALL.nsByCompartment(datum.id);
+						ns.forEach(function (n) {Net.addNode(ALL.n(n.id))});
+					} else Net.addNode(ALL.n(datum.id)); // add system
 					update();
 					$(this).typeahead('setQuery', '');
+//			        $('#rotateLabels').bootstrapSwitch('setActive', false);
 			  });</script>
 				</form>
 		      </div>
@@ -224,6 +178,13 @@
 						<script type='text/javascript' src='js/sunburst.js'></script>
 						</div>
 				</div>
+						<div class="text-center jump">
+							<a id="jumpref" href="#jump">
+								<i class="icon-chevron-down"></i>
+								<strong>scroll down for more info</strong>
+								<i class="icon-chevron-down"></i>
+							</a>
+						</div>
 			</div>
 		</div>
 <hr>
@@ -231,11 +192,12 @@
 			<div class="row-fluid">
 				<div class="span12">
 					<div class="page-header">
-						<h1>
+						<h1 id="jump">
 							The Observatory <b><small>&mdash; A Solution Architecture Overview</small>
 						</h1>
 					</div>
 				</div>
+				<div class="span12 lead">The Observatory lets you visualize any SEB systems, along with their integrations, in a <a href="http://en.wikipedia.org/wiki/Force-directed_graph_drawing">force-directed network</a>. The Observatory gets its data directly from the &quot;<abbr title="Defining a Solution Architecture Overview is an initiative within Application Infrastructure">SAO</abbr> <abbr title="IBM RSA is a UML tool for describing enterprise architecture">RSA</abbr>&quot; model, maintained by SEB's <abbr title="Solution Area Architect, a role within Application Infrastructure">SAA's.</abbr></div>
 			</div>
 			<div class="row-fluid">
 				<div class="span4">
@@ -259,13 +221,19 @@ You can add entire compartments by passing its name within square brackets, e.g.
 						Saving
 					</h2>
 					<p>
-						Currently, the Observatory supports saving <i>links</i> to layouts (i.e. not images). The <span class="label label-success">green link</span> on the bottom of the page is a <i>bookmarklet</i> which represents the current state of your layout. Drag this button into the bookmarks bar of your browser to save the state.</p><p> The <span class="label label-important">red link</span> represents the previous state, and effectively serves as an <i>undo</i> button.</p>
+						Currently, the Observatory supports saving <em>links</em> to layouts (i.e. not images). The <span class="label label-success">green link</span> on the bottom of the page is a <em>bookmarklet</em> which represents the current state of your layout. Drag this button into the bookmarks bar of your browser to save the state.</p><p> The <span class="label label-important">red link</span> represents the previous state, and effectively serves as an <em>undo</em> button.</p>
 					</p>
 				</div>
 			</div>
 			<div style="height:20px"></div>
 			<div class="row-fluid">
 				<div class="span12">
+					<span class="span2 alert alert-info">
+							Rotate labels
+							<div id="rotateLabels" class="switch switch-mini">
+							    <input type="checkbox" checked />
+							</div>&nbsp;<i class="icon-question-sign"></i>
+					</span>
 					<blockquote class="pull-right">
 						<p>
 							Idea, design &amp; implementation
@@ -273,8 +241,9 @@ You can add entire compartments by passing its name within square brackets, e.g.
 					</blockquote>
 				</div>
 			</div>
+			<div style="height:20px"></div>
+			<div style="height:20px"></div>
 		</div>
-		<div style="height:20px"></div>
 
 			<!-- <div class=row-fluid style="background: #888">
 		        <span class="span3" id="linkLabel">link_count multiplier: </span>
@@ -285,16 +254,17 @@ You can add entire compartments by passing its name within square brackets, e.g.
 -->
 		<!-- <script>
 		    d3.select("#linkConstant")
-			    .on("change",function() { d3.select("#linkLabel").text("linkConstant: "+net.linkConstantUpdate(this.value));});
+			    .on("change",function() { d3.select("#linkLabel").text("linkConstant: "+Net.linkConstantUpdate(this.value));});
 			d3.select("#sizeConstant")
-			    .on("change",function() { d3.select("#sizeLabel").text("sizeConstant: "+net.sizeConstantUpdate(this.value));});
+			    .on("change",function() { d3.select("#sizeLabel").text("sizeConstant: "+Net.sizeConstantUpdate(this.value));});
 		</script>			
 	-->
-	</body>
-<script>
-function JsonReady() {
-	net.addNode(SS.nByName("cois").id);
-	update();
-}
-</script>
+	<script>
+	function JsonReady() {
+	//	Net.addNode(ALL.nByName("cois").id);
+	//	update();
+	}
+	</script>
+
 </html>
+</body>
