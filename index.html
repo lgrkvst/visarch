@@ -160,7 +160,7 @@
 					if(datum.description == "compartment") { // add entire compartment
 						var ns = ALL.nsByCompartment(datum.id);
 						ns.forEach(function (n) {Net.addNode(ALL.n(n.id))});
-					} else Net.addNode(ALL.n(datum.id)); // add system
+					} else Net.addNode(ALL.n(datum.id), ALL.node2links); // add system
 					update();
 					$(this).typeahead('setQuery', '');
 //			        $('#rotateLabels').bootstrapSwitch('setActive', false);
@@ -266,5 +266,5 @@ You can add entire compartments by passing its name within square brackets, e.g.
 	}
 	</script>
 
-</html>
 </body>
+</html>

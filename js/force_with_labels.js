@@ -67,8 +67,7 @@ gs.append("stop").attr("stop-color", "white").attr("offset", "75%").attr("stop-o
 // import RSA components and relationships
 d3.json("json/nodes_links.json", function (error, graph) {
 
-	ALL.nodes = graph.nodes;
-	ALL.links = graph.links;
+	ALL.init(graph.nodes, graph.links);
 	
 	var autoSuggest = [];
 	graph.nodes.forEach(function (n) {
@@ -81,10 +80,6 @@ d3.json("json/nodes_links.json", function (error, graph) {
 		});
 	});
 
-/*	(JSON.parse(JSON.stringify(Compartments.all))).forEach(function (c) {
-		autoSuggest.push(c);
-	});
-*/	
 	autoSuggest = autoSuggest.concat(Compartments.all.map(function (c){return {name:c.name, color: color(c.compartment),compartment:c.name, id:c.compartment, description:"compartment"};}));
 	$('#q').typeahead({
 		name: 'stellar',
