@@ -118,6 +118,15 @@
 			}
 		}();
 		$(function() {
+
+			// sliders for tweaking the force layout
+		    d3.select("#linkConstant")
+			    .on("change",function() { d3.select("#linkLabel").text("linkConstant: "+Net.linkConstantUpdate(this.value));});
+			d3.select("#sizeConstant")
+			    .on("change",function() { d3.select("#sizeLabel").text("sizeConstant: "+Net.sizeConstantUpdate(this.value));});
+
+
+
 			$('#rotateLabels').popover({animation:false, placement: "top", trigger: "hover", title: "", content: "Each label's angle is calculated from the positions of neighbouring nodes, hoping to reduce clutter."});
 
 			$('#rotateLabels').on('switch-change', function (e, data) {
@@ -135,6 +144,8 @@
 		$(document).ready(function() {
 			$('#q').focus();
 		});		
+
+
 
 		</script>
 	</head>
@@ -155,12 +166,15 @@
 				<form class="navbar-form pull-right">
 				  <input id="q" class="typeahead tt-query" type="text" placeholder="Search..." autocomplete="off" spellcheck="false" dir="auto"/>				
 				<script>
-				Net.node2links = ALL.node2links;
 				$('#q').on('typeahead:selected', function (e, datum) {
 					if(datum.description == "compartment") { // add entire compartment
 						var ns = ALL.nsByCompartment(datum.id);
-						ns.forEach(function (n) {Net.addNode(ALL.n(n.id))});
-					} else Net.addNode(ALL.n(datum.id), ALL.node2links); // add system
+						ns.forEach(function (n, i) {
+							if (n.size>0) Net.add(ALL.n(n.id));
+//							if (n.size>0 && i<ns.length/3.9) Net.add(ALL.n(n.id)); // felsök Fund
+							});
+
+					} else Net.add(ALL.n(datum.id), ALL.node2links); // add system
 					update();
 					$(this).typeahead('setQuery', '');
 //			        $('#rotateLabels').bootstrapSwitch('setActive', false);
@@ -177,6 +191,18 @@
 						<script type='text/javascript' src='js/force_with_labels.js'></script>
 						<script type='text/javascript' src='js/sunburst.js'></script>
 						</div>
+				</div>
+				<div id="some_settings_that_only_i_can_see" style="background:#fff">
+					<div class="row-fluid">
+				        <span class="span6">
+							<div id="linkLabel">linkConstant:</div>
+				        	<div class="span3"><input type="range" min="0" max="30" value="25" id="linkConstant" step="0.01"/></div>
+						</span>
+				        <span class="span6">
+							<div id="sizeLabel">sizeConstant:</div>
+				        	<div class="span3"><input type="range" min="0" max="100" value="1" id="sizeConstant" step="0.01"/></div>
+						</span>
+					</div>
 				</div>
 						<div class="text-center jump">
 							<a id="jumpref" href="#jump">
@@ -244,24 +270,9 @@ You can add entire compartments by passing its name within square brackets, e.g.
 			<div style="height:20px"></div>
 			<div style="height:20px"></div>
 		</div>
-
-			<!-- <div class=row-fluid style="background: #888">
-		        <span class="span3" id="linkLabel">link_count multiplier: </span>
-		        <span class="span3"><input type="range" min="0" max="30" value="25" id="linkConstant" step="0.01"/></span>
-		        <span class="span3" id="sizeLabel">size multiplier: </span><br>
-		        <span class="span3"><input type="range" min="0" max="10" value="1" id="sizeConstant" step="0.01"/></span>
-	    		</div>
--->
-		<!-- <script>
-		    d3.select("#linkConstant")
-			    .on("change",function() { d3.select("#linkLabel").text("linkConstant: "+Net.linkConstantUpdate(this.value));});
-			d3.select("#sizeConstant")
-			    .on("change",function() { d3.select("#sizeLabel").text("sizeConstant: "+Net.sizeConstantUpdate(this.value));});
-		</script>			
-	-->
 	<script>
 	function JsonReady() {
-	//	Net.addNode(ALL.nByName("cois").id);
+	//	Net.add(ALL.nByName("cois").id);
 	//	update();
 	}
 	</script>

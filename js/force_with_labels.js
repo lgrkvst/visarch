@@ -3,7 +3,7 @@ var color = d3.scale.category20().domain(Compartments.RSA());
 var w = $(window).width(),
 	h = $(window).height()-42*2;
 
-Net.setup(w, h);
+Net.init(w, h, ALL.node2links);
 
 var svg = d3.select("#observatory").attr("width", w).attr("height", h)
 	.on("mouseup", function () {
@@ -101,7 +101,7 @@ d3.json("json/nodes_links.json", function (error, graph) {
 function update() {
 		// everything is set up for rendering - create a bookmarklet for saving:
 		// <a id="bookmarklet" href="javascript:null;" class="btn-small btn-warning">spara</a>		
-		bookmarks.push(Net.export(true));
+		bookmarks.push(Net.exportN(false));
 		bookmarks.shift();
 		d3bookmarks = d3bookmarks.data(bookmarks, function (n) {return n;});
 		d3bookmarks.enter().append("a");
@@ -110,7 +110,7 @@ function update() {
 		d3bookmarks.exit().remove();
 	
 	// call start before doing svg stuff, since we want any new nodes instantiated
-	Net.force.start();
+	Net.force().start();
 
 	
 
@@ -327,7 +327,8 @@ function update() {
 
 			var t2x = tx-pDx*tS;
 			var t2y = ty-pDy*tS;
-			
+			if (!sx) {console.log(d.source.name + "(FAIL) -> " + d.target.name);}
+			if (!tx) {console.log(d.source.name + " -> (FAIL)" + d.target.name);}
 			var path = "M " + s1x + " " + s1y;
 			path +=   " L " + t1x + " " + t1y;
 			path +=   " L " + t2x + " " + t2y;
@@ -407,8 +408,8 @@ function update() {
 	}
 	FPS.init();
 //	console.time("doit")
-	Net.force.on("tick", tick);
-	Net.force.on("end", stop);
+	Net.force().on("tick", tick);
+	Net.force().on("end", stop);
 	
 	function stop() {
 		console.log("stop");
