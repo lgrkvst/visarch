@@ -57,3 +57,8 @@
 	  color: #fff;
 	  background-color: #0097cf;
 }
+	.tt-description {
+		margin:0;
+		padding:0;
+	  font-size: 0.8em;
+	}

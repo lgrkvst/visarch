@@ -13,7 +13,7 @@ var svg = d3.select("#observatory").attr("width", w).attr("height", h)
 var link = svg.insert("g").attr("class", "links").selectAll(".link");
 var node = svg.insert("g").attr("class", "nodes").selectAll(".node");
 
-var bookmarks = ["javascript:(function(){update(JSON.parse('[]'),false,true);})();", "javascript:(function(){update(JSON.parse('[]'),false,true);})();"];
+var bookmarks = ["javascript:(function(){Net.importN(JSON.parse('[]'));})();", "javascript:(function(){Net.importN(JSON.parse('[]'));})();"];
 var d3bookmarks = d3.select("#bookmarks").selectAll("a");
 
 svg.append("filter").attr("id", "blurMe").append("feGaussianBlur").attr("in", "SourceGraphic").attr("stdDeviation", "2");
@@ -32,8 +32,7 @@ svg.append("svg:defs").selectAll("marker")
 	.append("svg:path")
 	.attr("d", "M0,-5L10,0L0,5");
 
-	// define gradients
-	// varför gs två gånger?
+/**** node gradients ***/
 var gs = svg.selectAll("defs").selectAll("menuGradients")
 		.data(color.range())
 		.enter()
@@ -42,7 +41,7 @@ var gs = svg.selectAll("defs").selectAll("menuGradients")
 		return "m" + i;
 	}).attr("cx", "0%").attr("cy", "0%").attr("fx", "0%").attr("fy", "0%").attr("r", "100%");
 	gs.append("stop").attr("stop-color", function (n) {
-		return d3.rgb(n).darker();
+		return d3.rgb(n).brighter();
 	}).attr("offset", "0%").attr("stop-opacity", "100%");
 	gs.append("stop").attr("stop-color", function (n) {
 		return n;
@@ -50,6 +49,7 @@ var gs = svg.selectAll("defs").selectAll("menuGradients")
 
 
 
+/**** radial gradients ***/
 var gs = svg.selectAll("defs").selectAll("radialGradient")
 	.data(color.range())
 	.enter()
@@ -61,6 +61,31 @@ gs.append("stop").attr("stop-color", function (n) {
 	return n;
 }).attr("offset", "40%").attr("stop-opacity", "100%");
 gs.append("stop").attr("stop-color", "white").attr("offset", "75%").attr("stop-opacity", "0%");
+
+/**** radial icons ***/
+svg.selectAll("defs")
+	.append("g")
+	.attr("id", "icon_remove")
+	.append("polygon")
+	.attr("points", "438.393,374.595 319.757,255.977 438.378,137.348 374.595,73.607 255.995,192.225 137.375,73.622 73.607,137.352 192.246,255.983 73.622,374.625 137.352,438.393 256.002,319.734 374.652,438.378")
+	.attr("fill", "white")
+	.attr("transform", "scale(0.03) translate(-80,150)");
+
+svg.selectAll("defs")
+	.append("g")
+	.attr("id", "icon_fixed")
+	.append("path")
+	.attr("d", "M20.812,19.5h5.002v-6.867c-0.028-1.706-0.61-3.807-2.172-5.841c-1.539-2.014-4.315-3.72-7.939-3.687C12.076,3.073,9.3,4.779,7.762,6.792C6.2,8.826,5.617,10.928,5.588,12.634V19.5h5v-6.866c-0.027-0.377,0.303-1.789,1.099-2.748c0.819-0.979,1.848-1.747,4.014-1.778c2.165,0.032,3.195,0.799,4.013,1.778c0.798,0.959,1.126,2.372,1.099,2.748V19.5L20.812,19.5zM25.814,25.579c0,0,0-2.354,0-5.079h-5.002c0,2.727,0,5.08,0,5.08l5.004-0.001H25.814zM5.588,25.58h5c0,0,0-2.354,0-5.08h-5C5.588,23.227,5.588,25.58,5.588,25.58z")
+	.attr("fill", "white")
+	.attr("transform", "scale(0.52) translate(-5,10)");
+ 				
+svg.selectAll("defs")
+	.append("g")
+	.attr("id", "icon_explode")
+	.append("path")
+	.attr("d", "M6.812,17.202l7.396-3.665v-2.164h-0.834c-0.414,0-0.808-0.084-1.167-0.237v1.159l-7.396,3.667v2.912h2V17.202zM26.561,18.875v-2.913l-7.396-3.666v-1.158c-0.358,0.152-0.753,0.236-1.166,0.236h-0.832l-0.001,2.164l7.396,3.666v1.672H26.561zM16.688,18.875v-7.501h-2v7.501H16.688zM27.875,19.875H23.25c-1.104,0-2,0.896-2,2V26.5c0,1.104,0.896,2,2,2h4.625c1.104,0,2-0.896,2-2v-4.625C29.875,20.771,28.979,19.875,27.875,19.875zM8.125,19.875H3.5c-1.104,0-2,0.896-2,2V26.5c0,1.104,0.896,2,2,2h4.625c1.104,0,2-0.896,2-2v-4.625C10.125,20.771,9.229,19.875,8.125,19.875zM13.375,10.375H18c1.104,0,2-0.896,2-2V3.75c0-1.104-0.896-2-2-2h-4.625c-1.104,0-2,0.896-2,2v4.625C11.375,9.479,12.271,10.375,13.375,10.375zM18,19.875h-4.625c-1.104,0-2,0.896-2,2V26.5c0,1.104,0.896,2,2,2H18c1.104,0,2-0.896,2-2v-4.625C20,20.771,19.104,19.875,18,19.875z")
+	.attr("fill", "white")
+	.attr("transform", "scale(1) rotate(180) translate(-30,-55)");
 
 
 
@@ -99,15 +124,6 @@ d3.json("json/nodes_links.json", function (error, graph) {
 	} catch (err) {console.log(err);}
 });
 function update() {
-		// everything is set up for rendering - create a bookmarklet for saving:
-		// <a id="bookmarklet" href="javascript:null;" class="btn-small btn-warning">spara</a>		
-		bookmarks.push(Net.exportN(false));
-		bookmarks.shift();
-		d3bookmarks = d3bookmarks.data(bookmarks, function (n) {return n;});
-		d3bookmarks.enter().append("a");
-		d3bookmarks.text(function(n,i) { return (i ? "current" : "previous");});
-		d3bookmarks.attr("href", function(d){return d;}).attr("class", function (n,i) { return i ? "btn-small btn-success" : "btn-small btn-danger"; });
-		d3bookmarks.exit().remove();
 	
 	// call start before doing svg stuff, since we want any new nodes instantiated
 	Net.force().start();
@@ -247,48 +263,50 @@ function update() {
 			sunburst.remove();
 		})	
 		.on("contextmenu", function (n) {
-		var links = ALL.getLinks(n);
 		var tree = {
 			"size": n.size,
 			"children": [{
-					"label": "REMOVE",
-					"name": n.name,
+					"label": "remove",
+					"id": n.id,
+					"icon": "#icon_remove",
 					"size": "10",
-					"children": [{"name": "rogues"}],
-					"callback": function (node) {Net.drop(node.name);update();}
+//					"children": [{"name": "rogues"}],
+					"callback": function (node) {Net.drop(node.id);update();}
 					}, {
-					"label": "EXPLODE",
-					"name": n.name,
+					"label": "explode",
+					"id": n.id,
+					"icon": "#icon_explode",
 					"size": "10",
 					"children": [],
-					"callback": function (node) {Net.addNode(ALL.filterNodes({"name":node.name})[0], true);update();} // fix addnode to provide callback
+					"callback": function (node) {Net.supernova(node.id);update();}
 					}, {
-					"label": "FREEZE",
-					"name": n.name,
+					"label": "freeze",
+					"id": n.id,
+					"icon": "#icon_fixed",
 					"size": "10",
-					"callback": function (node) {Net.toggleFixed(node.name);update();}
+					"callback": function (node) {Net.toggleFixed(node.id);update();}
 				}]
 		};
-		/*
+		var links = ALL.node2links(n.id);
 		links.forEach(function (l) {
-			var c = ALL.nodes[l.target].name == n.name ? ALL.nodes[l.source] : ALL.nodes[l.target];
+			var c = l.target.id == n.id ? l.source : l.target;
 			var push = {};
 			push.name = c.name;
+			push.id = c.id;
 			push.compartment = c.compartment;
-			push.callback = function(node){update([{"name": node.name}])};
-			//
-			
+			push.size = c.size;
+			push.callback = function(node){Net.add(ALL.n(node.id)); update()};
 			tree.children[1].children.push(push);
 		});
-		*/
-//		console.log("var tree = JSON.parse('" + JSON.stringify(tree) + "');");
-//		console.log("var n = JSON.parse('" + JSON.stringify(n) + "');");
+		console.A ="var tree = JSON.parse('" + JSON.stringify(tree) + "');";
+		console.B = "var n = JSON.parse('" + JSON.stringify(n) + "');";
+		
 		drawRadial(tree, n);
 	});
 	
 	node.call(Net.nodeDrag);
 
-	if (Settings.drawOrigo) {
+		if (Settings.drawOrigo && !Settings.rotateLabels) {
 		var origo = svg.append("g").attr("id", "origo");
 		origo.append("circle").attr("r", 4).style("fill", "#fff");
 		origo.append("circle").attr("r", 7).style("stroke", "#fff").style("fill", "none").style("stroke-width", "1.5px");
@@ -334,7 +352,7 @@ function update() {
 			path +=   " L " + t2x + " " + t2y;
 			path +=   " L " + s2x + " " + s2y;
 			path +=   " Z";
-						
+			if (!t2y) console.log(d.source.name + " -> " + d.target.name);
 			return path;
 		});
 
@@ -353,8 +371,10 @@ function update() {
 	}
 
 	var updateNode = function () {
-		var center = Net.getCenter();
-		if (Settings.drawOrigo) svg.select("#origo").attr("transform", "translate(" + center.x + "," + center.y + ")");
+		if (Settings.drawOrigo && !Settings.rotateLabels) {
+			var center = Net.getCenter();
+			svg.select("#origo").attr("transform", "translate(" + center.x + "," + center.y + ")");
+		}
 
 		this.attr("transform", function (d, i) {
 //			this.childNodes[4].setAttribute("style", "display: "+ (d.fixed ? "block" : "none"));
@@ -402,7 +422,8 @@ function update() {
 					text.setAttribute("transform", "rotate(" + 0 + ")");
 					
 				}
-			}
+			}			
+			
 			return "translate(" + d.x + "," + d.y + ") rotate(" + angle + ")";
 		});
 	}
@@ -410,11 +431,28 @@ function update() {
 //	console.time("doit")
 	Net.force().on("tick", tick);
 	Net.force().on("end", stop);
+	Net.force().on("start", start);
+	
+	function start() {
+		d3bookmarks.attr("href", function(d){return d;}).attr("class", function (n,i) { return i ? "btn-small btn-warning" : "btn-small btn-danger"; });
+	}
 	
 	function stop() {
-		console.log("stop");
+		// everything is set up for rendering - create a bookmarklet for saving:
+		// <a id="bookmarklet" href="javascript:null;" class="btn-small btn-warning">spara</a>		
+		bookmarks.push(Net.exportN(false));
+		bookmarks.shift();
+		d3bookmarks = d3bookmarks.data(bookmarks, function (n) {return n;});
+		d3bookmarks.enter().append("a");
+		d3bookmarks.text(function(n,i) { return (i ? "save" : "< back");});
+		d3bookmarks.attr("href", function(d){return d;}).attr("class", function (n,i) { return i ? "btn-small btn-success" : "btn-small btn-danger"; });
+		d3bookmarks.exit().remove();
+
 	}
 	function tick (e) {
+
+		d3bookmarks.attr("href", function(d){return d;}).text(function (n,i) { return i ? Math.floor(1000*(0.1-(Net.force().alpha()))) + "%" : "undo"; });
+
 //		console.timeEnd("doit");
 		
 		if (e.alpha >0.098) {
@@ -426,6 +464,7 @@ function update() {
 		// no filter: 72, 83, 83, 90
 		// opacity: 83, 84, 77
 //		FPS.sample();
+
 
 		node.call(updateNode);
 		link.call(updateLink);

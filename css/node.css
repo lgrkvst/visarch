@@ -28,5 +28,22 @@ text {
 	fill:#fff;
 }
 .radial {
-	font-size:14px;
+	font-size:12px;
+	font-family: 'helvetica neue', tahoma,sans-serif;
+	font-weight:bold;
+}
+#observatory {
+  background-size: 100%;
+  background-size: cover;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+  background-size: cover;
+  background-position: center center;
+  background-image: url('../img/bg10.jpg');
+  color:#fff;
+}
+
+.mouseover {
+	opacity:0.5;
 }

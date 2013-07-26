@@ -13,17 +13,9 @@ var ALL = (function () {
 	var l = function (id) { // return all links involving (node.)id
 		return links.filter(function (l) {return nodes[l.target].id == id || nodes[l.source].id == id;});
 		};
-	var node2links = function (n) { // return n's neighbors
+	var node2links = function (id) { // return n[.id]'s neighbouring nodes
 		/*  node2links is used as a callback (Net.addNode) */
-		var match =  l(n.id).map(function (n) {return {"source":nodes[n.source].id, "target":nodes[n.target].id};});
-return match
-		var arr = {};
-		for ( var i=0; i < match.length; i++ )
-		    arr[match[i]['source']] = match[i];
-		match = new Array();
-		for ( key in arr )
-		    match.push(arr[key]);
-		return match;
+		return l(id).map(function (n) {return {"source":nodes[n.source], "target":nodes[n.target]};});
 		};
 	var nsByCompartment = function(c) {
 		return nodes.filter(function (n) {return n.compartment == c;})
@@ -33,7 +25,7 @@ return match
 		links = ls;
 		};
 	return {
-		n:n,
+		n: n,
 		nByName: nByName,
 		l: l,
 		node2links: node2links,

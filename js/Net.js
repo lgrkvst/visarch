@@ -6,25 +6,18 @@ var Net = (function () {
 	var nodes = [], links = [], force, center = [], linkConstant = 25, sizeConstant = 1, leftDrag = true, node2links;
 	
 	var get_force = function() {return force;}
-	var determineCenter = function (ix, s) {
-		var weight = 3;
-		if (s) { // node added
-			center.push({index:ix, size:s});
-			} else { // node ix dropped, recalculate
-			
-			}
+	var determineCenter = function () {
+		center = Net.nodes.map(function(n) {return ix(n.id);});
 		if (center.length>3) {
-			center.sort(function(a,b) {
-				return a.size < b.size;
-				});
-			center.splice(weight, center.length - weight);
+			center.sort(function(a,b) { return Net.nodes[a].size < Net.nodes[b].size; });
+			center.splice(3, center.length - 3);
 			}
 	};
 	var getCenter = function () {
 		var x = y = 0;
 
 		center.forEach(function (c) {
-			var n = nodes[c.index];
+			var n = nodes[c];
 			x += n.x;
 			y += n.y;
 			});
@@ -62,30 +55,37 @@ var Net = (function () {
 			}
 			return dirty;
 		};
+	var dropLink = function(ix) {
+		links.splice(ix, 1);
+	};
 	/*** add(n = node to add (as opposed to a node_is, being passed to N - this way we can add nodes with positions)
 	 *			 L = callback, returns array of node's links
 	 *			 N = callback, returns a node id given what's in link.source and link.target (id or index)
 	 ***/
 	var add = function (n) {
 		if (!node2links) {throw "undefined callback: node2links"; return;}
+		if (!n.id) {throw "node lacks id"; return;}
+		if (!n.size) {throw "node lacks size"; return;}
 		if (ix(n.id) < 0) var index = nodes.push(n)-1;
 		else return; // return if already among nodes
 		if (dropLinks(n.id)){ throw("Found garbage links to drop before adding node."); debugger; }
-		node2links(n).forEach(function(l) {addLink(l);});
+		node2links(n.id).forEach(function(l) {addLink(l);});
 		determineCenter(index, n.size);
 		return nodes[index];
 		};
 	var addLink = function (l){
-		var s = ix(l.source), t = ix(l.target);
+		var s = ix(l.source.id), t = ix(l.target.id);
+		if (s==t) return; // no self-linking
 		if (s>=0&&t>=0 && !lix(s,t).length)	{
 			links.push({"source":s, "target":t});
 			}
 		};
 	var supernova = function (id) { // node explosion!
-			SS.l(id).forEach(function (l) { add(SS.n(l.source)); add(SS.n(l.target));})
+			node2links(id).forEach(function (l) { add(l.source); add(l.target);})
 		};
-	var toggleFixed = function(name) {
+	var toggleFixed = function(id) {
 		var n = nodes[ix(id)];
+		console.log(n); console.log(id);
 		n.fixed = !n.fixed;
 		};
 	var linkDistance = function(l,i) {
@@ -111,7 +111,10 @@ var Net = (function () {
 		force = d3.layout.force()
 			.linkDistance(linkDistance)
 			.gravity(0.1)
-			.charge(-1200)
+			.charge(function (n) {
+				if (n.weight == 0) return -100;
+				return -1200;
+			})
 			.friction(0.5)
 			.size([w, h])
 			.nodes(nodes).links(links);
@@ -156,10 +159,10 @@ var Net = (function () {
 			return MakeBM(b);
 		};
 	var importN = function (ns) {
-		if (!ns) { throw("couldn't import roughly anything =/"); return; }
-		nodes = [];
-		links = [];
-		ns.forEach(function (n) {add(n);});
+		nodes.length = 0;
+		links.length = 0;
+		center.length = 0;
+		if (ns.length) ns.forEach(function (n) {add(n);});
 		force.nodes(nodes);
 		force.links(links);
 		update();
