@@ -1,0 +1,219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>The Observatory</title>
+		<script type='text/javascript' src='js/lib/d3.min.bm-w.cornerradius.js'></script>
+		<script type='text/javascript' src='js/lib/jquery-1.10.2.min.js'></script>
+		<script type='text/javascript' src='js/lib/bootstrap.min.js'></script>
+		<script type='text/javascript' src='js/lib/bootstrap-switch.js'></script>
+		<script type='text/javascript' src='js/lib/typeahead.min.js'></script>
+		<script type='text/javascript' src='js/lib/hogan-2.0.0.js'></script>
+		<script type='text/javascript' src='js/lib/MakeBM.js'></script>
+		<script type='text/javascript' src='js/ALL.js'></script>
+		<script type='text/javascript' src='js/Net.js'></script>
+		<script type='text/javascript' src='js/Compartments.js'></script>
+		<script type='text/javascript' src='js/helpers.js'></script>
+		<link type='text/css' href='css/bootstrap.min.css' rel='stylesheet'></link>
+		<link type='text/css' href='css/bootstrap-responsive.min.css' rel='stylesheet'></link>
+		<link rel="stylesheet" href="css/bootstrap-switch.css">
+		<link rel="stylesheet" href="css/typeahead.css">
+		<link rel="stylesheet" href="css/node.css">
+		<link rel="stylesheet" href="css/static_footer.css">
+		<link rel="stylesheet" href="css/hr.css">
+		<style>
+
+		.jump {
+			color:#666;
+			text-align:center;
+		}
+	
+		.navbar {
+			margin-bottom:0px;
+		}
+
+		.navbar-inner {
+			-webkit-border-radius: 0 !important;
+		     -moz-border-radius: 0 !important;
+		          border-radius: 0 !important;
+			
+		}
+				
+		.content {
+			margin:0 30px 40px 30px;
+		}
+		</style>
+		<script>
+		var Settings = function(){
+			return {
+				drawOrigo: true,
+				rotateLabels: true,
+				drawAngles: false,
+			}
+		}();
+		$(function() {
+
+			// sliders for tweaking the force layout
+		    d3.select("#linkConstant")
+			    .on("change",function() { 
+					d3.select("#linkLabel").text("linkConstant: "+Net.linkConstantUpdate(this.value));
+					});
+			d3.select("#sizeConstant")
+			    .on("change",function() { 
+					d3.select("#sizeLabel").text("sizeConstant: "+Net.sizeConstantUpdate(this.value));
+					});
+
+
+
+			$('#rotateLabels').popover({animation:false, placement: "top", trigger: "hover", title: "", content: "Each label's angle is calculated from the positions of neighbouring nodes, hoping to reduce clutter."});
+
+			$('#rotateLabels').on('switch-change', function (e, data) {
+				Settings.rotateLabels = data.value
+				update(true);
+			});
+				
+			$('#jumpref').click(function(){
+			    $('html, body').animate({
+			        scrollTop: $( $.attr(this, 'href') ).offset().top
+			    }, 500);
+			    return false;
+			});
+		});
+		$(document).ready(function() {
+			$('#q').focus();
+		});		
+
+
+
+		</script>
+	</head>
+	<body>
+		<div class="navbar navbar-inverse">
+		  <div class="navbar-inner">
+		    <div class="container">
+		      <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+		      <a class="btn btn-navbar">
+		        <span class="icon-bar"></span>
+		        <span class="icon-bar"></span>
+		        <span class="icon-bar"></span>
+		      </a>
+<span class="btn btn-navbar" id="bookmarks">
+	
+</span>
+		      <p class="brand" href="#">The Observatory</p>
+				<form class="navbar-form pull-right">
+				  <input id="q" class="typeahead tt-query" type="text" placeholder="Search..." autocomplete="off" spellcheck="false" dir="auto"/>				
+				<script>
+				$('#q').on('typeahead:selected', function (e, datum) {
+					if(datum.description == "compartment") { // add entire compartment
+						var ns = ALL.nsByCompartment(datum.id);
+						ns.forEach(function (n, i) {
+							if (n.size>0) Net.add(ALL.n(n.id));
+							});
+
+					} else Net.add(ALL.n(datum.id), ALL.node2links); // add system
+					update();
+					$(this).typeahead('setQuery', '');
+			  });</script>
+				</form>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+		<div id="wrap" oncontextmenu="return false;">
+			<div id="main" class="clear-top" style=" border-bottom:1px gray">
+				<div class="row-fluid">
+					<div class="span12"><svg id="observatory"></svg>
+						<script type='text/javascript' src='js/force_with_labels.js'></script>
+						<script type='text/javascript' src='js/sunburst.js'></script>
+						</div>
+				</div>
+				<!--
+				<div id="some_settings_that_only_i_can_see" style="background:#fff">
+					<div class="row-fluid">
+				        <span class="span6">
+							<div id="linkLabel">linkConstant:</div>
+				        	<div class="span3"><input type="range" min="0" max="30" value="25" id="linkConstant" step="0.01"/></div>
+						</span>
+				        <span class="span6">
+							<div id="sizeLabel">sizeConstant:</div>
+				        	<div class="span3"><input type="range" min="0" max="100" value="1" id="sizeConstant" step="0.01"/></div>
+						</span>
+					</div>
+				</div>
+				-->
+						<div class="text-center jump">
+							<a id="jumpref" href="#jump">
+								<i class="icon-chevron-down"></i>
+								<strong>scroll down for more info</strong>
+								<i class="icon-chevron-down"></i>
+							</a>
+						</div>
+			</div>
+		</div>
+<hr>
+		<div class="container-fluid content">
+			<div class="row-fluid">
+				<div class="span12">
+					<div class="page-header">
+						<h1 id="jump">
+							The Observatory <b><small>&mdash; A Solution Architecture Overview</small>
+						</h1>
+					</div>
+				</div>
+				<div class="span12 lead">The Observatory lets you visualize arbitrary SEB systems, along with their integrations, in a <a href="http://en.wikipedia.org/wiki/Force-directed_graph_drawing">force-directed network</a>. The Observatory gets its data directly from the &quot;<abbr title="Defining a Solution Architecture Overview is an initiative within Application Infrastructure">SAO</abbr> <abbr title="IBM RSA is a UML tool for describing enterprise architecture">RSA</abbr>&quot; model, maintained by SEB's <abbr title="Solution Area Architect, a role within Application Infrastructure">SAA's.</abbr></div>
+			</div>
+			<div class="row-fluid">
+				<div class="span4">
+					<h2>
+						Searching
+					</h2>
+					<p>
+						Enter the name of any system(s) into the seach field and press <span class="label">RETURN</span> on your keyboard. Each system you add will be represented by a star, along with integrations to other (visualized) systems.
+					</p>
+					<p>
+You can add entire compartments by passing its name within square brackets, e.g. <span class="label label-info">[Processing Support]</span>.					</p>
+				</div>
+				<div class="span4">
+					<h2>
+						Navigating
+					</h2>
+					<p>Nodes are layed out using a force-directed system. You can tweak the layout by dragging nodes into place.</p><p><span class="label">Right-clicking</span> any system brings up a context menu, allowing you to delete, add or explode ("supernova") that system, effectively bringing all its integrations into view.
+				</div>
+				<div class="span4">
+					<h2>
+						Saving
+					</h2>
+					<p>
+						Currently, the Observatory supports saving <em>links</em> to layouts (i.e. not images). The <span class="label label-success">save</span> link beside the search bar is a <em>bookmarklet</em> which represents the current state of your layout. Drag this button into the bookmarks bar of your browser to save the state.</p><p> The <span class="label label-important">&lt; back</span> link represents the previous state, and effectively serves as an <em>undo</em> button.</p>
+					</p>
+				</div>
+			</div>
+			<div style="height:20px"></div>
+			<div class="row-fluid">
+				<div class="span12">
+					<span class="span2 alert alert-info">
+							Rotate labels
+							<div id="rotateLabels" class="switch switch-mini">
+							    <input type="checkbox" checked />
+							</div>&nbsp;<i class="icon-question-sign"></i>
+					</span>
+					<blockquote class="pull-right">
+						<p>
+							Idea, design &amp; implementation
+						</p> <small><a href="mailto:christian.lagerkvist@seb.se">Christian Lagerkvist</a>, SAA Processing Support</small>
+					</blockquote>
+				</div>
+			</div>
+		</div>
+	<script>
+	function JsonReady() {
+/*		Net.add(ALL.nByName("cois")[0]);
+		Net.add(ALL.nByName("TCM globala fonder")[0]);
+		Net.add(ALL.nByName("vdr")[0]);
+		update();
+*/	}
+	</script>
+
+</body>
+</html>
