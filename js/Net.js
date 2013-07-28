@@ -1,6 +1,7 @@
 var Net = (function () {
 	/*** Captain's log
 	 *	Lägger till [Fund...], därefter vdr, därefter ISIS, ingen länk!
+	 *  Inlån, Bokningspumpen och Hubert, kontextmeny på Hubert visar 2 instanser av Bokningspumpen
 	 */
 
 	var nodes = [], links = [], force, center = [], linkConstant = 25, sizeConstant = 1, leftDrag = true, node2links;
@@ -9,7 +10,7 @@ var Net = (function () {
 	var determineCenter = function () {
 		center = Net.nodes.map(function(n) {return ix(n.id);});
 		if (center.length>3) {
-			center.sort(function(a,b) { return Net.nodes[a].size < Net.nodes[b].size; });
+			center.sort(function(a,b) { return (nodes[a].weight > nodes[b].weight) ? -1 : 1; });
 			center.splice(3, center.length - 3);
 			}
 	};
