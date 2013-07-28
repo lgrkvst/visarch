@@ -66,7 +66,7 @@ var Net = (function () {
 	var add = function (n) {
 		if (!node2links) {throw "undefined callback: node2links"; return;}
 		if (!n.id) {throw "node lacks id"; return;}
-		if (!n.size) {throw "node lacks size"; return;}
+		if (typeof n.size == "undefined") {n.size=0; console.warn("Net added explicit size for node " + n.name);}
 		if (ix(n.id) < 0) var index = nodes.push(n)-1;
 		else return; // return if already among nodes
 		if (dropLinks(n.id)){ throw("Found garbage links to drop before adding node."); debugger; }
@@ -86,7 +86,6 @@ var Net = (function () {
 		};
 	var toggleFixed = function(id) {
 		var n = nodes[ix(id)];
-		console.log(n); console.log(id);
 		n.fixed = !n.fixed;
 		};
 	var linkDistance = function(l,i) {
