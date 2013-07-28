@@ -16,7 +16,6 @@ var Net = (function () {
 	};
 	var getCenter = function () {
 		var x = y = 0;
-
 		center.forEach(function (c) {
 			var n = nodes[c];
 			x += n.x;
@@ -118,7 +117,8 @@ var Net = (function () {
 			.friction(0.5)
 			.size([w, h])
 			.nodes(nodes).links(links);
-		node2links = callback;
+
+			node2links = callback;			
 		};
 	var d3_layout_forceMouseover = function(d) { // got these from d3's force.js
 	  	d.fixed |= 4; // set bit 3

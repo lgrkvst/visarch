@@ -371,9 +371,10 @@ function update() {
 	}
 
 	var updateNode = function () {
-		if (Settings.drawOrigo && !Settings.rotateLabels) {
+		if (!Settings.rotateLabels) {
 			var center = Net.getCenter();
-			svg.select("#origo").attr("transform", "translate(" + center.x + "," + center.y + ")");
+			if (Settings.drawOrigo) svg.select("#origo").attr("transform", "translate(" + center.x + "," + center.y + ")");
+				
 		}
 
 		this.attr("transform", function (d, i) {

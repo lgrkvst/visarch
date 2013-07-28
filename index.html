@@ -52,6 +52,16 @@
 			}
 		}();
 		$(function() {
+			// catch window resize and reinstantiate svg container and force network
+			$(window).resize(function() {
+				var w = $(window).width(),
+					h = $(window).height()-42*2;
+
+				d3.select("#observatory").attr("width", w).attr("height", h);				
+				Net.force().size([w, h]);
+				update();
+			});
+
 
 			// sliders for tweaking the force layout
 		    d3.select("#linkConstant")
