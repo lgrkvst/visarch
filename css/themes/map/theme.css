@@ -27,11 +27,7 @@
 text {
 	fill:#fff;
 }
-.radial {
-	font-size:12px;
-	font-family: 'helvetica neue', tahoma,sans-serif;
-	font-weight:bold;
-}
+
 #observatory {
   background-size: 100%;
   background-size: cover;
@@ -40,8 +36,14 @@ text {
     -o-background-size: cover;
   background-size: cover;
   background-position: center center;
-  background-image: url('../img/bg10.jpg');
+  background-image: url('bg10.jpg');
   color:#fff;
+}
+
+.radial {
+	font-size:12px;
+	font-family: 'helvetica neue', tahoma,sans-serif;
+	font-weight:bold;
 }
 
 .mouseover {
