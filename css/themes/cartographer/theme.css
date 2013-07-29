@@ -5,18 +5,18 @@
 }
 
 .polygonlink {
-	fill: #000;
+	fill: #BD996D;
 	stroke: none;
 	stroke-width: 0;
-	opacity:0.1;
+	opacity:0.4;
 	pointer-events: none;
 }
 
 .node {
-	fill: #777;
-	opacity:0.8;
-	stroke:#D3CEC7;
-	stroke-width: 2px;
+	fill: #8F673B;
+	opacity:0.7;
+	stroke:#E4CEB4;
+	stroke-width: 3px;
 }
 
 .halo {
@@ -41,7 +41,14 @@
 }
 
 #background {
-	background-image: url('papertile.jpg');
+  background-size: 100%;
+  background-size: cover;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+  background-size: cover;
+  background-position: center center;
+	background-image: url('bg2.jpg');
 }
 
 #observatory {

@@ -122,7 +122,6 @@ d3.json("json/nodes_links.json", function (error, graph) {
 	} catch (err) {console.log(err);}
 });
 function update() {
-	
 	// call start before doing svg stuff, since we want any new nodes instantiated
 	Net.force().start();
 
@@ -353,14 +352,11 @@ function update() {
 
 			var t2x = tx-pDx*tS;
 			var t2y = ty-pDy*tS;
-			if (!sx) {console.log(d.source.name + "(FAIL) -> " + d.target.name);}
-			if (!tx) {console.log(d.source.name + " -> (FAIL)" + d.target.name);}
 			var path = "M " + s1x + " " + s1y;
 			path +=   " L " + t1x + " " + t1y;
 			path +=   " L " + t2x + " " + t2y;
 			path +=   " L " + s2x + " " + s2y;
 			path +=   " Z";
-			if (!t2y) console.log(d.source.name + " -> " + d.target.name);
 			return path;
 		});
 
