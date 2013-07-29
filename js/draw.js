@@ -455,7 +455,7 @@ function update() {
 		// <a id="bookmarklet" href="javascript:null;" class="btn-small btn-warning">spara</a>		
 		bookmarks.push(Net.exportN(false));
 		bookmarks.shift();
-		d3bookmarks = d3bookmarks.data(bookmarks, function (n) {return n;});
+		d3bookmarks = d3bookmarks.data(bookmarks, function (n,i) {return i;});
 		d3bookmarks.enter().append("a");
 		d3bookmarks.text(function(n,i) { return (i ? "save" : "< back");});
 		d3bookmarks.attr("href", function(d){return d;}).attr("class", function (n,i) { return i ? "btn-small btn-success" : "btn-small btn-danger"; });
