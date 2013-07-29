@@ -47,8 +47,6 @@ var gs = svg.selectAll("defs").selectAll("menuGradients")
 		return n;
 	}).attr("offset", "100%").attr("stop-opacity", "100%");
 
-
-
 /**** radial gradients ***/
 var gs = svg.selectAll("defs").selectAll("radialGradient")
 	.data(color.range())
@@ -175,13 +173,23 @@ function update() {
 	// draw an svg:group for each node	
 	var g = node.enter().append("g")
 		.attr("class", function (d) {
-		return d.name;
+		return Compartments.RSA2short(d.compartment);
 	})
+		.attr("id", function(n){
+			return n.name;
+		})
 		.attr("transform", function () {
 		return "translate(" + w / 2 + "," + h / 2 + ")"
 	});
 	// type the node name in each group
-	var g_label = g.append("g").attr("class", "nodelabel");
+	var g_label = g.append("g")
+		.attr("class", "node_label");
+		
+	g_label.append("rect")
+		.attr("class", "label_background")
+		.style("fill", function (d) {
+			return d3.rgb(color(d.compartment)).darker();
+			});
 	g_label.append("text")
 		.attr("dy", ".35em")
 		.attr("x", function (n) {
@@ -190,13 +198,13 @@ function update() {
 		.attr("font-size", function (n) {
 		return 14 + 0.1 * n.size;
 	})
-		.attr("class", "nodelabeltext")
+		.attr("class", "label_text")
 		.text(function (n) {
 		return n.name;
 	});
 	// add a hover:title in each group
 	g.append("title").text(function (d) {
-		return d.size + " links\n[" + d.compartment + "]";
+		return (d.description ? d.description + "\n" : "") + "[" + d.compartment + "]";
 	});
 
 	// halo
@@ -381,15 +389,15 @@ function update() {
 //			this.childNodes[4].setAttribute("style", "display: "+ (d.fixed ? "block" : "none"));
 			
 			var angle = 0;
-			if (text = this.childNodes[0].childNodes[0]) {
-				var offset = 14 + 0.3 * d.size;
+			if (text = this.childNodes[0].childNodes[1]) {
+				var offset = 14 + 0.3 * d.size;				
 
 				if (Settings.rotateLabels) {
 					var ns = Net.getNeighbors(d.id);
 					if (ns.length) {
 						ns.x = d3.mean(ns, function(n){return n.x;});
 						ns.y = d3.mean(ns, function(n){return n.y;});
-						angle = 57 * myAtan((d.y-ns.y), (d.x-ns.x));
+						angle = 57 * myAtan((d.y-ns.y), (d.x-ns.x));						
 					} else angle = 0;
 					
 					if (Math.abs(angle) > 90) {
@@ -423,7 +431,15 @@ function update() {
 					text.setAttribute("transform", "rotate(" + 0 + ")");
 					
 				}
-			}			
+			}
+			var margin = 5;
+			var rect = this.childNodes[0].childNodes[0];
+			var textbox = text.getBBox();
+			rect.setAttribute("x", textbox.x-margin);
+			rect.setAttribute("y", textbox.y);
+			rect.setAttribute("width", textbox.width+2*margin);
+			rect.setAttribute("height", textbox.height);
+			rect.setAttribute("transform", "rotate(" + rotate + ")");
 			
 			return "translate(" + d.x + "," + d.y + ") rotate(" + angle + ")";
 		});

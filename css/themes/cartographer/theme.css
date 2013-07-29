@@ -1,0 +1,48 @@
+.link {
+	stroke: #fff;
+	stroke-width: 10px;
+	opacity:0.1;
+}
+
+.polygonlink {
+	fill: #000;
+	stroke: none;
+	stroke-width: 0;
+	opacity:0.1;
+	pointer-events: none;
+}
+
+.node {
+	fill: #777;
+	opacity:0.8;
+	stroke:#D3CEC7;
+	stroke-width: 2px;
+}
+
+.halo {
+	display:none;
+}
+
+.fixed {
+	stroke: #bbb;
+	stroke-width :2.5px;
+	stroke-dasharray: 4, 2;
+	fill:none;
+}
+
+.label_text {
+	font-family: optima, sans-serif;
+	fill:#fff;
+	opacity:1;
+}
+
+.label_background {
+	fill: #FF6E3A !important;
+}
+
+#background {
+	background-image: url('papertile.jpg');
+}
+
+#observatory {
+}

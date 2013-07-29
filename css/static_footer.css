@@ -1,27 +1,13 @@
-			
-		html,body
-		{
-		height:100%;
-		}
+html,body {
+	height:100%;
+}
 
-		#wrap
-		{
-			min-height: 100%;
-		}
+#wrap {
+	min-height: 100%;
+}
 
-		#main
-		{
-		overflow:auto;
-		padding-bottom:40px; /* this needs to be bigger than footer height*/
-		background:#000;
-		}
-
-		.footer 
-		{
-		position: relative;
-		margin-top: -80px; /* negative value of footer height */
-		height: 80;
-		clear:both;
-/*		padding-top:40px;
-*/		background-color:#000;
-		}	
+#main {
+	overflow:auto;
+	padding-bottom:10px; /* this needs to be bigger than footer height*/
+	background:#000;
+}

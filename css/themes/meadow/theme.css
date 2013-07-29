@@ -1,0 +1,46 @@
+.link {
+	stroke: #fff;
+	stroke-width: 10px;
+	opacity:0.1;
+}
+
+.polygonlink {
+	fill: #fff;
+	stroke: none;
+	stroke-width: 0;
+	opacity:0.1;
+	pointer-events: none;
+}
+
+.node {
+	fill: #fff;
+	opacity:1;
+	stroke:#D3CEC7;
+	stroke-width: 2px;
+}
+
+.halo {
+}
+
+.fixed {
+	stroke: #bbb;
+	stroke-width :2.5px;
+	stroke-dasharray: 4, 2;
+	fill:none;
+}
+
+.label_text {
+	font-family: optima, sans-serif;
+	fill:#fff;
+	opacity:1;
+}
+
+.label_background {
+}
+
+#background {
+	background-image: url('petal.jpg');
+}
+
+#observatory {
+}

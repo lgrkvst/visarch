@@ -81,6 +81,20 @@
 				Settings.rotateLabels = data.value
 				update(true);
 			});
+
+			$('#themeswitcher').on('change', function (e, data) {
+				var theme = "stellar";
+				var base_path = "css/themes/"
+				switch(this.value) {
+					case 'Cartographer':
+						theme = "cartographer";
+						break;
+					case 'Meadow':
+						theme = "meadow";
+					break;
+				}
+				document.getElementById('css_theme').href=base_path+theme+'/theme.css';
+			});
 				
 			$('#jumpref').click(function(){
 			    $('html, body').animate({
@@ -98,8 +112,8 @@
 		</script>
 	</head>
 	<body>
-		<div class="navbar navbar-inverse"> <!-- navbar-inverse -->
-			<span class="navbar-brand">The Observatory</span>
+		<div class="navbar">
+			<span class="navbar-brand" style="font-weight: normal; font-size:2em; padding-top:18px; margin-left:15px !important">The&nbsp;Observatory</span>
 			<span style="min-width:132px" class="btn navbar-btn pull-right pull-right" id="bookmarks">
 			</span>
 			<span class="pull-right">
@@ -125,99 +139,111 @@
 
 
 
-		<div id="wrap" oncontextmenu="return false;">
-			<div id="main" class="clear-top" style=" border-bottom:1px gray">
+	<div id="wrap" oncontextmenu="return false;">
+		<div id="main" class="clear-top" style=" border-bottom:1px gray">
+			<div class="row-fluid">
+				<div class="col-12" id="background"><svg id="observatory"></svg>
+					<script type='text/javascript' src='js/force_with_labels.js'></script>
+					<script type='text/javascript' src='js/sunburst.js'></script>
+				</div>
+			</div>
+			<!--
+			<div id="some_settings_that_only_i_can_see" style="background:#fff">
 				<div class="row-fluid">
-					<div class="col-12"><svg id="observatory"></svg>
-						<script type='text/javascript' src='js/force_with_labels.js'></script>
-						<script type='text/javascript' src='js/sunburst.js'></script>
-						</div>
-				</div>
-				<!--
-				<div id="some_settings_that_only_i_can_see" style="background:#fff">
-					<div class="row-fluid">
-				        <span class="col-6">
-							<div id="linkLabel">linkConstant:</div>
-				        	<div class="col-3"><input type="range" min="0" max="30" value="25" id="linkConstant" step="0.01"/></div>
-						</span>
-				        <span class="col-6">
-							<div id="sizeLabel">sizeConstant:</div>
-				        	<div class="col-3"><input type="range" min="0" max="100" value="1" id="sizeConstant" step="0.01"/></div>
-						</span>
-					</div>
-				</div>
-				-->
-						<div class="text-center jump">
-							<a id="jumpref" href="#jump">
-								<i class="icon-chevron-down"></i>
-								<strong>scroll down for more info</strong>
-								<i class="icon-chevron-down"></i>
-							</a>
-						</div>
-			</div>
-		</div>
-<hr>
-		<div class="container-fluid content">
-			<div class="row-fluid">
-				<div class="col-12">
-					<div class="page-header">
-						<h1 id="jump">
-							The Observatory <b><small>&mdash; A Solution Architecture Overview</small>
-						</h1>
-					</div>
-				</div>
-				<div class="col-12 lead">The Observatory lets you visualize arbitrary SEB systems, along with their integrations, in a <a href="http://en.wikipedia.org/wiki/Force-directed_graph_drawing">force-directed network</a>. The Observatory gets its data directly from the &quot;<abbr title="Defining a Solution Architecture Overview is an initiative within Application Infrastructure">SAO</abbr> <abbr title="IBM RSA is a UML tool for describing enterprise architecture">RSA</abbr>&quot; model, maintained by SEB's <abbr title="Solution Area Architect, a role within Application Infrastructure">SAA's.</abbr></div>
-			</div>
-			<div class="row-fluid">
-				<div class="col-4">
-					<h2>
-						Searching
-					</h2>
-					<p>
-						Enter the name of any system(s) into the seach field and press <span class="label">RETURN</span> on your keyboard. Each system you add will be represented by a star, along with integrations to other (visualized) systems.
-					</p>
-					<p>
-You can add entire compartments by passing its name within square brackets, e.g. <span class="label label-info">[Processing Support]</span>.					</p>
-				</div>
-				<div class="col-4">
-					<h2>
-						Navigating
-					</h2>
-					<p>Nodes are layed out using a force-directed system. You can tweak the layout by dragging nodes into place.</p><p><span class="label">Right-clicking</span> any system brings up a context menu, allowing you to delete, add or explode ("supernova") that system, effectively bringing all its integrations into view.
-				</div>
-				<div class="col-4">
-					<h2>
-						Saving
-					</h2>
-					<p>
-						Currently, the Observatory supports saving <em>links</em> to layouts (i.e. not images). The <span class="label label-success">save</span> link beside the search bar is a <em>bookmarklet</em> which represents the current state of your layout. Drag this button into the bookmarks bar of your browser to save the state.</p><p> The <span class="label label-important">&lt; back</span> link represents the previous state, and effectively serves as an <em>undo</em> button.</p>
-					</p>
-				</div>
-			</div>
-			<div style="height:20px"></div>
-			<div class="row-fluid">
-				<div class="col-12">
-					<span class="col-2 alert alert-info">
-							Rotate labels
-							<div id="rotateLabels" class="switch switch-mini">
-							    <input type="checkbox" checked />
-							</div>&nbsp;<i class="icon-question-sign"></i>
+			        <span class="col-6">
+						<div id="linkLabel">linkConstant:</div>
+			        	<div class="col-3"><input type="range" min="0" max="30" value="25" id="linkConstant" step="0.01"/></div>
 					</span>
-					<blockquote class="pull-right">
-						<p>
-							Idea, design &amp; implementation
-						</p> <small><a href="mailto:christian.lagerkvist@seb.se">Christian Lagerkvist</a>, SAA Processing Support</small>
-					</blockquote>
+			        <span class="col-6">
+						<div id="sizeLabel">sizeConstant:</div>
+			        	<div class="col-3"><input type="range" min="0" max="100" value="1" id="sizeConstant" step="0.01"/></div>
+					</span>
 				</div>
 			</div>
+			-->
+			<div class="text-center jump">
+				<a id="jumpref" href="#jump">
+					<i class="icon-chevron-down"></i>
+					<strong>scroll down for more info</strong>
+					<i class="icon-chevron-down"></i>
+				</a>
+			</div>
 		</div>
+	</div>
+	<hr> <!-- styled in hr.css -->
+	<div class="container-fluid content">
+		<div class="row-fluid">
+			<div class="col-12">
+				<div class="page-header">
+					<h1 id="jump">
+						The Observatory <b><small>&mdash; A Solution Architecture Overview</small>
+					</h1>
+				</div>
+			</div>
+			<div class="col-12 lead">The Observatory lets you visualize arbitrary SEB systems, along with their integrations, in a <a href="http://en.wikipedia.org/wiki/Force-directed_graph_drawing">force-directed network</a>. The Observatory gets its data directly from the &quot;<abbr title="Defining a Solution Architecture Overview is an initiative within Application Infrastructure">SAO</abbr> <abbr title="IBM RSA is a UML tool for describing enterprise architecture">RSA</abbr>&quot; model, maintained by SEB's <abbr title="Solution Area Architect, a role within Application Infrastructure">SAA's.</abbr></div>
+		</div>
+		<div class="row-fluid">
+			<div class="col-4">
+				<h2>
+					Searching
+				</h2>
+				<p>
+					Enter the name of any system(s) into the seach field and press <span class="label">RETURN</span> on your keyboard. Each system you add will be represented by a star, along with integrations to other (visualized) systems.
+				</p>
+				<p>
+You can add entire compartments by passing its name within square brackets, e.g. <span class="label label-info">[Processing Support]</span>.					</p>
+			</div>
+			<div class="col-4">
+				<h2>
+					Navigating
+				</h2>
+				<p>Nodes are layed out using a force-directed system. You can tweak the layout by dragging nodes into place.</p><p><span class="label">Right-clicking</span> any system brings up a context menu, allowing you to delete, add or explode ("supernova") that system, effectively bringing all its integrations into view.
+			</div>
+			<div class="col-4">
+				<h2>
+					Saving
+				</h2>
+				<p>
+					Currently, the Observatory supports saving <em>links</em> to layouts (i.e. not images). The <span class="label label-success">save</span> link beside the search bar is a <em>bookmarklet</em> which represents the current state of your layout. Drag this button into the bookmarks bar of your browser to save the state.</p><p> The <span class="label label-important">&lt; back</span> link represents the previous state, and effectively serves as an <em>undo</em> button.</p>
+				</p>
+			</div>
+		</div>
+		<div style="height:20px"></div>
+		<div class="row-fluid">
+			<div class="col-12">
+				<span class="col-5 alert alert-info">
+					<span class="col-6">
+						<label>Rotate labels</label>
+						<div id="rotateLabels" class="switch switch-mini">
+						    <input type="checkbox" checked />
+						</div>&nbsp;<i class="icon-question-sign"></i>
+					</span>
+					<span class="col-6">
+						<label>Theme</label>
+						<div>
+							<select class="input-small" id="themeswitcher">
+							  <option>Stellar (default)</option>
+							  <option>Cartographer</option>
+							  <option>Meadow</option>
+							</select>
+						</div>
+					</span>
+				</span>
+				<blockquote class="pull-right">
+					<p>
+						Idea, design &amp; implementation
+					</p> <small><a href="mailto:christian.lagerkvist@seb.se">Christian Lagerkvist</a>, SAA Processing Support</small>
+				</blockquote>
+			</div>
+		</div>
+	</div>
 	<script>
 	function JsonReady() {
-/*		Net.add(ALL.nByName("cois")[0]);
+		Net.add(ALL.nByName("cois")[0]);
 		Net.add(ALL.nByName("TCM globala fonder")[0]);
 		Net.add(ALL.nByName("vdr")[0]);
 		update();
-*/	}
+	}
 	</script>
 
 </body>
