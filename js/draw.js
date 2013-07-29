@@ -127,21 +127,36 @@ function update() {
 
 	
 
-	node = node.data(Net.nodes, function (n) {
-		return n.id;
-	});
-
 	link = link.data(Net.links, function (n) {
 		return (n.source.id + n.target.id);
 	});
 	// 	Adding basic links
 	//	link.enter().append("line").attr("class", "link");
 
-	link.enter()
-        .append('path')
-        .attr("class", "polygonlink");
+ 	var lg = link.enter().append('g');
 
-		/*
+	var path = lg.append("path")
+		.attr("class", "polygonlink")
+		.attr("id", function(l,i) {return "edgepath"+i;});
+    
+	node = node.data(Net.nodes, function (n) {
+		return n.id;
+	});
+
+if (Settings.drawEdgeLabels) {
+	var edgeLabels = lg
+		.append("g")
+		.attr("class", "link_label");
+	edgeLabels.append("text").text(function (l) { console.log(l); return l.name; });		
+	edgeLabels.append("rect")
+		.attr("x", function(){return this.parentNode.getBBox().x;})
+		.attr("y", function(){return this.parentNode.getBBox().y;})
+		.attr("width", function(){return this.parentNode.getBBox().width;})
+		.attr("height", function(){return this.parentNode.getBBox().height;})
+		.style("fill", "#b59");
+	}
+
+/*
 	    var edgelabels = svg.selectAll(".edgelabel")
 	        .data(Net.links)
 		        .enter()
@@ -156,10 +171,8 @@ function update() {
 		var textPath = edgelabels.append('textPath')
 		        .attr('xlink:href',function(d,i) {return '#edgepath'+i})
 		        .style("pointer-events", "none")
-		        .text(Net.linkDistance);
-		*/	
-
-
+		        .text(function(l){ return l.name;});
+*/
 		link.exit().remove();
 
 		/*.append("line")
@@ -322,9 +335,17 @@ function update() {
 
 	/* ---------------------------- FOR SIMULATION ----------------------------- */
 
-	var updateLink = function () {
-		this.attr('d', function(d) {
+	var updateLabels = function () {
+		this.selectAll("g").attr("transform", function (l) {
+			dX = l.target.x-l.source.x;
+			dY = l.target.y-l.source.y;
+			return "translate("+(l.source.x+dX/2)+","+(l.source.y+dY/2)+")";
+		});
+	}
 
+	var updateLink = function () {
+
+		this.selectAll("path").attr("d", function(d) {	
 			var sx = d.source.x; var sy = d.source.y; var tx = d.target.x; var ty = d.target.y;
 			var Dx = tx-sx; var Dy = ty-sy; // D as in Delta
 			var pDx = Dy; var pDy = -Dx; 	// p as in perpendicular
@@ -441,37 +462,32 @@ function update() {
 		});
 	}
 	FPS.init();
-//	console.time("doit")
+
+	Net.force().on("start", start()); // d3 bug? Won't call start on very first update.
 	Net.force().on("tick", tick);
-	Net.force().on("end", stop);
-	Net.force().on("start", start);
+	Net.force().on("end", end);
 	
 	function start() {
-		d3bookmarks.attr("href", function(d){return d;}).attr("class", function (n,i) { return i ? "btn-small btn-warning" : "btn-small btn-danger"; });
-	}
-	
-	function stop() {
 		// everything is set up for rendering - create a bookmarklet for saving:
-		// <a id="bookmarklet" href="javascript:null;" class="btn-small btn-warning">spara</a>		
 		bookmarks.push(Net.exportN(false));
 		bookmarks.shift();
 		d3bookmarks = d3bookmarks.data(bookmarks, function (n,i) {return i;});
 		d3bookmarks.enter().append("a");
+		d3bookmarks.attr("href", function(d){return d;}).attr("class", function (n,i) { return i ? "btn-small btn-warning" : "btn-small btn-danger"; });
 		d3bookmarks.text(function(n,i) { return (i ? "save" : "< back");});
-		d3bookmarks.attr("href", function(d){return d;}).attr("class", function (n,i) { return i ? "btn-small btn-success" : "btn-small btn-danger"; });
 		d3bookmarks.exit().remove();
-
 	}
+	
+	function end() {
+		d3bookmarks.attr("href", function(d){return d;}).attr("class", function (n,i) { return i ? "btn-small btn-success" : "btn-small btn-danger"; });
+		d3bookmarks.text(function(n,i) { return (i ? "save" : "< back");});
+	}
+
 	function tick (e) {
 
-		d3bookmarks.attr("href", function(d){return d;}).text(function (n,i) { return i ? Math.floor(1000*(0.1-(Net.force().alpha()))) + "%" : "undo"; });
-
-//		console.timeEnd("doit");
+		// update percent counter
+		$("#bookmarks").children(':last-child').text(Math.floor(1000*(0.1-(Net.force().alpha()))) + "%")
 		
-		if (e.alpha >0.098) {
-//			console.clear();
-//			console.log(Net.nodes);
-		}
 		// benchmark
 		// SVG filter: 60, 57, 63, 55, 63
 		// no filter: 72, 83, 83, 90
@@ -481,5 +497,8 @@ function update() {
 
 		node.call(updateNode);
 		link.call(updateLink);
-	}
+		if (Settings.drawEdgeLabels) {
+			link.call(updateLabels);
+		}
+	}	
 }

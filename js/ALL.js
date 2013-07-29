@@ -15,7 +15,7 @@ var ALL = (function () {
 		};
 	var node2links = function (id) { // return n[.id]'s neighbouring nodes
 		/*  node2links is used as a callback (Net.addNode) */
-		return l(id).map(function (n) {return {"source":nodes[n.source], "target":nodes[n.target]};});
+		return l(id).map(function (l) {return {"source":nodes[l.source], "target":nodes[l.target], "name": l.name, "type": l.type};});
 		};
 	var nsByCompartment = function(c) {
 		return nodes.filter(function (n) {return n.compartment == c;})
