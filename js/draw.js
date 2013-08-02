@@ -1,5 +1,4 @@
 var color = d3.scale.category20().domain(Compartments.RSA());
-
 var w = $(window).width(),
 	h = $(window).height()-42*2;
 
@@ -126,10 +125,14 @@ function update() {
 	Net.force().start();
 
 	
+	node = node.data(Net.nodes, function (n) {
+		return n.id;
+	});
 
 	link = link.data(Net.links, function (n) {
 		return (n.source.id + n.target.id);
 	});
+	
 	// 	Adding basic links
 	//	link.enter().append("line").attr("class", "link");
 
@@ -139,23 +142,25 @@ function update() {
 		.attr("class", "polygonlink")
 		.attr("id", function(l,i) {return "edgepath"+i;});
     
-	node = node.data(Net.nodes, function (n) {
-		return n.id;
-	});
-
 if (Settings.drawEdgeLabels) {
 	var edgeLabels = lg
 		.append("g")
 		.attr("class", "link_label");
-	edgeLabels.append("text").text(function (l) { console.log(l); return l.name; });		
-	edgeLabels.append("rect")
-		.attr("x", function(){return this.parentNode.getBBox().x;})
+	edgeLabels.append("text")
+		.text(function (l) { return l.name; })
+		.attr("text-anchor", "middle")
+		.attr("y", "-13");
+	edgeLabels.insert("rect", "text")
+		.attr("x", function(){return this.parentNode.getBBox().x-Settings.label_margin;})
 		.attr("y", function(){return this.parentNode.getBBox().y;})
-		.attr("width", function(){return this.parentNode.getBBox().width;})
-		.attr("height", function(){return this.parentNode.getBBox().height;})
-		.style("fill", "#b59");
+		.attr("width", function(){return this.parentNode.getBBox().width+2*Settings.label_margin;})
+		.attr("height", function(){
+			var B = this.parentNode.getBBox().height;
+			if (B>10) return B-10;
+			return 0;
+			});
 	}
-
+	
 /*
 	    var edgelabels = svg.selectAll(".edgelabel")
 	        .data(Net.links)
@@ -173,7 +178,8 @@ if (Settings.drawEdgeLabels) {
 		        .style("pointer-events", "none")
 		        .text(function(l){ return l.name;});
 */
-		link.exit().remove();
+	link.exit().remove();
+	
 
 		/*.append("line")
 			.attr("class", "link")
@@ -333,13 +339,41 @@ if (Settings.drawEdgeLabels) {
 	}
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	/* ---------------------------- FOR SIMULATION ----------------------------- */
 
 	var updateLabels = function () {
-		this.selectAll("g").attr("transform", function (l) {
-			dX = l.target.x-l.source.x;
-			dY = l.target.y-l.source.y;
-			return "translate("+(l.source.x+dX/2)+","+(l.source.y+dY/2)+")";
+		this.select("g").attr("transform", function (l) {
+			var dX = l.target.x-l.source.x;
+			var dY = l.target.y-l.source.y;
+			var angle = 180/Math.PI*myAtan(dY, dX);
+
+			if (Math.abs(angle) > 90) {
+				var rotate = 180;
+				}
+			else {
+				var rotate = 0;
+				}
+
+			this.childNodes[1].setAttribute("transform", "rotate("+rotate+")");
+			this.childNodes[0].setAttribute("transform", "rotate("+rotate+")");
+			return "translate("+(l.source.x+dX/2)+","+(l.source.y+dY/2)+") rotate("+angle+")";
 		});
 	}
 
@@ -356,7 +390,7 @@ if (Settings.drawEdgeLabels) {
 
 
 			var sC = 1;
-			var tC = 0.6;
+			var tC = 0.5;
 //			var sS = 6 + d.source.size * 0.2;
 //			var tS = 6 + d.target.size * 0.2;
 			var sS = 7*sC;
@@ -401,7 +435,6 @@ if (Settings.drawEdgeLabels) {
 			if (Settings.drawOrigo) svg.select("#origo").attr("transform", "translate(" + center.x + "," + center.y + ")");
 				
 		}
-
 		this.attr("transform", function (d, i) {
 //			this.childNodes[4].setAttribute("style", "display: "+ (d.fixed ? "block" : "none"));
 			
@@ -415,24 +448,26 @@ if (Settings.drawEdgeLabels) {
 						ns.x = d3.mean(ns, function(n){return n.x;});
 						ns.y = d3.mean(ns, function(n){return n.y;});
 						angle = 57 * myAtan((d.y-ns.y), (d.x-ns.x));						
-					} else angle = 0;
+						}
+					else angle = 0;
 					
 					if (Math.abs(angle) > 90) {
 						var anchor = "end";
 						var offset = -offset
 						var rotate = 180;
-					} else {
+						}
+					else {
 						var anchor = "start";
 						var rotate = 0;
-					}
+						}
 
 					text.setAttribute("transform", "rotate(" + rotate + ")");
 					text.setAttribute("x", offset);
 					text.setAttribute("text-anchor", anchor);
 
 					if (Settings.drawAngles) text.textContent = Math.floor(angle);
-
-				} else {
+					}
+				else {
 					var dX = d.x - center.x;
 					//						var dY = d.y-center.y;
 
@@ -446,15 +481,13 @@ if (Settings.drawEdgeLabels) {
 					text.setAttribute("x", offset);
 					text.setAttribute("text-anchor", anchor);
 					text.setAttribute("transform", "rotate(" + 0 + ")");
-					
+					}
 				}
-			}
-			var margin = 5;
 			var rect = this.childNodes[0].childNodes[0];
 			var textbox = text.getBBox();
-			rect.setAttribute("x", textbox.x-margin);
+			rect.setAttribute("x", textbox.x-Settings.label_margin);
 			rect.setAttribute("y", textbox.y);
-			rect.setAttribute("width", textbox.width+2*margin);
+			rect.setAttribute("width", textbox.width+2*Settings.label_margin);
 			rect.setAttribute("height", textbox.height);
 			rect.setAttribute("transform", "rotate(" + rotate + ")");
 			

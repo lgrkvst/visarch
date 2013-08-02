@@ -53,3 +53,16 @@
 
 #observatory {
 }
+
+.link_label {
+    font-family:optima;
+    font-size:11px;
+	fill: #fff;
+	opacity:0.7;
+	stroke: #8F673B;
+}
+
+.link_label text {
+	stroke: #8F673B;
+	font-style: oblique;
+}
