@@ -17,7 +17,7 @@ var Compartments = function () {
 		}, {
 			name: "[Financing & Loans]",
 			short: "Loans",
-			compartment: "FinancingLoans Systems",
+			compartment: "Financing&Loans Systems",
 			description: "compartment"
 		}, {
 			name: "[Front]",

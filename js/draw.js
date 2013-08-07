@@ -134,6 +134,7 @@ function update() {
 	link = link.data(Net.links, function (n) {
 		return (n.source.id + n.target.id);
 	});
+
 	// 	Adding basic links
 	//	link.enter().append("line").attr("class", "link");
 
@@ -440,33 +441,38 @@ function update() {
 			return "translate(" + d.x + "," + d.y + ") rotate(" + angle + ")";
 		});
 	}
+
 	FPS.init();
-//	console.time("doit")
+
+	Net.force().on("start", start()); // d3 bug? Won't call start on very first update.
 	Net.force().on("tick", tick);
-	Net.force().on("end", stop);
-	Net.force().on("start", start);
+	Net.force().on("end", end);
 	
 	function start() {
-		d3bookmarks.attr("href", function(d){return d;}).attr("class", function (n,i) { return i ? "btn-small btn-warning" : "btn-small btn-danger"; });
-	}
-	
-	function stop() {
 		// everything is set up for rendering - create a bookmarklet for saving:
-		// <a id="bookmarklet" href="javascript:null;" class="btn-small btn-warning">spara</a>		
 		bookmarks.push(Net.exportN(false));
 		bookmarks.shift();
 		d3bookmarks = d3bookmarks.data(bookmarks, function (n,i) {return i;});
 		d3bookmarks.enter().append("a");
+		d3bookmarks.attr("href", function(d){return d;}).attr("class", function (n,i) { return i ? "btn-small btn-warning" : "btn-small btn-danger"; });
 		d3bookmarks.text(function(n,i) { return (i ? "save" : "< back");});
-		d3bookmarks.attr("href", function(d){return d;}).attr("class", function (n,i) { return i ? "btn-small btn-success" : "btn-small btn-danger"; });
 		d3bookmarks.exit().remove();
-
 	}
+	
+	function end() {
+		if (bookmarks[0] != bookmarks[1]) {
+			bookmarks.push(Net.exportN(false));
+			bookmarks.shift();
+		}
+		d3bookmarks.attr("href", function(d){return d;}).attr("class", function (n,i) { return i ? "btn-small btn-success" : "btn-small btn-danger"; });
+		d3bookmarks.text(function(n,i) { return (i ? "save" : "< back");});
+//		$("#bookmarks").children(':last-child').href(Net.exportN());
+	}
+
 	function tick (e) {
 
-		d3bookmarks.attr("href", function(d){return d;}).text(function (n,i) { return i ? Math.floor(1000*(0.1-(Net.force().alpha()))) + "%" : "undo"; });
-
-//		console.timeEnd("doit");
+		// update percent counter
+		$("#bookmarks").children(':last-child').text(Math.floor(1000*(0.1-(Net.force().alpha()))) + "%")
 		
 		if (e.alpha >0.098) {
 //			console.clear();

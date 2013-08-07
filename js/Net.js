@@ -77,7 +77,7 @@ var Net = (function () {
 		var s = ix(l.source.id), t = ix(l.target.id);
 		if (s==t) return; // no self-linking
 		if (s>=0&&t>=0 && !lix(s,t).length)	{
-			links.push({"source":s, "target":t});
+			links.push({"source":s, "target":t, "name": l.name, "type": l.type});
 			}
 		};
 	var supernova = function (id) { // node explosion!
@@ -163,16 +163,9 @@ var Net = (function () {
 		links.length = 0;
 		center.length = 0;
 		if (ns.length) ns.forEach(function (n) {add(n);});
-		force.nodes(nodes);
-		force.links(links);
+//		force.nodes(nodes);
+//		force.links(links);
 		update();
-		};
-	var reset = function(node, link) {
-		links = [];
-		nodes = [];
-		update();
-//		node.data([]);
-//		link.data([]);
 		};
 		
 	return {
@@ -191,9 +184,6 @@ var Net = (function () {
 		nodeDrag: nodeDrag,
 		dump: dump,
 		exportN: exportN,
-		importN: importN,
-		reset: reset,
+		importN: importN
 		};
-
-		/* ta bort d3-event-grejerna ur public */
-})();
+	})();
