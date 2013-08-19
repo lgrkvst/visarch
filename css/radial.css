@@ -1,7 +1,13 @@
 .radial {
 	font-size:12px;
-	font-family: 'helvetica neue', tahoma,sans-serif;
+	font-family: 'seb basic', 'helvetica neue', tahoma,sans-serif;
 	font-weight:bold;
+	fill: #000;
+}
+
+.pallet {
+	fill: #fff;
+	opacity: 0.2;
 }
 
 .mouseover {

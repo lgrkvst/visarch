@@ -21,7 +21,7 @@
 	fill:none;
 }
 .label_text {
-	font-family: optima, sans-serif;
+	font-family: seb basic, optima, sans-serif;
 	filter:none !important;
 	fill:#fff;
 }
@@ -47,4 +47,9 @@
 
 .navbar {
   background-color: #222222;
+}
+
+.radial {
+	font-family: 'seb basic' !important;
+	fill: #fff !important;
 }

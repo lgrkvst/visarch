@@ -36,8 +36,7 @@ sunburst.attr("transform", "translate(" + n.x + "," + n.y + ")");
 var pallet = sunburst.append("circle").attr("r", function (){
 	return radius/3*(4+epicentre);
 	})
-.style("fill", "#000")
-.style("opacity", "0.2");
+	.attr("class", "pallet");
 
 /*************** INTERACTION **************/
 var g = sunburst.datum(root).selectAll("g").data(partition.nodes).enter().append("g").attr("transform","rotate(0)").on("mouseover", function(n) {
