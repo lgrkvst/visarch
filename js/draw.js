@@ -391,7 +391,7 @@ function update() {
 					if (ns.length) {
 						ns.x = d3.mean(ns, function(n){return n.x;});
 						ns.y = d3.mean(ns, function(n){return n.y;});
-						angle = 57 * myAtan((d.y-ns.y), (d.x-ns.x));						
+						angle = 57 * myAtan((d.y-ns.y), (d.x-ns.x)); // drawing is the speed hog, myAtan isn't...
 					} else angle = 0;
 					
 					if (Math.abs(angle) > 90) {
@@ -439,13 +439,13 @@ function update() {
 		});
 	}
 
-	FPS.init();
 
 	Net.force().on("start", start()); // d3 bug? Won't call start on very first update.
 	Net.force().on("tick", tick);
 	Net.force().on("end", end);
 	
 	function start() {
+		FPS.init();
 		// everything is set up for rendering - create a bookmarklet for saving:
 		bookmarks.push(Net.exportN(false));
 		bookmarks.shift();
@@ -470,16 +470,9 @@ function update() {
 
 		// update percent counter
 		$("#bookmarks").children(':last-child').text(Math.floor(1000*(0.1-(Net.force().alpha()))) + "%")
-		
-		if (e.alpha >0.098) {
-//			console.clear();
-//			console.log(Net.nodes);
-		}
-		// benchmark
-		// SVG filter: 60, 57, 63, 55, 63
-		// no filter: 72, 83, 83, 90
-		// opacity: 83, 84, 77
-//		FPS.sample();
+
+		// for benchmarking
+		// FPS.sample();
 
 
 		node.call(updateNode);

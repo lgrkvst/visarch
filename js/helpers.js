@@ -4,6 +4,7 @@ var FPS = function () {
 		init: function () {
 			tick = 0;
 			s = (new Date()).getSeconds();
+			tot = [];
 		},
 		sample: function () {
 			tick++;
