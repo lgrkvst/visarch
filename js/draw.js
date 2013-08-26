@@ -175,9 +175,6 @@ function update() {
 		.attr("class", function (d) {
 		return Compartments.RSA2short(d.compartment);
 	})
-		.attr("id", function(n){
-			return n.name;
-		})
 		.attr("transform", function () {
 		return "translate(" + w / 2 + "," + h / 2 + ")"
 	});
@@ -212,7 +209,7 @@ function update() {
 		return (12 + n.size * 0.4);
 	})
 		.attr("class", function (d) {
-		return "halo " + d.name;
+		return "halo";
 	})
 		.style("fill", function (d) {
 		return "url(#g" + Compartments.RSA().indexOf(d.compartment) + ")";
