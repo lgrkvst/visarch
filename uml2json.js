@@ -1,3 +1,6 @@
+// example:
+// Emma:visarch cla$ node uml2json.js -d rsa/
+
 fs = require('fs')
 xml2json = require('xml2json');
 //crossfilter = require('crossfilter');
@@ -159,7 +162,21 @@ function emx(filepath, depth) {
 			for (var i = 0; i < n.length; i++) {
 				if ( !! n[i]["packagedElement"]) {
 					parsePackagedElement(n[i]["packagedElement"], depth + 1);
-				} else if (n[i]["xmi:type"] == "uml:Component") {
+				} /*  removed else if since packagedElement can be both of type uml:Component AND have a packagedElement child. For instance:
+				CAS
+				Safewatch LU
+				TFS
+				CM-Caesar
+				CTM
+				Intranet - Global
+				TLS
+				PACS
+				Global Service Provider
+				ISAT
+				PALS Stockholm
+				*/
+				if (n[i]["xmi:type"] == "uml:Component") {
+
 					var node = new Node(); // replace with getNodeOrNew()
 					node.compartment = compartment;
 
@@ -209,6 +226,7 @@ function emx(filepath, depth) {
 					if ( !! n[i]["name"]) {
 						node.id = n[i]["xmi:id"]
 						node.name = n[i]["name"];
+						
 						try {
 							if ( !! n[i].eAnnotations) {
 								node.description = n[i].eAnnotations.details.key;

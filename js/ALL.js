@@ -15,7 +15,7 @@ var ALL = (function () {
 		};
 	var node2links = function (id) { // return n[.id]'s neighbouring nodes
 		/*  node2links is used as a callback (Net.addNode) */
-		return l(id).map(function (l) {return {"source":nodes[l.source], "target":nodes[l.target], "name": l.name, "type": l.type};});
+		return l(id).map(function (l) {return {"source":nodes[l.source], "target":nodes[l.target], "name": l.name, "type": l.type, "description": l.description};});
 		};
 	var nsByCompartment = function(c) {
 		return nodes.filter(function (n) {return n.compartment == c;})
@@ -33,3 +33,10 @@ var ALL = (function () {
 		init: init
 		}
 })();
+
+// assign at the end
+if ((typeof module) === 'undefined') {
+    window.ALL = ALL;
+} else {
+    module.exports = ALL;
+}

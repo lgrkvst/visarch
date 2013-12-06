@@ -1,12 +1,11 @@
 var Net = (function () {
 	/*** Captain's log
-	 *	Lägger till [Fund...], därefter vdr, därefter ISIS, ingen länk!
-	 *  Inlån, Bokningspumpen och Hubert, kontextmeny på Hubert visar 2 instanser av Bokningspumpen
+	 *
+	 *
 	 */
 
-	var nodes = [], links = [], force, center = [], linkConstant = 25, sizeConstant = 1, leftDrag = true, node2links;
+	var nodes = [], links = [], center = [], node2links;
 	
-	var get_force = function() {return force;}
 	var determineCenter = function () {
 		center = Net.nodes.map(function(n) {return ix(n.id);});
 		if (center.length>3) {
@@ -87,65 +86,9 @@ var Net = (function () {
 		var n = nodes[ix(id)];
 		n.fixed = !n.fixed;
 		};
-	var linkDistance = function(l,i) {
-
-		var linkD = Math.sqrt(l.source.weight*l.target.weight);
-		var sizeD = Math.sqrt(l.source.size*l.source.size+l.target.size*l.target.size);
-		
-		return linkConstant*linkD+sizeD/sizeConstant-nodes.length;
-		};
-	var linkConstantUpdate = function () {
-	    linkConstant = d3.select("#linkConstant").property("value");
-	    d3.select("#linkLabel").text("linkConstant: "+d3.format("f")(linkConstant));
-		update();
-	    return linkConstant;
-		};
-	var sizeConstantUpdate = function () {
-	    sizeConstant = d3.select("#sizeConstant").property("value");
-	    d3.select("#sizeLabel").text("sizeConstant: "+d3.format("f")(sizeConstant));
-		update();
-	    return sizeConstant;
-		};
-	var init = function (w, h, callback) { /* callback(node) { return all_links(node); } */
-		force = d3.layout.force()
-			.linkDistance(linkDistance)
-			.gravity(0.1)
-			.charge(function (n) {
-				if (n.weight == 0) return -100;
-				return -1200;
-			})
-			.friction(0.5)
-			.size([w, h])
-			.nodes(nodes).links(links);
-
+	var init = function (callback) {
 			node2links = callback;			
 		};
-	var d3_layout_forceMouseover = function(d) { // got these from d3's force.js
-	  	d.fixed |= 4; // set bit 3
-	  	d.px = d.x, d.py = d.y; // set velocity to zero
-		};
-	var d3_layout_forceMouseout = function (d) {// got these from d3's force.js
-	  	d.fixed &= ~4; // unset bit 3
-		};
-	var nodeDrag = d3.behavior.drag().on("dragstart", function(d){
-		d.fixed |= 2; // set bit 2		  
-		if (d3.event.sourceEvent.which==1 && !d3.event.sourceEvent.ctrlKey) {
-			// primary mouse button, no mac contextmenu (ctrl-click)
-			leftDrag = true;
-			} else {
-			leftDrag = false;
-			}
-		})
-		.on("drag", function (d) {
-			if (leftDrag) {
-			    d.px = d3.event.x, d.py = d3.event.y;
-			    force.resume(); // callback
-				}
-			})
-		.on("dragend", function(d){
-	  		d.fixed &= ~6; // unset bits 2 and 3
-			leftDrag = false;
-			});
 	var dump = function (n, l) {
 		n = n || nodes;
 		l = l || links;
@@ -163,15 +106,12 @@ var Net = (function () {
 		links.length = 0;
 		center.length = 0;
 		if (ns.length) ns.forEach(function (n) {add(n);});
-//		force.nodes(nodes);
-//		force.links(links);
 		update();
 		};
 		
 	return {
 		nodes: nodes,
 		links: links,
-		force: get_force,
 		getCenter: getCenter,
 		getNeighbors: getNeighbors,
 		drop: drop,
@@ -179,9 +119,6 @@ var Net = (function () {
 		supernova: supernova,
 		toggleFixed: toggleFixed,
 		init: init,
-		sizeConstantUpdate: sizeConstantUpdate,
-		linkConstantUpdate: linkConstantUpdate,
-		nodeDrag: nodeDrag,
 		dump: dump,
 		exportN: exportN,
 		importN: importN

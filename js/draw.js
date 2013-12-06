@@ -3,7 +3,8 @@ var color = d3.scale.category20().domain(Compartments.RSA());
 var w = $(window).width(),
 	h = $(window).height()-42*2;
 
-Net.init(w, h, ALL.node2links);
+Net.init(ALL.node2links);
+Force.init(w, h);
 
 var svg = d3.select("#observatory").attr("width", w).attr("height", h)
 	.on("mouseup", function () {
@@ -123,9 +124,8 @@ d3.json("json/nodes_links.json", function (error, graph) {
 });
 function update() {
 	// call start before doing svg stuff, since we want any new nodes instantiated
-	Net.force().start();
-
 	
+	Force.force().start();
 
 	node = node.data(Net.nodes, function (n) {
 		return n.id;
@@ -220,8 +220,8 @@ function update() {
 		return (6 + n.size * 0.2);
 	})
 	.attr("class", "node")
-	.on("mouseover", Net.d3_layout_forceMouseover)
-	.on("mouseout", Net.d3_layout_forceMouseout);
+	.on("mouseover", Force.d3_layout_forceMouseover)
+	.on("mouseout", Force.d3_layout_forceMouseout);
 /*
 	// mark fixed nodes
 	g.append("circle")
@@ -309,7 +309,7 @@ function update() {
 		drawRadial(tree, n);
 	});
 	
-	node.call(Net.nodeDrag);
+	node.call(Force.nodeDrag);
 
 		if (Settings.drawOrigo && !Settings.rotateLabels) {
 		var origo = svg.append("g").attr("id", "origo");
@@ -440,9 +440,9 @@ function update() {
 	}
 
 
-	Net.force().on("start", start()); // d3 bug? Won't call start on very first update.
-	Net.force().on("tick", tick);
-	Net.force().on("end", end);
+	Force.force().on("start", start()); // d3 bug? Won't call start on very first update.
+	Force.force().on("tick", tick);
+	Force.force().on("end", end);
 	
 	function start() {
 		FPS.init();
@@ -469,7 +469,7 @@ function update() {
 	function tick (e) {
 
 		// update percent counter
-		$("#bookmarks").children(':last-child').text(Math.floor(1000*(0.1-(Net.force().alpha()))) + "%")
+		$("#bookmarks").children(':last-child').text(Math.floor(1000*(0.1-(Force.force().alpha()))) + "%")
 
 		// for benchmarking
 		// FPS.sample();

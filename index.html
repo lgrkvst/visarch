@@ -12,6 +12,7 @@
 		<script type='text/javascript' src='js/lib/MakeBM.js'></script>
 		<script type='text/javascript' src='js/ALL.js'></script>
 		<script type='text/javascript' src='js/Net.js'></script>
+		<script type='text/javascript' src='js/Force.js'></script>
 		<script type='text/javascript' src='js/Compartments.js'></script>
 		<script type='text/javascript' src='js/sunburst.js'></script>
 		<script type='text/javascript' src='js/helpers.js'></script>
@@ -112,7 +113,16 @@
 				<form class="navbar-form">
 					<input id="q" type="text" placeholder="Search..." autocomplete="off" spellcheck="false" dir="auto"/>				
 					<script>
-					$('#q').on('typeahead:selected', function (e, datum) {
+					/* autoselect first match on enter */
+					$('#q').keypress(function (e) {
+					    if (e.which == 13) {
+					        var node = $('#q').data().ttView.dropdownView.getFirstSuggestion().datum;
+							onAdd(null, node);
+							$(this).typeahead('setQuery', '');
+							
+					    }
+					});
+					function onAdd (e, datum) {
 						if(datum.description == "compartment") { // add entire compartment
 							var ns = ALL.nsByCompartment(datum.id);
 							ns.forEach(function (n, i) {
@@ -120,9 +130,9 @@
 								});
 
 						} else Net.add(ALL.n(datum.id), ALL.node2links); // add system
-						update();
+						update();						
 						$(this).typeahead('setQuery', '');
-				  });
+					  }
 					</script>
 				</form>
 			</span>
