@@ -124,3 +124,10 @@ var Net = (function () {
 		importN: importN
 		};
 	})();
+
+// assign at the end
+if ((typeof module) === 'undefined') {
+    window.Net = Net;
+} else {
+    module.exports = Net;
+}
