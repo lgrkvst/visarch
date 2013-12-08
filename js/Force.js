@@ -1,3 +1,10 @@
+/** __Force__ is the d3 representative in our application
+ * 
+ * @author Christian Lagerkvist [christian.lagerkvist@seb.se]
+ */
+
+/** @constant */
+
 var Force = function() {
 	var force, linkConstant = 25, sizeConstant = 1, leftDrag = true; 
 	var get_force = function(){ return force; };
@@ -8,18 +15,24 @@ var Force = function() {
 	
 		return linkConstant*linkD+sizeD/sizeConstant-Net.nodes.length;
 		};
+
+	/** index.html has a hidden slider for adjusting the linkConstant. This is it's hook into d3's force network object */
 	var linkConstantUpdate = function () {
 	    linkConstant = d3.select("#linkConstant").property("value");
 	    d3.select("#linkLabel").text("linkConstant: "+d3.format("f")(linkConstant));
 		update();
 	    return linkConstant;
 		};
+
+	/** index.html has a hidden slider for adjusting the sizeConstant. This is it's hook into d3's force network object */
 	var sizeConstantUpdate = function () {
 	    sizeConstant = d3.select("#sizeConstant").property("value");
 	    d3.select("#sizeLabel").text("sizeConstant: "+d3.format("f")(sizeConstant));
 		update();
 	    return sizeConstant;
 		};
+
+	/** initialize the force network. I spent half my adult life tweaking these variables. */
 	var init = function (w, h) {
 		force = d3.layout.force()
 			.linkDistance(linkDistance)
@@ -32,13 +45,18 @@ var Force = function() {
 			.size([w, h])
 			.nodes(Net.nodes).links(Net.links);
 		};
-	var d3_layout_forceMouseover = function(d) { // got these from d3's force.js
+
+	/** Borrowed from d3's force.js */
+	var d3_layout_forceMouseover = function(d) {
 	  	d.fixed |= 4; // set bit 3
 	  	d.px = d.x, d.py = d.y; // set velocity to zero
 		};
-	var d3_layout_forceMouseout = function (d) {// got these from d3's force.js
+
+	/** Borrowed from d3's force.js */
+	var d3_layout_forceMouseout = function (d) {
 	  	d.fixed &= ~4; // unset bit 3
 		};
+	/** However, a custom drag function in order to attach our radial menu */
 	var nodeDrag = d3.behavior.drag().on("dragstart", function(d){
 		d.fixed |= 2; // set bit 2		  
 		if (d3.event.sourceEvent.which==1 && !d3.event.sourceEvent.ctrlKey) {
@@ -58,6 +76,7 @@ var Force = function() {
 	  		d.fixed &= ~6; // unset bits 2 and 3
 			leftDrag = false;
 			});
+	/** Revealing module pattern */
 	return {
 		init: init,
 		force: get_force,

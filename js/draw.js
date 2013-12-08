@@ -1,11 +1,20 @@
+/** __draw__ binds it all together: visualization, the RSA model and the interaction.
+ * 
+ * @author Christian Lagerkvist [christian.lagerkvist@seb.se]
+ */
+
+// Create a handy color range - one theme color per compartment
 var color = d3.scale.category20().domain(Compartments.RSA());
 
+// Setup draw area - the subtraction of the constant is for adjusting the area for the height of header+footer
 var w = $(window).width(),
 	h = $(window).height()-42*2;
 
+// Initialize the Net object with a callback (ALL.node2links) allowing it to obtain a node's links.
 Net.init(ALL.node2links);
 Force.init(w, h);
 
+// Attach d3 to the DOM. Load it with our radial menu.
 var svg = d3.select("#observatory").attr("width", w).attr("height", h)
 	.on("mouseup", function () {
 		var sunburst = svg.selectAll("g.radial");
@@ -14,12 +23,14 @@ var svg = d3.select("#observatory").attr("width", w).attr("height", h)
 var link = svg.insert("g").attr("class", "links").selectAll(".link");
 var node = svg.insert("g").attr("class", "nodes").selectAll(".node");
 
+// bookmarklet handling ("save/cancel")
 var bookmarks = ["javascript:(function(){Net.importN(JSON.parse('[]'));})();", "javascript:(function(){Net.importN(JSON.parse('[]'));})();"];
 var d3bookmarks = d3.select("#bookmarks").selectAll("a");
 
+// svg filter for adding halos to nodes
 svg.append("filter").attr("id", "blurMe").append("feGaussianBlur").attr("in", "SourceGraphic").attr("stdDeviation", "2");
 
-// build the arrow.
+// Experimental: display an arrow between nodes marking directions
 svg.append("svg:defs").selectAll("marker")
 	.data(["end"]) // Different link/path types can be defined here
 .enter().append("svg:marker") // This section adds in the arrows
@@ -61,7 +72,8 @@ gs.append("stop").attr("stop-color", function (n) {
 }).attr("offset", "40%").attr("stop-opacity", "100%");
 gs.append("stop").attr("stop-color", "white").attr("offset", "75%").attr("stop-opacity", "0%");
 
-/**** radial icons ***/
+/**** radial menu icons ***/
+// trash can
 svg.selectAll("defs")
 	.append("g")
 	.attr("id", "icon_remove")
@@ -70,6 +82,7 @@ svg.selectAll("defs")
 	.attr("fill", "white")
 	.attr("transform", "scale(0.03) translate(-80,150)");
 
+// magnet icon
 svg.selectAll("defs")
 	.append("g")
 	.attr("id", "icon_fixed")
@@ -77,7 +90,8 @@ svg.selectAll("defs")
 	.attr("d", "M20.812,19.5h5.002v-6.867c-0.028-1.706-0.61-3.807-2.172-5.841c-1.539-2.014-4.315-3.72-7.939-3.687C12.076,3.073,9.3,4.779,7.762,6.792C6.2,8.826,5.617,10.928,5.588,12.634V19.5h5v-6.866c-0.027-0.377,0.303-1.789,1.099-2.748c0.819-0.979,1.848-1.747,4.014-1.778c2.165,0.032,3.195,0.799,4.013,1.778c0.798,0.959,1.126,2.372,1.099,2.748V19.5L20.812,19.5zM25.814,25.579c0,0,0-2.354,0-5.079h-5.002c0,2.727,0,5.08,0,5.08l5.004-0.001H25.814zM5.588,25.58h5c0,0,0-2.354,0-5.08h-5C5.588,23.227,5.588,25.58,5.588,25.58z")
 	.attr("fill", "white")
 	.attr("transform", "scale(0.52) translate(-5,10)");
- 				
+
+// supernova icon (explosion, or rather an asterisk...)
 svg.selectAll("defs")
 	.append("g")
 	.attr("id", "icon_explode")
@@ -91,9 +105,11 @@ svg.selectAll("defs")
 // import RSA components and relationships
 d3.json("json/nodes_links.json", function (error, graph) {
 
+	// Load everything into __ALL__
 	ALL.init(graph.nodes, graph.links);
 	
 	var autoSuggest = [];
+	// add __Compartment__ to autoSuggest
 	graph.nodes.forEach(function (n) {
 		autoSuggest.push({
 			name: n.name,
@@ -104,6 +120,7 @@ d3.json("json/nodes_links.json", function (error, graph) {
 		});
 	});
 
+	// init autoSuggest
 	autoSuggest = autoSuggest.concat(Compartments.all.map(function (c){return {name:c.name, color: color(c.compartment),compartment:c.name, id:c.compartment, description:"compartment"};}));
 
 	$('#q').typeahead({
@@ -119,10 +136,13 @@ d3.json("json/nodes_links.json", function (error, graph) {
 		engine: Hogan
 	});
 	
+	// Provides a hook for index.html for displaying systems on page load
 	try {
 		JsonReady();
 	} catch (err) {console.log(err);}
 });
+
+/** __update__ takes care of drawing and interaction. Quite d3 intense... */
 function update() {
 	// call start before doing svg stuff, since we want any new nodes instantiated
 	
@@ -143,6 +163,7 @@ function update() {
         .append('path')
         .attr("class", "polygonlink");
 
+		// experimental: link labels
 		/*
 	    var edgelabels = svg.selectAll(".edgelabel")
 	        .data(Net.links)
@@ -164,6 +185,7 @@ function update() {
 
 		link.exit().remove();
 
+		// experimental: put arrows on links
 		/*.append("line")
 			.attr("class", "link")
 			.attr("marker-end", "url(#end)");
@@ -223,8 +245,10 @@ function update() {
 	.attr("class", "node")
 	.on("mouseover", Force.d3_layout_forceMouseover)
 	.on("mouseout", Force.d3_layout_forceMouseout);
+
 /*
-	// mark fixed nodes
+	// Experimental but really cool:
+	// Mark fixed nodes
 	g.append("circle")
 		.attr("r", function (n) {
 			return (20 + n.size * 0.4);
@@ -232,6 +256,7 @@ function update() {
 		.attr("class", "fixed")
 		.style("display", "none");
 */
+	// get rid of obsolete nodes (deleted through the radial menu's trash can in a previous iteration)
 	node.exit().remove();
 
 
@@ -262,13 +287,14 @@ function update() {
 
 
 
-	// menu
+	// Build the radial menu
 	g.selectAll("circle")
 		.on("mouseup", function () {
 			var sunburst = svg.selectAll("g.radial");
 			sunburst.remove();
 		})	
 		.on("contextmenu", function (n) {
+		// The radial menu function takes a JSON structure, according to d3's docs on pie menus.
 		var tree = {
 			"size": n.size,
 			"children": [{
@@ -276,7 +302,7 @@ function update() {
 					"id": n.id,
 					"icon": "#icon_remove",
 					"size": "10",
-//					"children": [{"name": "rogues"}],
+		// we inject a callback for each menu item, what to execute on selection. Maybe I can become a decent js-coder afterall?
 					"callback": function (node) {Net.drop(node.id);update();}
 					}, {
 					"label": "explode",
@@ -294,6 +320,7 @@ function update() {
 				}]
 		};
 		var links = ALL.node2links(n.id);
+		// push all links/edge menu items onto the radial menu JSON
 		links.forEach(function (l) {
 			var c = l.target.id == n.id ? l.source : l.target;
 			var push = {};
@@ -321,6 +348,7 @@ function update() {
 
 	/* ---------------------------- FOR SIMULATION ----------------------------- */
 
+	// links are actually little trapezoids (arrows). You can barely see the link direction...
 	var updateLink = function () {
 		this.attr('d', function(d) {
 
@@ -360,7 +388,8 @@ function update() {
 		});
 
 		/*
-		// for svg:line objects
+		// Deprecated:
+		// Plain svg:line objects
 		this.attr("x1", function (d) {
 			return d.source.x;
 		}).attr("y1", function (d) {
@@ -387,14 +416,17 @@ function update() {
 			if (text = this.childNodes[0].childNodes[1]) {
 				var offset = 14 + 0.3 * d.size;				
 
+				// rotate labels
 				if (Settings.rotateLabels) {
 					var ns = Net.getNeighbors(d.id);
 					if (ns.length) {
+						// my intricate (read 'cheap') rotation algorithm for avoiding labels blocking other nodes or links.
 						ns.x = d3.mean(ns, function(n){return n.x;});
 						ns.y = d3.mean(ns, function(n){return n.y;});
-						angle = 57 * myAtan((d.y-ns.y), (d.x-ns.x)); // drawing is the speed hog, myAtan isn't...
+						angle = 57 * myAtan((d.y-ns.y), (d.x-ns.x)); // Seems DRAWING rotated text is the speed hog, NOT myAtan...
 					} else angle = 0;
 					
+					// Rotating isn't everything - here's some alignment so labels won't cover nodes
 					if (Math.abs(angle) > 90) {
 						var anchor = "end";
 						var offset = -offset
@@ -411,8 +443,8 @@ function update() {
 					if (Settings.drawAngles) text.textContent = Math.floor(angle);
 
 				} else {
+					// no text rotations
 					var dX = d.x - center.x;
-					//						var dY = d.y-center.y;
 
 					if (dX > 0) {
 						var anchor = "start";
@@ -427,6 +459,8 @@ function update() {
 					
 				}
 			}
+
+			// we have all we need - now draw the label
 			var margin = 5;
 			var rect = this.childNodes[0].childNodes[0];
 			var textbox = text.getBBox();
@@ -440,13 +474,13 @@ function update() {
 		});
 	}
 
-
-	Force.force().on("start", start()); // d3 bug? Won't call start on very first update.
+	// Hooking bookmarklet generation into the simulation sequence
+	Force.force().on("start", start()); // Parenthesis due to d3 bug? (Won't call start on very first update...)
 	Force.force().on("tick", tick);
 	Force.force().on("end", end);
 	
 	function start() {
-		FPS.init();
+	//	FPS.init();
 		// everything is set up for rendering - create a bookmarklet for saving:
 		bookmarks.push(Net.exportN(false));
 		bookmarks.shift();
@@ -467,6 +501,7 @@ function update() {
 //		$("#bookmarks").children(':last-child').href(Net.exportN());
 	}
 
+	// Do this every iteration
 	function tick (e) {
 
 		// update percent counter

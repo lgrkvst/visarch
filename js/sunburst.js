@@ -1,3 +1,8 @@
+/** Draw radial menu - a quite undocumented module at the moment.
+ * 
+ * @author Christian Lagerkvist [christian.lagerkvist@seb.se]
+ */
+
 function drawRadial(root, n) {
 
 var radius = 90;
@@ -38,7 +43,7 @@ var pallet = sunburst.append("circle").attr("r", function (){
 	})
 	.attr("class", "pallet");
 
-/*************** INTERACTION **************/
+/** __SVG_Group__ that highlights on hover */
 var g = sunburst.datum(root).selectAll("g").data(partition.nodes).enter().append("g").attr("transform","rotate(0)").on("mouseover", function(n) {
 	var path = this.childNodes[0];
 	path.setAttribute("class", "arc mouseover");
@@ -91,7 +96,7 @@ g.filter(function (n,i){if (n.hasOwnProperty("icon")) {return true;}})
 var text = radial(g);
 
 /******************* LABEL LAYOUTS *******************/
-
+/** Horizontal label layout - __experimental__ */
 function horizontal(g) {
 	return text = g.append("text").attr("transform", function(d) {
 			var sizefactor = 1.3;
@@ -115,6 +120,7 @@ function horizontal(g) {
 			});
 		}
 
+/** Radial label layout */
 function radial(g) {
 	return text = g.append("text")
 		.attr("transform", function(d) {
@@ -138,6 +144,7 @@ function radial(g) {
 		.attr("startOffset", "50%");
 	}
 
+/** Curved label layout - __experimental__ */
 function curved(g) {
 	return text = g.append("text")
 		.attr("dy", function(d) {
@@ -166,9 +173,9 @@ function curved(g) {
 		.attr("text-anchor", "middle");
 	}
 }
-
+/** Determine label text */
 function label(n) {
-if (n.label) return n.label;
-if (n.name) return n.name;
+if (n.label) return n.label; // explicit label set
+if (n.name) return n.name;	 // otherwise, use the node's name
 return "";
 }

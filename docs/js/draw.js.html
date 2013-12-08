@@ -1,0 +1,696 @@
+<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width" charset="utf-8"><title>the Observatory JS docs</title><!-- Foundation CSS--><link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/foundation/4.1.6/css/foundation.min.css"><!-- Prism CSS--><style type="text/css">/**
+ * prism.js default theme for JavaScript, CSS and HTML
+ * Based on dabblet (http://dabblet.com)
+ * @author Lea Verou
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+	color: black;
+	text-shadow: 0 1px white;
+	font-family: Consolas, Monaco, 'Andale Mono', monospace;
+	direction: ltr;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+
+	-webkit-hyphens: none;
+	-moz-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+}
+
+::-moz-selection {
+	text-shadow: none;
+	background: #b3d4fc;
+}
+
+::selection {
+	text-shadow: none;
+	background: #b3d4fc;
+}
+
+@media print {
+	code[class*="language-"],
+	pre[class*="language-"] {
+		text-shadow: none;
+	}
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+	padding: 1em;
+	margin: .5em 0;
+	overflow: auto;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+	background: #f5f2f0;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+	padding: .1em;
+	border-radius: .3em;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: slategray;
+}
+
+.token.punctuation {
+	color: #999;
+}
+
+.namespace {
+	opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number {
+	color: #905;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string {
+	color: #690;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+	color: #a67f59;
+	background: hsla(0,0%,100%,.5);
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+	color: #07a;
+}
+
+
+.token.regex,
+.token.important {
+	color: #e90;
+}
+
+.token.important {
+	font-weight: bold;
+}
+
+.token.entity {
+	cursor: help;
+}
+</style><!-- Custom Styles--><style type="text/css">h1.page-title small {
+  font-weight: 400;
+}
+/*.section-container, .section-container .section .title
+  border-color #e6e6e6*/
+#nav .section.active {
+  padding-top: 0 !important;
+}
+#nav .section.active .title {
+  background: #ddd;
+}
+#nav .section .title {
+  background-color: #eee;
+}
+#nav .section .title a {
+  font-weight: 700;
+  padding: 0.6em;
+}
+#nav .section .title a small {
+  font-size: 0.8em;
+  line-height: 1em;
+  display: block;
+  color: #888;
+  margin: 2px 0 -2px;
+}
+#nav .section .title:hover {
+  background: #ddd;
+}
+#nav ul.solo {
+  border-top: 1px solid #ccc;
+  padding: 0.875em;
+}
+code {
+  background: transparent;
+  line-height: 1.3em;
+  font-weight: normal;
+}
+.comment {
+  position: relative;
+  padding-bottom: 1.5em;
+  margin-bottom: 2em;
+  border-bottom: 1px solid #ddd;
+}
+.comment ol,
+.comment ul {
+  margin-left: 2.25em;
+}
+.comment ol.no-bullet,
+.comment ul.no-bullet {
+  margin-left: 0;
+}
+.comment header {
+  margin-bottom: 1.5em;
+}
+.comment header h1 {
+  font-size: 2rem;
+  margin-bottom: 0.2em;
+}
+.comment .section-container,
+.comment .section-container > .section > .content {
+  border: none;
+}
+.comment .section-container > .section > .title {
+  padding: auto;
+  background: none !important;
+  border: none !important;
+}
+.comment .section-container > .section > .title a {
+  border-radius: 4px;
+  font-weight: 700;
+  padding: 1px 10px 1px 0;
+  margin-right: 5px;
+  color: #ccc;
+}
+.comment .section-container > .section:hover .title a {
+  color: #999;
+}
+.comment .section-container > .section.active .title a {
+  color: #2ba6cb;
+}
+.comment .section-container > .section > .content {
+  padding: 0.9em 0 0;
+}
+.comment div.description h2 {
+  font-size: 1.2em;
+}
+.comment .tags span {
+  margin-right: 4px;
+}
+.comment .tags .name,
+.comment .tags .type {
+  font-weight: 700;
+}
+.comment .tags .types {
+  color: #666;
+}
+.comment .tags .description {
+  margin-left: 15px;
+}
+.ctx-type {
+  margin-right: 6px;
+  font-size: 0.7em;
+}
+</style><script srr="http://cdnjs.cloudflare.com/ajax/libs/foundation/4.1.6/js/vendor/custom.modernizr.js"></script></head><body><div class="row"><div class="small-12 columns"><h1 class="page-title">the Observatory JS docs<small> js/draw.js</small></h1></div></div><div class="row"><div id="nav" class="large-3 columns"><div data-section="accordian" data-options="" class="section-container accordian"><div class="section"><p data-section-title class="title"><a href="../../docs/js/ALL.js.html"><small>js/</small>ALL.js</a></p><div data-section-content class="content"><ul class="side-nav"><li><a href="../../docs/js/ALL.js.html#ALL">ALL</a></li><li><a href="../../docs/js/ALL.js.html#nodes">nodes</a></li><li><a href="../../docs/js/ALL.js.html#n">n</a></li><li><a href="../../docs/js/ALL.js.html#nByName">nByName</a></li><li><a href="../../docs/js/ALL.js.html#l">l</a></li><li><a href="../../docs/js/ALL.js.html#node2links">node2links</a></li><li><a href="../../docs/js/ALL.js.html#nsByCompartment">nsByCompartment</a></li><li><a href="../../docs/js/ALL.js.html#init">init</a></li></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../docs/js/Compartments.js.html"><small>js/</small>Compartments.js</a></p><div data-section-content class="content"><ul class="side-nav"><li><a href="../../docs/js/Compartments.js.html#Compartments">Compartments</a></li></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../docs/js/Force.js.html"><small>js/</small>Force.js</a></p><div data-section-content class="content"><ul class="side-nav"><li><a href="../../docs/js/Force.js.html#Force">Force</a></li><li><a href="../../docs/js/Force.js.html#linkConstantUpdate">linkConstantUpdate</a></li><li><a href="../../docs/js/Force.js.html#sizeConstantUpdate">sizeConstantUpdate</a></li><li><a href="../../docs/js/Force.js.html#init">init</a></li><li><a href="../../docs/js/Force.js.html#d3_layout_forceMouseover">d3_layout_forceMouseover</a></li><li><a href="../../docs/js/Force.js.html#d3_layout_forceMouseout">d3_layout_forceMouseout</a></li><li><a href="../../docs/js/Force.js.html#nodeDrag">nodeDrag</a></li></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../docs/js/Net.js.html"><small>js/</small>Net.js</a></p><div data-section-content class="content"><ul class="side-nav"><li><a href="../../docs/js/Net.js.html#Net">Net</a></li><li><a href="../../docs/js/Net.js.html#nodes">nodes</a></li><li><a href="../../docs/js/Net.js.html#determineCenter">determineCenter</a></li><li><a href="../../docs/js/Net.js.html#getCenter">getCenter</a></li><li><a href="../../docs/js/Net.js.html#ix">ix</a></li><li><a href="../../docs/js/Net.js.html#lix">lix</a></li><li><a href="../../docs/js/Net.js.html#getNeighbors">getNeighbors</a></li><li><a href="../../docs/js/Net.js.html#drop">drop</a></li><li><a href="../../docs/js/Net.js.html#dropNode">dropNode</a></li><li><a href="../../docs/js/Net.js.html#dropLinks">dropLinks</a></li><li><a href="../../docs/js/Net.js.html#dropLink">dropLink</a></li><li><a href="../../docs/js/Net.js.html#add">add</a></li><li><a href="../../docs/js/Net.js.html#addLink">addLink</a></li><li><a href="../../docs/js/Net.js.html#supernova">supernova</a></li><li><a href="../../docs/js/Net.js.html#toggleFixed">toggleFixed</a></li><li><a href="../../docs/js/Net.js.html#init">init</a></li><li><a href="../../docs/js/Net.js.html#dump">dump</a></li><li><a href="../../docs/js/Net.js.html#exportN">exportN</a></li><li><a href="../../docs/js/Net.js.html#importN">importN</a></li></ul></div></div><div class="section active"><p data-section-title class="title"><a href="../../docs/js/draw.js.html"><small>js/</small>draw.js</a></p><div data-section-content class="content"><ul class="side-nav"><li><a href="../../docs/js/draw.js.html#gs">gs</a></li><li><a href="../../docs/js/draw.js.html#gs">gs</a></li><li><a href="../../docs/js/draw.js.html#update">update</a></li></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../docs/js/helpers.js.html"><small>js/</small>helpers.js</a></p><div data-section-content class="content"><ul class="side-nav"><li><a href="../../docs/js/helpers.js.html#FPS">FPS</a></li><li><a href="../../docs/js/helpers.js.html#myAtan">myAtan</a></li><li><a href="../../docs/js/helpers.js.html#MakeBM">MakeBM</a></li><li><a href="../../docs/js/helpers.js.html#RemoveComments">RemoveComments</a></li></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../docs/js/sunburst.js.html"><small>js/</small>sunburst.js</a></p><div data-section-content class="content"><ul class="side-nav"><li><a href="../../docs/js/sunburst.js.html#drawRadial">drawRadial</a></li><li><a href="../../docs/js/sunburst.js.html#sunburst">sunburst</a></li><li><a href="../../docs/js/sunburst.js.html#pallet">pallet</a></li><li><a href="../../docs/js/sunburst.js.html#g">g</a></li><li><a href="../../docs/js/sunburst.js.html#translate">translate</a></li><li><a href="../../docs/js/sunburst.js.html#horizontal">horizontal</a></li><li><a href="../../docs/js/sunburst.js.html#radial">radial</a></li><li><a href="../../docs/js/sunburst.js.html#curved">curved</a></li><li><a href="../../docs/js/sunburst.js.html#label">label</a></li></ul></div></div></div></div><div class="small-12 large-9 columns"><article class="comment"><header></header><ul class="no-bullet tags"><li class="tag"><span class="type">@author: </span><span class="string">Christian Lagerkvist [christian.lagerkvist@seb.se]</span></li></ul><div data-section="accordian" data-options="one_up: false;" class="section-container code auto"><div class="section"><p data-section-title class="title"><a href="#">Description</a></p><div data-section-content class="content description"><p><strong>draw</strong> binds it all together: visualization, the RSA model and the interaction.</p></div></div><div class="section"><p data-section-title class="title"><a href="#">Source</a></p><div data-section-content class="content"><pre><code class="language-javascript">// Create a handy color range - one theme color per compartment
+var color = d3.scale.category20().domain(Compartments.RSA());
+
+// Setup draw area - the subtraction of the constant is for adjusting the area for the height of header+footer
+var w = $(window).width(),
+	h = $(window).height()-42*2;
+
+// Initialize the Net object with a callback (ALL.node2links) allowing it to obtain a node's links.
+Net.init(ALL.node2links);
+Force.init(w, h);
+
+// Attach d3 to the DOM. Load it with our radial menu.
+var svg = d3.select(&quot;#observatory&quot;).attr(&quot;width&quot;, w).attr(&quot;height&quot;, h)
+	.on(&quot;mouseup&quot;, function () {
+		var sunburst = svg.selectAll(&quot;g.radial&quot;);
+		sunburst.remove();
+	});
+var link = svg.insert(&quot;g&quot;).attr(&quot;class&quot;, &quot;links&quot;).selectAll(&quot;.link&quot;);
+var node = svg.insert(&quot;g&quot;).attr(&quot;class&quot;, &quot;nodes&quot;).selectAll(&quot;.node&quot;);
+
+// bookmarklet handling (&quot;save/cancel&quot;)
+var bookmarks = [&quot;javascript:(function(){Net.importN(JSON.parse('[]'));})();&quot;, &quot;javascript:(function(){Net.importN(JSON.parse('[]'));})();&quot;];
+var d3bookmarks = d3.select(&quot;#bookmarks&quot;).selectAll(&quot;a&quot;);
+
+// svg filter for adding halos to nodes
+svg.append(&quot;filter&quot;).attr(&quot;id&quot;, &quot;blurMe&quot;).append(&quot;feGaussianBlur&quot;).attr(&quot;in&quot;, &quot;SourceGraphic&quot;).attr(&quot;stdDeviation&quot;, &quot;2&quot;);
+
+// Experimental: display an arrow between nodes marking directions
+svg.append(&quot;svg:defs&quot;).selectAll(&quot;marker&quot;)
+	.data([&quot;end&quot;]) // Different link/path types can be defined here
+.enter().append(&quot;svg:marker&quot;) // This section adds in the arrows
+.attr(&quot;id&quot;, String)
+	.attr(&quot;viewBox&quot;, &quot;0 -5 10 10&quot;)
+	.attr(&quot;refX&quot;, 35)
+	.attr(&quot;refY&quot;, 0)
+	.attr(&quot;markerWidth&quot;, 1)
+	.attr(&quot;markerHeight&quot;, 1)
+	.attr(&quot;orient&quot;, &quot;auto&quot;)
+	.append(&quot;svg:path&quot;)
+	.attr(&quot;d&quot;, &quot;M0,-5L10,0L0,5&quot;);</code></pre></div></div></div></article><article class="comment"><header><h1 id="gs">gs</h1><h5 class="subheader"><div class="label radius ctx-type">declaration</div>gs</h5></header><ul class="no-bullet tags"></ul><div data-section="accordian" data-options="one_up: false;" class="section-container code auto"><div class="section"><p data-section-title class="title"><a href="#">Description</a></p><div data-section-content class="content description"><ul>
+<li>node gradients **</li>
+</ul></div></div><div class="section"><p data-section-title class="title"><a href="#">Source</a></p><div data-section-content class="content"><pre><code class="language-javascript">var gs = svg.selectAll(&quot;defs&quot;).selectAll(&quot;menuGradients&quot;)
+		.data(color.range())
+		.enter()
+		.append(&quot;radialGradient&quot;)
+		.attr(&quot;id&quot;, function (n, i) {
+		return &quot;m&quot; + i;
+	}).attr(&quot;cx&quot;, &quot;0%&quot;).attr(&quot;cy&quot;, &quot;0%&quot;).attr(&quot;fx&quot;, &quot;0%&quot;).attr(&quot;fy&quot;, &quot;0%&quot;).attr(&quot;r&quot;, &quot;100%&quot;);
+	gs.append(&quot;stop&quot;).attr(&quot;stop-color&quot;, function (n) {
+		return d3.rgb(n).brighter();
+	}).attr(&quot;offset&quot;, &quot;0%&quot;).attr(&quot;stop-opacity&quot;, &quot;100%&quot;);
+	gs.append(&quot;stop&quot;).attr(&quot;stop-color&quot;, function (n) {
+		return n;
+	}).attr(&quot;offset&quot;, &quot;100%&quot;).attr(&quot;stop-opacity&quot;, &quot;100%&quot;);</code></pre></div></div></div></article><article class="comment"><header><h1 id="gs">gs</h1><h5 class="subheader"><div class="label radius ctx-type">declaration</div>gs</h5></header><ul class="no-bullet tags"></ul><div data-section="accordian" data-options="one_up: false;" class="section-container code auto"><div class="section"><p data-section-title class="title"><a href="#">Description</a></p><div data-section-content class="content description"><ul>
+<li>radial gradients **</li>
+</ul></div></div><div class="section"><p data-section-title class="title"><a href="#">Source</a></p><div data-section-content class="content"><pre><code class="language-javascript">var gs = svg.selectAll(&quot;defs&quot;).selectAll(&quot;radialGradient&quot;)
+	.data(color.range())
+	.enter()
+	.append(&quot;radialGradient&quot;)
+	.attr(&quot;id&quot;, function (n, i) {
+	return &quot;g&quot; + i;
+}).attr(&quot;cx&quot;, &quot;50%&quot;).attr(&quot;cy&quot;, &quot;50%&quot;).attr(&quot;r&quot;, &quot;50%&quot;);
+gs.append(&quot;stop&quot;).attr(&quot;stop-color&quot;, function (n) {
+	return n;
+}).attr(&quot;offset&quot;, &quot;40%&quot;).attr(&quot;stop-opacity&quot;, &quot;100%&quot;);
+gs.append(&quot;stop&quot;).attr(&quot;stop-color&quot;, &quot;white&quot;).attr(&quot;offset&quot;, &quot;75%&quot;).attr(&quot;stop-opacity&quot;, &quot;0%&quot;);</code></pre></div></div></div></article><article class="comment"><header></header><ul class="no-bullet tags"></ul><div data-section="accordian" data-options="one_up: false;" class="section-container code auto"><div class="section"><p data-section-title class="title"><a href="#">Description</a></p><div data-section-content class="content description"><ul>
+<li>radial menu icons **</li>
+</ul></div></div><div class="section"><p data-section-title class="title"><a href="#">Source</a></p><div data-section-content class="content"><pre><code class="language-javascript">// trash can
+svg.selectAll(&quot;defs&quot;)
+	.append(&quot;g&quot;)
+	.attr(&quot;id&quot;, &quot;icon_remove&quot;)
+	.append(&quot;polygon&quot;)
+	.attr(&quot;points&quot;, &quot;438.393,374.595 319.757,255.977 438.378,137.348 374.595,73.607 255.995,192.225 137.375,73.622 73.607,137.352 192.246,255.983 73.622,374.625 137.352,438.393 256.002,319.734 374.652,438.378&quot;)
+	.attr(&quot;fill&quot;, &quot;white&quot;)
+	.attr(&quot;transform&quot;, &quot;scale(0.03) translate(-80,150)&quot;);
+
+// magnet icon
+svg.selectAll(&quot;defs&quot;)
+	.append(&quot;g&quot;)
+	.attr(&quot;id&quot;, &quot;icon_fixed&quot;)
+	.append(&quot;path&quot;)
+	.attr(&quot;d&quot;, &quot;M20.812,19.5h5.002v-6.867c-0.028-1.706-0.61-3.807-2.172-5.841c-1.539-2.014-4.315-3.72-7.939-3.687C12.076,3.073,9.3,4.779,7.762,6.792C6.2,8.826,5.617,10.928,5.588,12.634V19.5h5v-6.866c-0.027-0.377,0.303-1.789,1.099-2.748c0.819-0.979,1.848-1.747,4.014-1.778c2.165,0.032,3.195,0.799,4.013,1.778c0.798,0.959,1.126,2.372,1.099,2.748V19.5L20.812,19.5zM25.814,25.579c0,0,0-2.354,0-5.079h-5.002c0,2.727,0,5.08,0,5.08l5.004-0.001H25.814zM5.588,25.58h5c0,0,0-2.354,0-5.08h-5C5.588,23.227,5.588,25.58,5.588,25.58z&quot;)
+	.attr(&quot;fill&quot;, &quot;white&quot;)
+	.attr(&quot;transform&quot;, &quot;scale(0.52) translate(-5,10)&quot;);
+
+// supernova icon (explosion, or rather an asterisk...)
+svg.selectAll(&quot;defs&quot;)
+	.append(&quot;g&quot;)
+	.attr(&quot;id&quot;, &quot;icon_explode&quot;)
+	.append(&quot;path&quot;)
+	.attr(&quot;d&quot;, &quot;m567.072327,32.324581l-142.898529,364.1077l-390.230839,26.652069l302.105686,248.419556l-95.20694,379.358398l329.609894,-210.542419l331.372925,207.780212l-98.380493,-378.565002l300.019348,-250.946625l-390.436523,-23.39035l-145.954529,-362.873539z&quot;)
+	.attr(&quot;fill&quot;, &quot;white&quot;)
+	.attr(&quot;transform&quot;, &quot;scale(0.015) translate(0,130)&quot;);
+
+
+
+// import RSA components and relationships
+d3.json(&quot;json/nodes_links.json&quot;, function (error, graph) {
+
+	// Load everything into __ALL__
+	ALL.init(graph.nodes, graph.links);
+	
+	var autoSuggest = [];
+	// add __Compartment__ to autoSuggest
+	graph.nodes.forEach(function (n) {
+		autoSuggest.push({
+			name: n.name,
+			id: n.id,
+			description: n.description,
+			color: color(n.compartment),
+			compartment: Compartments.RSA2name(n.compartment)
+		});
+	});
+
+	// init autoSuggest
+	autoSuggest = autoSuggest.concat(Compartments.all.map(function (c){return {name:c.name, color: color(c.compartment),compartment:c.name, id:c.compartment, description:&quot;compartment&quot;};}));
+
+	$('#q').typeahead({
+		name: 'stellar',
+		local: autoSuggest,
+		valueKey: 'name',
+		limit:16,
+		template: [
+				'&lt;span class=&quot;tt-name&quot;&gt;{{name}}&lt;/span&gt;',
+				'&lt;span style=&quot;background:{{color}}&quot; class=&quot;label label-info pull-right&quot;&gt;{{compartment}}&lt;/span&gt;',
+				'&lt;div class=&quot;tt-description&quot;&gt;&lt;em&gt;{{description}}&lt;/em&gt;&lt;/div&gt;'
+		].join(''),
+		engine: Hogan
+	});
+	
+	// Provides a hook for index.html for displaying systems on page load
+	try {
+		JsonReady();
+	} catch (err) {console.log(err);}
+});</code></pre></div></div></div></article><article class="comment"><header><h1 id="update">update</h1><h5 class="subheader"><div class="label radius ctx-type">function</div>update()</h5></header><ul class="no-bullet tags"></ul><div data-section="accordian" data-options="one_up: false;" class="section-container code auto"><div class="section"><p data-section-title class="title"><a href="#">Description</a></p><div data-section-content class="content description"><p><strong>update</strong> takes care of drawing and interaction. Quite d3 intense...</p></div></div><div class="section"><p data-section-title class="title"><a href="#">Source</a></p><div data-section-content class="content"><pre><code class="language-javascript">function update() {
+	// call start before doing svg stuff, since we want any new nodes instantiated
+	
+	Force.force().start();
+
+	node = node.data(Net.nodes, function (n) {
+		return n.id;
+	});
+
+	link = link.data(Net.links, function (n) {
+		return (n.source.id + n.target.id);
+	});
+
+	// 	Adding basic links
+	//	link.enter().append(&quot;line&quot;).attr(&quot;class&quot;, &quot;link&quot;);
+
+	link.enter()
+        .append('path')
+        .attr(&quot;class&quot;, &quot;polygonlink&quot;);
+
+		// experimental: link labels</code></pre></div></div></div></article><article class="comment"><header></header><ul class="no-bullet tags"></ul><div data-section="accordian" data-options="one_up: false;" class="section-container code auto"><div class="section"><p data-section-title class="title"><a href="#">Description</a></p><div data-section-content class="content description"><p>var edgelabels = svg.selectAll(".edgelabel")<br />            .data(Net.links)<br />                .enter()<br />                .append('text')<br />                .style("pointer-events", "none")<br />                .attr({'class':'edgelabel',<br />                       'id':function(d,i){return 'edgelabel'+i},<br />                       'dx':50,<br />                       'dy':8,<br />                       'font-size':12});</p>
+
+<pre><code>    var textPath = edgelabels.append('textPath')
+            .attr('xlink:href',function(d,i) {return '#edgepath'+i})
+            .style("pointer-events", "none")
+            .text(Net.linkDistance);
+</code></pre></div></div><div class="section"><p data-section-title class="title"><a href="#">Source</a></p><div data-section-content class="content"><pre><code class="language-javascript">link.exit().remove();
+
+		// experimental: put arrows on links</code></pre></div></div></div></article><article class="comment"><header></header><ul class="no-bullet tags"></ul><div data-section="accordian" data-options="one_up: false;" class="section-container code auto"><div class="section"><p data-section-title class="title"><a href="#">Description</a></p><div data-section-content class="content description"><p>append("line")<br />            .attr("class", "link")<br />            .attr("marker-end", "url(#end)");</p></div></div><div class="section"><p data-section-title class="title"><a href="#">Source</a></p><div data-section-content class="content"><pre><code class="language-javascript">// draw an svg:group for each node	
+	var g = node.enter().append(&quot;g&quot;)
+		.attr(&quot;class&quot;, function (d) {
+		return Compartments.RSA2short(d.compartment);
+	})
+		.attr(&quot;transform&quot;, function () {
+		return &quot;translate(&quot; + w / 2 + &quot;,&quot; + h / 2 + &quot;)&quot;
+	});
+	// type the node name in each group
+	var g_label = g.append(&quot;g&quot;)
+		.attr(&quot;class&quot;, &quot;node_label&quot;);
+		
+	g_label.append(&quot;rect&quot;)
+		.attr(&quot;class&quot;, &quot;label_background&quot;)
+		.style(&quot;fill&quot;, function (d) {
+			return d3.rgb(color(d.compartment)).darker();
+			});
+	g_label.append(&quot;text&quot;)
+		.attr(&quot;dy&quot;, &quot;.35em&quot;)
+		.attr(&quot;x&quot;, function (n) {
+		return 14 + 0.3 * n.size;
+	})
+		.attr(&quot;font-size&quot;, function (n) {
+		return 14 + 0.1 * n.size;
+	})
+		.attr(&quot;class&quot;, &quot;label_text&quot;)
+		.text(function (n) {
+		return n.name;
+	});
+	// add a hover:title in each group
+	g.append(&quot;title&quot;).text(function (d) {
+		return (d.description ? d.description + &quot;\n&quot; : &quot;&quot;) + &quot;[&quot; + d.compartment + &quot;]&quot;;
+	});
+
+	// halo
+	g.append(&quot;circle&quot;).attr(&quot;r&quot;, function (n) {
+		return (12 + n.size * 0.4);
+	})
+		.attr(&quot;class&quot;, function (d) {
+		return &quot;halo&quot;;
+	})
+		.style(&quot;fill&quot;, function (d) {
+		return &quot;url(#g&quot; + Compartments.RSA().indexOf(d.compartment) + &quot;)&quot;;
+	});
+
+	// put a circle in each group
+	g.append(&quot;circle&quot;).attr(&quot;r&quot;, function (n) {
+		return (6 + n.size * 0.2);
+	})
+	.attr(&quot;class&quot;, &quot;node&quot;)
+	.on(&quot;mouseover&quot;, Force.d3_layout_forceMouseover)
+	.on(&quot;mouseout&quot;, Force.d3_layout_forceMouseout);</code></pre></div></div></div></article><article class="comment"><header></header><ul class="no-bullet tags"></ul><div data-section="accordian" data-options="one_up: false;" class="section-container code auto"><div class="section"><p data-section-title class="title"><a href="#">Description</a></p><div data-section-content class="content description"><p>// Experimental but really cool:<br />    // Mark fixed nodes<br />    g.append("circle")<br />        .attr("r", function (n) {<br />            return (20 + n.size * 0.4);<br />        })<br />        .attr("class", "fixed")<br />        .style("display", "none");</p></div></div><div class="section"><p data-section-title class="title"><a href="#">Source</a></p><div data-section-content class="content"><pre><code class="language-javascript">// get rid of obsolete nodes (deleted through the radial menu's trash can in a previous iteration)
+	node.exit().remove();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	// Build the radial menu
+	g.selectAll(&quot;circle&quot;)
+		.on(&quot;mouseup&quot;, function () {
+			var sunburst = svg.selectAll(&quot;g.radial&quot;);
+			sunburst.remove();
+		})	
+		.on(&quot;contextmenu&quot;, function (n) {
+		// The radial menu function takes a JSON structure, according to d3's docs on pie menus.
+		var tree = {
+			&quot;size&quot;: n.size,
+			&quot;children&quot;: [{
+					&quot;label&quot;: &quot;remove&quot;,
+					&quot;id&quot;: n.id,
+					&quot;icon&quot;: &quot;#icon_remove&quot;,
+					&quot;size&quot;: &quot;10&quot;,
+		// we inject a callback for each menu item, what to execute on selection. Maybe I can become a decent js-coder afterall?
+					&quot;callback&quot;: function (node) {Net.drop(node.id);update();}
+					}, {
+					&quot;label&quot;: &quot;explode&quot;,
+					&quot;id&quot;: n.id,
+					&quot;icon&quot;: &quot;#icon_explode&quot;,
+					&quot;size&quot;: &quot;10&quot;,
+					&quot;children&quot;: [],
+					&quot;callback&quot;: function (node) {Net.supernova(node.id);update();}
+					}, {
+					&quot;label&quot;: &quot;freeze&quot;,
+					&quot;id&quot;: n.id,
+					&quot;icon&quot;: &quot;#icon_fixed&quot;,
+					&quot;size&quot;: &quot;10&quot;,
+					&quot;callback&quot;: function (node) {Net.toggleFixed(node.id);update();}
+				}]
+		};
+		var links = ALL.node2links(n.id);
+		// push all links/edge menu items onto the radial menu JSON
+		links.forEach(function (l) {
+			var c = l.target.id == n.id ? l.source : l.target;
+			var push = {};
+			push.name = c.name;
+			push.id = c.id;
+			push.compartment = c.compartment;
+			push.size = c.size;
+			push.callback = function(node){Net.add(ALL.n(node.id)); update()};
+			tree.children[1].children.push(push);
+		});
+		console.A =&quot;var tree = JSON.parse('&quot; + JSON.stringify(tree) + &quot;');&quot;;
+		console.B = &quot;var n = JSON.parse('&quot; + JSON.stringify(n) + &quot;');&quot;;
+		
+		drawRadial(tree, n);
+	});
+	
+	node.call(Force.nodeDrag);
+
+		if (Settings.drawOrigo &amp;&amp; !Settings.rotateLabels) {
+		var origo = svg.append(&quot;g&quot;).attr(&quot;id&quot;, &quot;origo&quot;);
+		origo.append(&quot;circle&quot;).attr(&quot;r&quot;, 4).style(&quot;fill&quot;, &quot;#fff&quot;);
+		origo.append(&quot;circle&quot;).attr(&quot;r&quot;, 7).style(&quot;stroke&quot;, &quot;#fff&quot;).style(&quot;fill&quot;, &quot;none&quot;).style(&quot;stroke-width&quot;, &quot;1.5px&quot;);
+	}</code></pre></div></div></div></article><article class="comment"><header></header><ul class="no-bullet tags"></ul><div data-section="accordian" data-options="one_up: false;" class="section-container code auto"><div class="section"><p data-section-title class="title"><a href="#">Description</a></p><div data-section-content class="content description"><p>---------------------------- FOR SIMULATION -----------------------------</p></div></div><div class="section"><p data-section-title class="title"><a href="#">Source</a></p><div data-section-content class="content"><pre><code class="language-javascript">// links are actually little trapezoids (arrows). You can barely see the link direction...
+	var updateLink = function () {
+		this.attr('d', function(d) {
+
+			var sx = d.source.x; var sy = d.source.y; var tx = d.target.x; var ty = d.target.y;
+			var Dx = tx-sx; var Dy = ty-sy; // D as in Delta
+			var pDx = Dy; var pDy = -Dx; 	// p as in perpendicular
+			// normalize
+			var length = Math.sqrt(pDx*pDx+pDy*pDy);
+			pDx /= length;
+			pDy /= length;
+
+
+			var sC = 1;
+			var tC = 0.6;
+//			var sS = 6 + d.source.size * 0.2;
+//			var tS = 6 + d.target.size * 0.2;
+			var sS = 7*sC;
+			var tS = 7*tC;
+
+			var s1x = sx+pDx*sS;
+			var s1y = sy+pDy*sS;
+
+			var s2x = sx-pDx*sS;
+			var s2y = sy-pDy*sS;
+
+			var t1x = tx+pDx*tS;
+			var t1y = ty+pDy*tS;
+
+			var t2x = tx-pDx*tS;
+			var t2y = ty-pDy*tS;
+			var path = &quot;M &quot; + s1x + &quot; &quot; + s1y;
+			path +=   &quot; L &quot; + t1x + &quot; &quot; + t1y;
+			path +=   &quot; L &quot; + t2x + &quot; &quot; + t2y;
+			path +=   &quot; L &quot; + s2x + &quot; &quot; + s2y;
+			path +=   &quot; Z&quot;;
+			return path;
+		});</code></pre></div></div></div></article><article class="comment"><header></header><ul class="no-bullet tags"></ul><div data-section="accordian" data-options="one_up: false;" class="section-container code auto"><div class="section"><p data-section-title class="title"><a href="#">Description</a></p><div data-section-content class="content description"><p>// Deprecated:<br />        // Plain svg:line objects<br />        this.attr("x1", function (d) {<br />            return d.source.x;<br />        }).attr("y1", function (d) {<br />            return d.source.y;<br />        }).attr("x2", function (d) {<br />            return d.target.x;<br />        }).attr("y2", function (d) {<br />            return d.target.y;<br />        });</p></div></div><div class="section"><p data-section-title class="title"><a href="#">Source</a></p><div data-section-content class="content"><pre><code class="language-javascript">}
+
+	var updateNode = function () {
+		if (!Settings.rotateLabels) {
+			var center = Net.getCenter();
+			if (Settings.drawOrigo) svg.select(&quot;#origo&quot;).attr(&quot;transform&quot;, &quot;translate(&quot; + center.x + &quot;,&quot; + center.y + &quot;)&quot;);
+				
+		}
+
+		this.attr(&quot;transform&quot;, function (d, i) {
+//			this.childNodes[4].setAttribute(&quot;style&quot;, &quot;display: &quot;+ (d.fixed ? &quot;block&quot; : &quot;none&quot;));
+			
+			var angle = 0;
+			if (text = this.childNodes[0].childNodes[1]) {
+				var offset = 14 + 0.3 * d.size;				
+
+				// rotate labels
+				if (Settings.rotateLabels) {
+					var ns = Net.getNeighbors(d.id);
+					if (ns.length) {
+						// my intricate (read 'cheap') rotation algorithm for avoiding labels blocking other nodes or links.
+						ns.x = d3.mean(ns, function(n){return n.x;});
+						ns.y = d3.mean(ns, function(n){return n.y;});
+						angle = 57 * myAtan((d.y-ns.y), (d.x-ns.x)); // Seems DRAWING rotated text is the speed hog, NOT myAtan...
+					} else angle = 0;
+					
+					// Rotating isn't everything - here's some alignment so labels won't cover nodes
+					if (Math.abs(angle) &gt; 90) {
+						var anchor = &quot;end&quot;;
+						var offset = -offset
+						var rotate = 180;
+					} else {
+						var anchor = &quot;start&quot;;
+						var rotate = 0;
+					}
+
+					text.setAttribute(&quot;transform&quot;, &quot;rotate(&quot; + rotate + &quot;)&quot;);
+					text.setAttribute(&quot;x&quot;, offset);
+					text.setAttribute(&quot;text-anchor&quot;, anchor);
+
+					if (Settings.drawAngles) text.textContent = Math.floor(angle);
+
+				} else {
+					// no text rotations
+					var dX = d.x - center.x;
+
+					if (dX &gt; 0) {
+						var anchor = &quot;start&quot;;
+						text.setAttribute(&quot;x&quot;, offset);
+					} else {
+						var anchor = &quot;end&quot;;
+						offset = -offset
+					}
+					text.setAttribute(&quot;x&quot;, offset);
+					text.setAttribute(&quot;text-anchor&quot;, anchor);
+					text.setAttribute(&quot;transform&quot;, &quot;rotate(&quot; + 0 + &quot;)&quot;);
+					
+				}
+			}
+
+			// we have all we need - now draw the label
+			var margin = 5;
+			var rect = this.childNodes[0].childNodes[0];
+			var textbox = text.getBBox();
+			rect.setAttribute(&quot;x&quot;, textbox.x-margin);
+			rect.setAttribute(&quot;y&quot;, textbox.y);
+			rect.setAttribute(&quot;width&quot;, textbox.width+2*margin);
+			rect.setAttribute(&quot;height&quot;, textbox.height);
+			rect.setAttribute(&quot;transform&quot;, &quot;rotate(&quot; + rotate + &quot;)&quot;);
+			
+			return &quot;translate(&quot; + d.x + &quot;,&quot; + d.y + &quot;) rotate(&quot; + angle + &quot;)&quot;;
+		});
+	}
+
+	// Hooking bookmarklet generation into the simulation sequence
+	Force.force().on(&quot;start&quot;, start()); // Parenthesis due to d3 bug? (Won't call start on very first update...)
+	Force.force().on(&quot;tick&quot;, tick);
+	Force.force().on(&quot;end&quot;, end);
+	
+	function start() {
+	//	FPS.init();
+		// everything is set up for rendering - create a bookmarklet for saving:
+		bookmarks.push(Net.exportN(false));
+		bookmarks.shift();
+		d3bookmarks = d3bookmarks.data(bookmarks, function (n,i) {return i;});
+		d3bookmarks.enter().append(&quot;a&quot;);
+		d3bookmarks.attr(&quot;href&quot;, function(d){return d;}).attr(&quot;class&quot;, function (n,i) { return i ? &quot;btn-sm btn-warning&quot; : &quot;btn-sm btn-danger&quot;; });
+		d3bookmarks.text(function(n,i) { return (i ? &quot;save&quot; : &quot;&lt; back&quot;);});
+		d3bookmarks.exit().remove();
+	}
+	
+	function end() {
+		if (bookmarks[0] != bookmarks[1]) {
+			bookmarks.push(Net.exportN(false));
+			bookmarks.shift();
+		}
+		d3bookmarks.attr(&quot;href&quot;, function(d){return d;}).attr(&quot;class&quot;, function (n,i) { return i ? &quot;btn-sm btn-success&quot; : &quot;btn-sm btn-danger&quot;; });
+		d3bookmarks.text(function(n,i) { return (i ? &quot;save&quot; : &quot;&lt; back&quot;);});
+//		$(&quot;#bookmarks&quot;).children(':last-child').href(Net.exportN());
+	}
+
+	// Do this every iteration
+	function tick (e) {
+
+		// update percent counter
+		$(&quot;#bookmarks&quot;).children(':last-child').text(Math.floor(1000*(0.1-(Force.force().alpha()))) + &quot;%&quot;)
+
+		// for benchmarking
+		// FPS.sample();
+
+
+		node.call(updateNode);
+		link.call(updateLink);
+	}
+}</code></pre></div></div></div></article></div></div><!-- Foundation JS--><script type="text/javascript">document.write('<script src=' +
+('__proto__' in {} ? 'http://cdnjs.cloudflare.com/ajax/libs/zepto/1.0/zepto.min' : 'http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min') +
+'.js><\/script>')
+</script><script src="http://cdnjs.cloudflare.com/ajax/libs/foundation/4.1.6/js/foundation.min.js"></script><script src="http://cdnjs.cloudflare.com/ajax/libs/foundation/4.1.6/js/foundation/foundation.reveal.min.js"></script><!-- Prism js--><script type="text/javascript">
+/**
+ * Prism: Lightweight, robust, elegant syntax highlighting
+ * MIT license http://www.opensource.org/licenses/mit-license.php/
+ * @author Lea Verou http://lea.verou.me
+ */(function(){var e=/\blang(?:uage)?-(?!\*)(\w+)\b/i,t=self.Prism={util:{type:function(e){return Object.prototype.toString.call(e).match(/\[object (\w+)\]/)[1]},clone:function(e){var n=t.util.type(e);switch(n){case"Object":var r={};for(var i in e)e.hasOwnProperty(i)&&(r[i]=t.util.clone(e[i]));return r;case"Array":return e.slice()}return e}},languages:{extend:function(e,n){var r=t.util.clone(t.languages[e]);for(var i in n)r[i]=n[i];return r},insertBefore:function(e,n,r,i){i=i||t.languages;var s=i[e],o={};for(var u in s)if(s.hasOwnProperty(u)){if(u==n)for(var a in r)r.hasOwnProperty(a)&&(o[a]=r[a]);o[u]=s[u]}return i[e]=o},DFS:function(e,n){for(var r in e){n.call(e,r,e[r]);t.util.type(e)==="Object"&&t.languages.DFS(e[r],n)}}},highlightAll:function(e,n){var r=document.querySelectorAll('code[class*="language-"], [class*="language-"] code, code[class*="lang-"], [class*="lang-"] code');for(var i=0,s;s=r[i++];)t.highlightElement(s,e===!0,n)},highlightElement:function(r,i,s){var o,u,a=r;while(a&&!e.test(a.className))a=a.parentNode;if(a){o=(a.className.match(e)||[,""])[1];u=t.languages[o]}if(!u)return;r.className=r.className.replace(e,"").replace(/\s+/g," ")+" language-"+o;a=r.parentNode;/pre/i.test(a.nodeName)&&(a.className=a.className.replace(e,"").replace(/\s+/g," ")+" language-"+o);var f=r.textContent;if(!f)return;f=f.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/\u00a0/g," ");var l={element:r,language:o,grammar:u,code:f};t.hooks.run("before-highlight",l);if(i&&self.Worker){var c=new Worker(t.filename);c.onmessage=function(e){l.highlightedCode=n.stringify(JSON.parse(e.data),o);t.hooks.run("before-insert",l);l.element.innerHTML=l.highlightedCode;s&&s.call(l.element);t.hooks.run("after-highlight",l)};c.postMessage(JSON.stringify({language:l.language,code:l.code}))}else{l.highlightedCode=t.highlight(l.code,l.grammar,l.language);t.hooks.run("before-insert",l);l.element.innerHTML=l.highlightedCode;s&&s.call(r);t.hooks.run("after-highlight",l)}},highlight:function(e,r,i){return n.stringify(t.tokenize(e,r),i)},tokenize:function(e,n,r){var i=t.Token,s=[e],o=n.rest;if(o){for(var u in o)n[u]=o[u];delete n.rest}e:for(var u in n){if(!n.hasOwnProperty(u)||!n[u])continue;var a=n[u],f=a.inside,l=!!a.lookbehind,c=0;a=a.pattern||a;for(var h=0;h<s.length;h++){var p=s[h];if(s.length>e.length)break e;if(p instanceof i)continue;a.lastIndex=0;var d=a.exec(p);if(d){l&&(c=d[1].length);var v=d.index-1+c,d=d[0].slice(c),m=d.length,g=v+m,y=p.slice(0,v+1),b=p.slice(g+1),w=[h,1];y&&w.push(y);var E=new i(u,f?t.tokenize(d,f):d);w.push(E);b&&w.push(b);Array.prototype.splice.apply(s,w)}}}return s},hooks:{all:{},add:function(e,n){var r=t.hooks.all;r[e]=r[e]||[];r[e].push(n)},run:function(e,n){var r=t.hooks.all[e];if(!r||!r.length)return;for(var i=0,s;s=r[i++];)s(n)}}},n=t.Token=function(e,t){this.type=e;this.content=t};n.stringify=function(e,r,i){if(typeof e=="string")return e;if(Object.prototype.toString.call(e)=="[object Array]")return e.map(function(t){return n.stringify(t,r,e)}).join("");var s={type:e.type,content:n.stringify(e.content,r,i),tag:"span",classes:["token",e.type],attributes:{},language:r,parent:i};s.type=="comment"&&(s.attributes.spellcheck="true");t.hooks.run("wrap",s);var o="";for(var u in s.attributes)o+=u+'="'+(s.attributes[u]||"")+'"';return"<"+s.tag+' class="'+s.classes.join(" ")+'" '+o+">"+s.content+"</"+s.tag+">"};if(!self.document){self.addEventListener("message",function(e){var n=JSON.parse(e.data),r=n.language,i=n.code;self.postMessage(JSON.stringify(t.tokenize(i,t.languages[r])));self.close()},!1);return}var r=document.getElementsByTagName("script");r=r[r.length-1];if(r){t.filename=r.src;document.addEventListener&&!r.hasAttribute("data-manual")&&document.addEventListener("DOMContentLoaded",t.highlightAll)}})();;
+Prism.languages.markup={comment:/&lt;!--[\w\W]*?-->/g,prolog:/&lt;\?.+?\?>/,doctype:/&lt;!DOCTYPE.+?>/,cdata:/&lt;!\[CDATA\[[\w\W]*?]]>/i,tag:{pattern:/&lt;\/?[\w:-]+\s*(?:\s+[\w:-]+(?:=(?:("|')(\\?[\w\W])*?\1|\w+))?\s*)*\/?>/gi,inside:{tag:{pattern:/^&lt;\/?[\w:-]+/i,inside:{punctuation:/^&lt;\/?/,namespace:/^[\w-]+?:/}},"attr-value":{pattern:/=(?:('|")[\w\W]*?(\1)|[^\s>]+)/gi,inside:{punctuation:/=|>|"/g}},punctuation:/\/?>/g,"attr-name":{pattern:/[\w:-]+/g,inside:{namespace:/^[\w-]+?:/}}}},entity:/&amp;#?[\da-z]{1,8};/gi};Prism.hooks.add("wrap",function(e){e.type==="entity"&&(e.attributes.title=e.content.replace(/&amp;/,"&"))});;
+Prism.languages.css={comment:/\/\*[\w\W]*?\*\//g,atrule:{pattern:/@[\w-]+?.*?(;|(?=\s*{))/gi,inside:{punctuation:/[;:]/g}},url:/url\((["']?).*?\1\)/gi,selector:/[^\{\}\s][^\{\};]*(?=\s*\{)/g,property:/(\b|\B)[\w-]+(?=\s*:)/ig,string:/("|')(\\?.)*?\1/g,important:/\B!important\b/gi,ignore:/&(lt|gt|amp);/gi,punctuation:/[\{\};:]/g};Prism.languages.markup&&Prism.languages.insertBefore("markup","tag",{style:{pattern:/(&lt;|<)style[\w\W]*?(>|&gt;)[\w\W]*?(&lt;|<)\/style(>|&gt;)/ig,inside:{tag:{pattern:/(&lt;|<)style[\w\W]*?(>|&gt;)|(&lt;|<)\/style(>|&gt;)/ig,inside:Prism.languages.markup.tag.inside},rest:Prism.languages.css}}});;
+Prism.languages.clike={comment:{pattern:/(^|[^\\])(\/\*[\w\W]*?\*\/|(^|[^:])\/\/.*?(\r?\n|$))/g,lookbehind:!0},string:/("|')(\\?.)*?\1/g,"class-name":{pattern:/((?:(?:class|interface|extends|implements|trait|instanceof|new)\s+)|(?:catch\s+\())[a-z0-9_\.\\]+/ig,lookbehind:!0,inside:{punctuation:/(\.|\\)/}},keyword:/\b(if|else|while|do|for|return|in|instanceof|function|new|try|catch|finally|null|break|continue)\b/g,"boolean":/\b(true|false)\b/g,"function":{pattern:/[a-z0-9_]+\(/ig,inside:{punctuation:/\(/}}, number:/\b-?(0x[\dA-Fa-f]+|\d*\.?\d+([Ee]-?\d+)?)\b/g,operator:/[-+]{1,2}|!|&lt;=?|>=?|={1,3}|(&amp;){1,2}|\|?\||\?|\*|\/|\~|\^|\%/g,ignore:/&(lt|gt|amp);/gi,punctuation:/[{}[\];(),.:]/g};;
+Prism.languages.javascript=Prism.languages.extend("clike",{keyword:/\b(var|let|if|else|while|do|for|return|in|instanceof|function|new|with|typeof|try|catch|finally|null|break|continue)\b/g,number:/\b-?(0x[\dA-Fa-f]+|\d*\.?\d+([Ee]-?\d+)?|NaN|-?Infinity)\b/g});Prism.languages.insertBefore("javascript","keyword",{regex:{pattern:/(^|[^/])\/(?!\/)(\[.+?]|\\.|[^/\r\n])+\/[gim]{0,3}(?=\s*($|[\r\n,.;})]))/g,lookbehind:!0}});Prism.languages.markup&&Prism.languages.insertBefore("markup","tag",{script:{pattern:/(&lt;|<)script[\w\W]*?(>|&gt;)[\w\W]*?(&lt;|<)\/script(>|&gt;)/ig,inside:{tag:{pattern:/(&lt;|<)script[\w\W]*?(>|&gt;)|(&lt;|<)\/script(>|&gt;)/ig,inside:Prism.languages.markup.tag.inside},rest:Prism.languages.javascript}}});;
+Prism.languages.coffeescript=Prism.languages.extend("javascript",{"block-comment":/([#]{3}\s*\r?\n(.*\s*\r*\n*)\s*?\r?\n[#]{3})/g,comment:/(\s|^)([#]{1}[^#^\r^\n]{2,}?(\r?\n|$))/g,keyword:/\b(this|window|delete|class|extends|namespace|extend|ar|let|if|else|while|do|for|each|of|return|in|instanceof|new|with|typeof|try|catch|finally|null|undefined|break|continue)\b/g});Prism.languages.insertBefore("coffeescript","keyword",{"function":{pattern:/[a-z|A-z]+\s*[:|=]\s*(\([.|a-z\s|,|:|{|}|\"|\'|=]*\))?\s*-&gt;/gi,inside:{"function-name":/[_?a-z-|A-Z-]+(\s*[:|=])| @[_?$?a-z-|A-Z-]+(\s*)| /g,operator:/[-+]{1,2}|!|=?&lt;|=?&gt;|={1,2}|(&amp;){1,2}|\|?\||\?|\*|\//g}},"attr-name":/[_?a-z-|A-Z-]+(\s*:)| @[_?$?a-z-|A-Z-]+(\s*)| /g});;
+Prism.languages.scss=Prism.languages.extend("css",{comment:{pattern:/(^|[^\\])(\/\*[\w\W]*?\*\/|\/\/.*?(\r?\n|$))/g,lookbehind:!0},atrule:/@[\w-]+(?=\s+(\(|\{|;))/gi,url:/([-a-z]+-)*url(?=\()/gi,selector:/([^@;\{\}\(\)]?([^@;\{\}\(\)]|&amp;|\#\{\$[-_\w]+\})+)(?=\s*\{(\}|\s|[^\}]+(:|\{)[^\}]+))/gm});Prism.languages.insertBefore("scss","atrule",{keyword:/@(if|else if|else|for|each|while|import|extend|debug|warn|mixin|include|function|return)|(?=@for\s+\$[-_\w]+\s)+from/i});Prism.languages.insertBefore("scss","property",{variable:/((\$[-_\w]+)|(#\{\$[-_\w]+\}))/i});Prism.languages.insertBefore("scss","ignore",{placeholder:/%[-_\w]+/i,statement:/\B!(default|optional)\b/gi,"boolean":/\b(true|false)\b/g,"null":/\b(null)\b/g,operator:/\s+([-+]{1,2}|={1,2}|!=|\|?\||\?|\*|\/|\%)\s+/g});
+;
+</script><script type="text/javascript">
+  var headerHeight = 64;
+
+  $(document).foundation();
+
+  $(function(){
+    $('pre code').addClass('language-javascript');
+  //   $('#nav > ul > li > a[href$="'+location.pathname.substring(location.pathname.lastIndexOf('/')+1, location.pathname.length)+'"]').parent().addClass('active');
+  })</script></body></html>

@@ -49,8 +49,8 @@ module.exports = function(grunt) {
 		    title: 'the Observatory JS docs'
 		  },
 		  files: {
-		    ignore: ['lib'],
-		    src: ['js'],
+		    ignore: ['lib', 'libs'],
+		    src: ['js/*.js'],
 		    dest: 'docs'
 		  }
 		}
