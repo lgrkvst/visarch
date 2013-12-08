@@ -1,0 +1,27 @@
+{
+  "name": "Observatory",
+  "version": "1.0.0",
+  "homepage": "https://github.com/o-o-/visarch",
+  "authors": [
+    "Christian Lagerkvist <git@o-o.se>"
+  ],
+  "description": "Visualize arbitrary sub-networks of nodes and links",
+  "dependencies": {
+	  "jquery": null,
+	  "bootstrap": null,
+	  "bootstrap-switch": null,
+	  "d3": null,
+	  "hogan": null,
+	  "typeahead.js": null
+  },
+  "main": "index.html",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

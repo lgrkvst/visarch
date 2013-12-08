@@ -3,21 +3,23 @@
 	<head>
 		<meta charset="utf-8">
 		<title>The Observatory</title>
-		<script type='text/javascript' src='js/lib/d3.min.bm-w.cornerradius.js'></script>
-		<script type='text/javascript' src='js/lib/jquery-1.10.2.min.js'></script>
-		<script type='text/javascript' src='js/lib/bootstrap.min.js'></script>
-		<script type='text/javascript' src='js/lib/bootstrap-switch.js'></script>
-		<script type='text/javascript' src='js/lib/typeahead.min.js'></script>
-		<script type='text/javascript' src='js/lib/hogan-2.0.0.js'></script>
-		<script type='text/javascript' src='js/lib/MakeBM.js'></script>
+		<script src="js/libs/d3/d3.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/libs/jquery/jquery.min.js" type="text/javascript" charset="utf-8"></script>		
+		<script src="js/libs/bootstrap/dist/js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/libs/bootstrap-switch/static/js/bootstrap-switch.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/libs/typeahead.js/dist/typeahead.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/libs/hogan/web/builds/2.0.0/hogan-2.0.0.min.js" type="text/javascript" charset="utf-8"></script>
+
 		<script type='text/javascript' src='js/ALL.js'></script>
 		<script type='text/javascript' src='js/Net.js'></script>
 		<script type='text/javascript' src='js/Force.js'></script>
 		<script type='text/javascript' src='js/Compartments.js'></script>
 		<script type='text/javascript' src='js/sunburst.js'></script>
 		<script type='text/javascript' src='js/helpers.js'></script>
-		<link type='text/css' href='css/bootstrap.min.css' rel='stylesheet'></link>
-		<link rel="stylesheet" href="css/bootstrap-switch.css">
+		
+		<link rel="stylesheet" href="js/libs/bootstrap/dist/css/bootstrap.min.css" type="text/css" media="screen" title="no title" charset="utf-8">
+		<link rel="stylesheet" href="js/libs/bootstrap-switch/static/stylesheets/bootstrap-switch.css" type="text/css" media="screen" title="no title" charset="utf-8">
+
 		<link rel="stylesheet" href="css/typeahead.css">
 		<link rel="stylesheet" id="css_theme" href="css/themes/stellar/theme.css">
 		<link rel="stylesheet" href="css/radial.css">
@@ -60,7 +62,7 @@
 					h = $(window).height()-42*2;
 
 				d3.select("#observatory").attr("width", w).attr("height", h);				
-				Net.force().size([w, h]);
+				Force.force().size([w, h]);
 				update();
 			});
 
@@ -105,7 +107,7 @@
 		</script>
 	</head>
 	<body>
-		<div class="navbar">
+		<div class="navbar navbar-inverse">
 			<span class="navbar-brand" style="font-weight: normal; font-size:2em; padding-top:18px; margin-left:15px !important">The&nbsp;Observatory</span>
 			<span style="min-width:132px" class="btn navbar-btn pull-right pull-right" id="bookmarks">
 			</span>
@@ -113,6 +115,7 @@
 				<form class="navbar-form">
 					<input id="q" type="text" placeholder="Search..." autocomplete="off" spellcheck="false" dir="auto"/>				
 					<script>
+					$('#q').on('typeahead:selected', onAdd);
 					/* autoselect first match on enter */
 					$('#q').keypress(function (e) {
 					    if (e.which == 13) {
@@ -181,45 +184,47 @@
 					</h1>
 				</div>
 			</div>
-			<div class="col-12 lead">The Observatory lets you visualize arbitrary SEB systems, along with their integrations, in a <a href="http://en.wikipedia.org/wiki/Force-directed_graph_drawing">force-directed network</a>. The Observatory gets its data directly from the &quot;<abbr title="Defining a Solution Architecture Overview is an initiative within Application Infrastructure">SAO</abbr> <abbr title="IBM RSA is a UML tool for describing enterprise architecture">RSA</abbr>&quot; model, maintained by SEB's <abbr title="Solution Area Architect, a role within Application Infrastructure">SAA's.</abbr></div>
+			<div class="col-md-12 lead">The Observatory lets you visualize arbitrary SEB systems, along with their integrations, in a <a href="http://en.wikipedia.org/wiki/Force-directed_graph_drawing">force-directed network</a>. The Observatory gets its data directly from the &quot;<abbr title="Defining a Solution Architecture Overview is an initiative within Application Infrastructure">SAO</abbr> <abbr title="IBM RSA is a UML tool for describing enterprise architecture">RSA</abbr>&quot; model, maintained by SEB's <abbr title="Solution Area Architect, a role within Application Infrastructure">SAA's.</abbr></div>
 		</div>
 		<div class="row-fluid">
-			<div class="col-4">
+			<div class="col-md-4">
 				<h2>
 					Searching
 				</h2>
 				<p>
-					Enter the name of any system(s) into the seach field and press <span class="label">RETURN</span> on your keyboard. Each system you add will be represented by a star, along with integrations to other (visualized) systems.
+					Enter the name of any system(s) into the seach field and press <span class="label label-primary">RETURN</span> on your keyboard. Each system you add will be represented by a star, along with integrations to other (visualized) systems.
 				</p>
 				<p>
 You can add entire compartments by passing its name within square brackets, e.g. <span class="label label-info">[Processing Support]</span>.					</p>
 			</div>
-			<div class="col-4">
+			<div class="col-md-4">
 				<h2>
 					Navigating
 				</h2>
-				<p>Nodes are layed out using a force-directed system. You can tweak the layout by dragging nodes into place.</p><p><span class="label">Right-clicking</span> any system brings up a context menu, allowing you to delete, add or explode ("supernova") that system, effectively bringing all its integrations into view.
+				<p>Nodes are layed out using a force-directed system. You can tweak the layout by dragging nodes into place.</p><p><span class="label label-warning">Right-clicking</span> any system brings up a context menu, allowing you to delete, add or explode ("supernova") that system, effectively bringing all its integrations into view.
 			</div>
-			<div class="col-4">
+			<div class="col-md-4">
 				<h2>
 					Saving
 				</h2>
 				<p>
-					Currently, the Observatory supports saving <em>links</em> to layouts (i.e. not images). The <span class="label label-success">save</span> link beside the search bar is a <em>bookmarklet</em> which represents the current state of your layout. Drag this button into the bookmarks bar of your browser to save the state.</p><p> The <span class="label label-important">&lt; back</span> link represents the previous state, and effectively serves as an <em>undo</em> button.</p>
+					Currently, the Observatory supports saving <em>links</em> to layouts (i.e. not images). The <span class="label label-success">save</span> link beside the search bar is a <em>bookmarklet</em> which represents the current state of your layout. Drag this button into the bookmarks bar of your browser to save the state.</p><p> The <span class="label label-danger">&lt; back</span> link represents the previous state, and effectively serves as an <em>undo</em> button.</p>
 				</p>
 			</div>
 		</div>
 		<div style="height:20px"></div>
 		<div class="row-fluid">
-			<div class="col-12">
-				<span class="col-5 alert alert-info">
-					<span class="col-6">
+			<div class="col-md-12">
+				<span class="col-md-5 alert alert-info">
+					<span class="col-md-6">
+						<div>
 						<label>Rotate labels</label>
-						<div id="rotateLabels" class="switch switch-mini">
+						</div>
+						<div id="rotateLabels" class="make-switch switch-mini">
 						    <input type="checkbox" checked />
 						</div>&nbsp;<i class="icon-question-sign"></i>
 					</span>
-					<span class="col-6">
+					<span class="col-md-6">
 						<label>Theme</label>
 						<div>
 							<select class="input-small" id="themeswitcher">

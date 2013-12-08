@@ -17,7 +17,7 @@ var arc = d3.svg.arc()
 	.outerRadius(function(d) {
 		return radius/3*(d.depth+epicentre+1);
 		})
-	.cornerRadius(6) /* OBS anpassad version av d3.min.js från bm-w (via github), pull-req men ej merge:ad, idag är det 2013-07-19... */;
+//	.cornerRadius(6) /* OBS anpassad version av d3.min.js från bm-w (via github), pull-req men ej merge:ad, idag är det 2013-07-19... */;
 
 var partition = d3.layout.partition()
 	.sort(function(a, b) {

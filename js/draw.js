@@ -105,6 +105,7 @@ d3.json("json/nodes_links.json", function (error, graph) {
 	});
 
 	autoSuggest = autoSuggest.concat(Compartments.all.map(function (c){return {name:c.name, color: color(c.compartment),compartment:c.name, id:c.compartment, description:"compartment"};}));
+
 	$('#q').typeahead({
 		name: 'stellar',
 		local: autoSuggest,
@@ -451,7 +452,7 @@ function update() {
 		bookmarks.shift();
 		d3bookmarks = d3bookmarks.data(bookmarks, function (n,i) {return i;});
 		d3bookmarks.enter().append("a");
-		d3bookmarks.attr("href", function(d){return d;}).attr("class", function (n,i) { return i ? "btn-small btn-warning" : "btn-small btn-danger"; });
+		d3bookmarks.attr("href", function(d){return d;}).attr("class", function (n,i) { return i ? "btn-sm btn-warning" : "btn-sm btn-danger"; });
 		d3bookmarks.text(function(n,i) { return (i ? "save" : "< back");});
 		d3bookmarks.exit().remove();
 	}
@@ -461,7 +462,7 @@ function update() {
 			bookmarks.push(Net.exportN(false));
 			bookmarks.shift();
 		}
-		d3bookmarks.attr("href", function(d){return d;}).attr("class", function (n,i) { return i ? "btn-small btn-success" : "btn-small btn-danger"; });
+		d3bookmarks.attr("href", function(d){return d;}).attr("class", function (n,i) { return i ? "btn-sm btn-success" : "btn-sm btn-danger"; });
 		d3bookmarks.text(function(n,i) { return (i ? "save" : "< back");});
 //		$("#bookmarks").children(':last-child').href(Net.exportN());
 	}
