@@ -1,15 +1,19 @@
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<title>The Observatory Docs</title>
-		<script src="../js/libs/bootstrap/dist/js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
-		<script src="../js/libs/bootstrap-switch/static/js/bootstrap-switch.min.js" type="text/javascript" charset="utf-8"></script>
+		<title>
+			The Observatory Docs
+		</title>
+		<script src="../js/libs/bootstrap/dist/js/bootstrap.min.js" type="text/javascript" charset="utf-8">
+</script>
+		<script src="../js/libs/bootstrap-switch/static/js/bootstrap-switch.min.js" type="text/javascript" charset="utf-8">
+</script>
 		<link rel="stylesheet" href="../js/libs/bootstrap/dist/css/bootstrap.min.css" type="text/css" media="screen" title="no title" charset="utf-8">
 		<link rel="stylesheet" href="../js/libs/bootstrap-switch/static/stylesheets/bootstrap-switch.css" type="text/css" media="screen" title="no title" charset="utf-8">
 		<link rel="stylesheet" href="../css/hr.css" type="text/css" media="screen" title="no title" charset="utf-8">
 		<style type="text/css" media="screen">
-			.content {
+	.content {
 				margin:0 30px 40px 30px;
 			}
 			
@@ -17,33 +21,89 @@
 	</head>
 	<body>
 		<div class="navbar navbar-default navbar-fixed-top">
-			<span class="navbar-brand">The&nbsp;Observatory &mdash; Architecture and Function reference</span>
+			<span class="navbar-brand">The&nbsp;Observatory — Architecture and Function reference</span>
 		</div>
-	</div>
-	<div class="container-fluid content">
-		<div class="row-fluid">
-			<div class="col-sm-12" style="margin-top:50px">
-				<div class="page-header">
-					<h1 id="jump">
-						The Observatory Docs<small> &mdash; Architecture and Function Reference</small>
-					</h1>
+		<div class="container-fluid content">
+			<div class="row-fluid">
+				<div class="col-sm-12" style="margin-top:50px">
+					<div class="page-header">
+						<h1 id="jump">
+							The Observatory Docs <small>— Architecture and Function Reference</small>
+						</h1>
+					</div>
+				</div>
+				<div class="col-sm-12 lead">
+					The Observatory is entirely based on JavaScript, HTML and CSS. Consequently, maintaining the Observatory (as well as understanding the documentation) require you be familiar with 'modern web development' along with its frameworks.
 				</div>
 			</div>
-			
-			<div class="col-sm-12 lead">The Observatory is entirely based on JavaScript, HTML and CSS. Consequently, maintaining the Observatory (as well as understanding the documentation) require you be familiar with 'modern web development' along with its frameworks.</div>
-		</div>
-		<div class="col-sm-12">
-			
-		<ul class="nav nav-pills">
-		  <li class="active"><a href="#">Overview</a></li>
-		  <li><a href="js/Net.js.html">Functions</a></li>
-		  <li class="disabled"><a href="#">REST API (tba)</a></li>
-		</ul>
-	</div>
-<hr>		
-		<div class="row-fluid">
 			<div class="col-sm-12">
-				<h1 id="overview">Overview</h1>
+				<ul class="nav nav-pills">
+					<li class="active">
+						<a href="#">Overview</a>
+					</li>
+					<li>
+						<a href="js/Net.js.html">Functions</a>
+					</li>
+					<li class="disabled">
+						<a href="#">REST API (tba)</a>
+					</li>
+				</ul>
+			</div>
+			<hr>
+			<div class="row-fluid">
+				<div class="col-sm-12">
+					<div class="panel panel-primary pull-right" style="margin-top:30px">
+						<div class="panel-heading">
+							<h3 class="panel-title">
+								Environment
+							</h3>
+						</div>
+						<div class="panel-body">
+							<table class="table-responsive">
+								<tr>
+									<td>
+										Server
+									</td>
+									<td>
+										savm789a
+									</td>
+								</tr>
+								<tr>
+									<td>
+										IP
+									</td>
+									<td>
+										127.0.0.1
+									</td>
+								</tr>
+								<tr>
+									<td>
+										DNS
+									</td>
+									<td>
+										observatory.sebank.se.
+									</td>
+								</tr>
+								<tr>
+									<td>
+										Last build:
+									</td>
+									<td>
+										2013-12-18
+									</td>
+								</tr>
+								<tr>
+									<td>
+										OS
+									</td>
+									<td>
+										zLinux
+									</td>
+								</tr>
+							</table>
+						</div>
+					</div>
+					<h1 id="overview">Overview</h1>
 <p>The Observatory is a web application whose sole aim is to visualize/communicate the <strong>Solution Architecture Overview</strong> model, currently implemented in <strong>IBM RSA</strong>.</p>
 <p>The Observatory is entirely based on JavaScript, HTML and CSS. Consequently, maintaining the Observatory (as well as understanding the documentation) requires you to be familiar with &#39;modern web development&#39; along with its frameworks. The <em>client side</em> of Observatory utilizes:</p>
 <ul>
@@ -114,20 +174,20 @@ Everything client is kept together by index.html, which provides used docs and i
 <h3 id="sunburst-js-small-really-just-a-fast-menu-hack-small-">sunburst.js <small>really just a fast menu hack</small></h3>
 <p>Is a stand-alone unpublished D3 plugin for creating radial menus loaded with callbacks. (I spent menu hours tweaking this file...)</p>
 
-			</div>
-		</div>
-		<div style="height:20px"></div>
-		<div class="row-fluid">
-			<div class="col-sm-12">
-				<div class="col-sm-8">
+					
 				</div>
-				<blockquote class="pull-right">
-					<p>
-						Idea, design &amp; implementation
-					</p> <small><a href="mailto:christian.lagerkvist@seb.se">Christian Lagerkvist</a>, SAA Processing Support</small>
-				</blockquote>
+			</div>
+			<div style="height:20px"></div>
+			<div class="row-fluid">
+				<div class="col-sm-12">
+					<div class="col-sm-8"></div>
+					<blockquote class="pull-right">
+						<p>
+							Idea, design &amp; implementation
+						</p><small><a href="mailto:christian.lagerkvist@seb.se">Christian Lagerkvist</a>, SAA Processing Support</small>
+					</blockquote>
+				</div>
 			</div>
 		</div>
-	</div>
-</body>
+	</body>
 </html>
