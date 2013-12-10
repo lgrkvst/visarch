@@ -53,7 +53,22 @@ module.exports = function(grunt) {
 		    src: ['js/*.js'],
 		    dest: 'docs'
 		  }
-		}
+		},
+	    markdown: {
+	      options: {
+	        template: 'docs/index.template'
+			},
+	      all: {
+	        files: [
+	          {
+	            expand: true,
+	            src: 'docs/*.md',
+	            dest: '',
+	            ext: '.html'
+	          }
+	        ]
+	      }
+	    }
 	});
 
 	// Emma:visarch cla$ dox-foundation --source ./js --target dox-docs -i lib,libs
@@ -64,6 +79,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-fixmyjs');
 	grunt.loadNpmTasks('grunt-dox');
+	grunt.loadNpmTasks('grunt-markdown');
 
 	// Task(s).
 	grunt.registerTask('default', ['uglify']);
@@ -71,5 +87,5 @@ module.exports = function(grunt) {
 	grunt.registerTask('hint', ['jshint']);
 	grunt.registerTask('fix', ['fixmyjs']);
 	grunt.registerTask('docs', ['dox']);
-
+	grunt.registerTask('md', ['markdown']);
 };
