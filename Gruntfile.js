@@ -56,19 +56,34 @@ module.exports = function(grunt) {
 		},
 	    markdown: {
 	      options: {
-	        template: 'docs/index.template'
+	        template: 'docs_template/index.template'
 			},
 	      all: {
 	        files: [
 	          {
 	            expand: true,
-	            src: 'docs/*.md',
-	            dest: '',
+	            src: 'docs_template/*.md',
+	            dest: 'docs/',
+				flatten: true,
 	            ext: '.html'
 	          }
 	        ]
 	      }
-	    }
+	    },
+		copy: {
+			main: {
+				files: [
+			        {expand: true, flatten:true, src: ['bower/d3/d3.min.js'], dest: 'js/lib/'},
+			        {expand: true, flatten:true, src: ['bower/jquery/jquery.min.js'], dest: 'js/lib/'},
+			        {expand: true, flatten:true, src: ['bower/bootstrap/dist/js/bootstrap.min.js'], dest: 'js/lib/'},
+			        {expand: true, flatten:true, src: ['bower/bootstrap-switch/static/js/bootstrap-switch.min.js'], dest: 'js/lib/'},
+			        {expand: true, flatten:true, src: ['bower/typeahead.js/dist/typeahead.min.js'], dest: 'js/lib/'},
+			        {expand: true, flatten:true, src: ['bower/hogan/web/builds/2.0.0/hogan-2.0.0.min.js'], dest: 'js/lib/'},
+			        {expand: true, flatten:true, src: ['bower/bootstrap/dist/css/bootstrap.min.css'], dest: 'css/lib/'},
+			        {expand: true, flatten:true, src: ['bower/bootstrap-switch/static/stylesheets/bootstrap-switch.css'], dest: 'css/lib/'}
+				]
+			}
+		}
 	});
 
 	// Emma:visarch cla$ dox-foundation --source ./js --target dox-docs -i lib,libs
@@ -80,12 +95,15 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-fixmyjs');
 	grunt.loadNpmTasks('grunt-dox');
 	grunt.loadNpmTasks('grunt-markdown');
+	grunt.loadNpmTasks('grunt-contrib-copy');
 
 	// Task(s).
 	grunt.registerTask('default', ['uglify']);
-	grunt.registerTask('docs', ['explainjs']);
+	grunt.registerTask('explain_docs', ['explainjs']);
 	grunt.registerTask('hint', ['jshint']);
 	grunt.registerTask('fix', ['fixmyjs']);
 	grunt.registerTask('docs', ['dox']);
 	grunt.registerTask('md', ['markdown']);
+	grunt.registerTask('build', ['copy', 'dox', 'md']);
+	grunt.registerTask('cp', ['copy']);
 };

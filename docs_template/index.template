@@ -5,12 +5,12 @@
 		<title>
 			The Observatory Docs
 		</title>
-		<script src="../js/libs/bootstrap/dist/js/bootstrap.min.js" type="text/javascript" charset="utf-8">
+		<script src="../js/lib/bootstrap.min.js" type="text/javascript" charset="utf-8">
 </script>
-		<script src="../js/libs/bootstrap-switch/static/js/bootstrap-switch.min.js" type="text/javascript" charset="utf-8">
+		<script src="../js/lib/bootstrap-switch.min.js" type="text/javascript" charset="utf-8">
 </script>
-		<link rel="stylesheet" href="../js/libs/bootstrap/dist/css/bootstrap.min.css" type="text/css" media="screen" title="no title" charset="utf-8">
-		<link rel="stylesheet" href="../js/libs/bootstrap-switch/static/stylesheets/bootstrap-switch.css" type="text/css" media="screen" title="no title" charset="utf-8">
+		<link rel="stylesheet" href="../css/lib/bootstrap.min.css" type="text/css" media="screen" title="no title" charset="utf-8">
+		<link rel="stylesheet" href="../css/lib/stylesheets/bootstrap-switch.css" type="text/css" media="screen" title="no title" charset="utf-8">
 		<link rel="stylesheet" href="../css/hr.css" type="text/css" media="screen" title="no title" charset="utf-8">
 		<style type="text/css" media="screen">
 	.content {
