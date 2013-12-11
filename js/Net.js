@@ -11,7 +11,7 @@ var Net = (function () {
 	 *
 	 */
 
-	var nodes = [], links = [], center = [], node2links;
+	var nodes = [], links = [], center = [], node2links, globalFixed = false;
 	
 	/** determineCenter returns the Network's 3 heaviest nodes
 	*	This information is used by __getCenter()__ to determine the alignment of text labels. Cheap but effective...
@@ -104,10 +104,17 @@ var Net = (function () {
 	var supernova = function (id) {
 			node2links(id).forEach(function (l) { add(l.source); add(l.target);})
 		};
-	/** Put a magnet on a node, so that it won't move during simulation */
+	/** Toggle movement on ONE node (freeze/unfreeze) */
 	var toggleFixed = function(id) {
 		var n = nodes[ix(id)];
 		n.fixed = !n.fixed;
+		};
+	/** Toggle movement on ALL nodes (freeze/unfreeze) */
+	var toggleFixedGlobal = function() {
+		Net.globalFixed = !Net.globalFixed;
+		Net.nodes.forEach(function (n) {
+			n.fixed = Net.globalFixed;
+			});
 		};
 	/** Adds a callback function that can be used to obtain a node's links */
 	var init = function (callback) {
@@ -145,6 +152,7 @@ var Net = (function () {
 		add: add,
 		supernova: supernova,
 		toggleFixed: toggleFixed,
+		toggleFixedGlobal: toggleFixedGlobal,
 		init: init,
 		dump: dump,
 		exportN: exportN,

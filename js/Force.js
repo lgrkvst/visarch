@@ -20,16 +20,7 @@ var Force = function() {
 	var linkConstantUpdate = function () {
 	    linkConstant = d3.select("#linkConstant").property("value");
 	    d3.select("#linkLabel").text("linkConstant: "+d3.format("f")(linkConstant));
-		update();
 	    return linkConstant;
-		};
-
-	/** index.html has a hidden slider for adjusting the sizeConstant. This is it's hook into d3's force network object */
-	var sizeConstantUpdate = function () {
-	    sizeConstant = d3.select("#sizeConstant").property("value");
-	    d3.select("#sizeLabel").text("sizeConstant: "+d3.format("f")(sizeConstant));
-		update();
-	    return sizeConstant;
 		};
 
 	/** initialize the force network. I spent half my adult life tweaking these variables. */
@@ -83,6 +74,7 @@ var Force = function() {
 		nodeDrag: nodeDrag,
 		d3_layout_forceMouseover: d3_layout_forceMouseover,
 		d3_layout_forceMouseout: d3_layout_forceMouseout,
-	};
+		linkConstantUpdate: linkConstantUpdate
+		};
 }();
 

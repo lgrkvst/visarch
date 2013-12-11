@@ -8,7 +8,7 @@
 	fill: #fff;
 	stroke: none;
 	stroke-width: 0;
-	opacity:0.5;
+	opacity:0.17;
 	pointer-events: none;
 }
 
@@ -36,6 +36,11 @@
 }
 
 .label_background {
+}
+
+.radial {
+	font-family: 'seb basic' !important;
+	fill: #fff !important;
 }
 
 #background {
