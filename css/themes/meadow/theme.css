@@ -1,14 +1,14 @@
 .link {
 	stroke: #fff;
 	stroke-width: 10px;
-	opacity:0.1;
+	opacity:0.2;
 }
 
 .polygonlink {
 	fill: #fff;
 	stroke: none;
 	stroke-width: 0;
-	opacity:0.1;
+	opacity:0.25;
 	pointer-events: none;
 }
 
@@ -30,7 +30,7 @@
 }
 
 .label_text {
-	font-family: seb basic, optima, sans-serif;
+	font-family: SEB Basic, optima, sans-serif;
 	fill:#fff;
 	opacity:1;
 }
@@ -39,8 +39,12 @@
 }
 
 #background {
-	background-image: url('petal.jpg');
-}
-
-#observatory {
+  background-size: 100%;
+  background-size: cover;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+  background-size: cover;
+  background-position: center center;
+	background-image: url('meadow.jpg');
 }

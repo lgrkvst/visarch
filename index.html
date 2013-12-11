@@ -30,7 +30,7 @@
 		var Settings = function(){
 			return {
 				drawOrigo: false,
-				rotateLabels: true,
+				rotateLabels: false,
 				drawAngles: false,
 			}
 		}();
@@ -146,9 +146,9 @@
 			-->
 			<div class="text-center jump">
 				<a id="jumpref" href="#jump">
-					<i class="icon-chevron-down"></i>
+					<i class="glyphicon glyphicon-chevron-down"></i>
 					<strong>scroll down for more info</strong>
-					<i class="icon-chevron-down"></i>
+					<i class="glyphicon glyphicon-chevron-down"></i>
 				</a>
 			</div>
 		</div>
@@ -201,8 +201,8 @@ You can add entire compartments by passing its name within square brackets, e.g.
 						<label>Rotate labels</label>
 						</div>
 						<div id="rotateLabels" class="make-switch switch-mini">
-						    <input type="checkbox" checked />
-						</div>&nbsp;<i class="icon-question-sign"></i>
+						    <input type="checkbox" />
+						</div>&nbsp;<i class="glyphicon glyphicon-question-sign"></i>
 					</div>
 					<div class="col-sm-6">
 						<label>Theme</label>
@@ -211,6 +211,8 @@ You can add entire compartments by passing its name within square brackets, e.g.
 							  <option value="stellar" selected>Stellar</option>
 							  <option value="cartographer">Cartographer</option>
 							  <option value="meadow">Meadow</option>
+							  <option value="paper">Paper</option>
+							  <option value="whiteboard">Whiteboard</option>
 							</select>
 						</div>
 					</div>
@@ -226,7 +228,7 @@ You can add entire compartments by passing its name within square brackets, e.g.
 	</div>
 	<script>
 	function JsonReady() {
-//		Net.add(ALL.nByName("inlÃ¥n")[0]);
+//		Net.add(ALL.nByName("inlån")[0]);
 //		Net.add(ALL.nByName("loro")[0]);
 //		Net.add(ALL.nByName("cois")[0]);
 //		Net.add(ALL.nByName("vdr")[0]);

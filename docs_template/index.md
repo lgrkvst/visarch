@@ -55,4 +55,4 @@ Initializes the application environment, maps compartment names to colors, sets 
 Is a set of helper functions for calculating angles for labels, along with creating bookmarklets.
  
 ###sunburst.js <small>really just a fast menu hack</small>
-Is a stand-alone unpublished D3 plugin for creating radial menus loaded with callbacks. (I spent menu hours tweaking this file...)
+Is a stand-alone unpublished D3 plugin for creating radial menus loaded with callbacks. (Many hours went into tweaking this file...)
