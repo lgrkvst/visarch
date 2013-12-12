@@ -7,12 +7,13 @@
   ],
   "description": "Visualize arbitrary sub-networks of nodes and links",
   "dependencies": {
-	  "jquery": null,
-	  "bootstrap": null,
-	  "bootstrap-switch": null,
-	  "d3": null,
-	  "hogan": null,
-	  "typeahead.js": null
+    "jquery": null,
+    "bootstrap": null,
+    "bootstrap-switch": null,
+    "d3": null,
+    "hogan": null,
+    "typeahead.js": null,
+    "jquery.avgrund": null
   },
   "main": "index.html",
   "license": "MIT",

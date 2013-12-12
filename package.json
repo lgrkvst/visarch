@@ -4,7 +4,8 @@
   "description": "Visalize arbitrary sub-networks of nodes and links",
   "main": "index.html",
   "dependencies": {
-    "xml2json": "~0.3.2"
+    "xml2json": "~0.3.2",
+    "svg2png": "~1.0.0"
   },
   "devDependencies": {
     "grunt-contrib-cssmin": "~0.7.0",

@@ -80,7 +80,10 @@ module.exports = function(grunt) {
 			        {expand: true, flatten:true, src: ['bower/typeahead.js/dist/typeahead.min.js'], dest: 'js/lib/'},
 			        {expand: true, flatten:true, src: ['bower/hogan/web/builds/2.0.0/hogan-2.0.0.min.js'], dest: 'js/lib/'},
 			        {expand: true, flatten:true, src: ['bower/bootstrap/dist/css/bootstrap.min.css'], dest: 'css/lib/'},
-			        {expand: true, flatten:true, src: ['bower/bootstrap-switch/static/stylesheets/bootstrap-switch.css'], dest: 'css/lib/'}
+			        {expand: true, flatten:true, src: ['bower/bootstrap-switch/static/stylesheets/bootstrap-switch.css'], dest: 'css/lib/'},
+			        {expand: true, flatten:true, src: ['bower/jquery.avgrund/jquery.avgrund.min.js'], dest: 'js/lib/'},
+			        {expand: true, flatten:true, src: ['bower/jquery.avgrund/style/avgrund.css'], dest: 'css/lib/'},
+			        {expand: true, flatten:true, src: ['bower/bootstrap/dist/fonts/*'], dest: 'css/fonts/'}
 				]
 			}
 		}

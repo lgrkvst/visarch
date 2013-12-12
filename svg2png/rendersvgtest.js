@@ -1,33 +1,5 @@
-// svg2png.js
-var path = require("path");
-var execFile = require("child_process").execFile;
-
-var phantomjsCmd = path.resolve(__dirname, "../node_modules/svg2png/node_modules/phantomjs/bin/phantomjs");
-var converterFileName = path.resolve(__dirname, "../node_modules/svg2png/lib/converter.js");
-
-function svgToPng(sourceFileName, destFileName, scale, cb) {
-    if (typeof scale === "function") {
-        cb = scale;
-        scale = 1.0;
-    }
-    var args = [phantomjsCmd, converterFileName, sourceFileName, destFileName, scale];
-	console.log(__dirname);
-    execFile(process.execPath, args, function (err, stdout, stderr) {
-
-        if (err) {
-            cb(err);
-        } else if (stdout.length > 0) { // PhantomJS always outputs to stdout.
-			console.log("got here");
-            cb(new Error(stdout.toString().trim()));
-        } else if (stderr.length > 0) { // But hey something else might get to stderr.
-			console.log("got here");
-            cb(new Error(stderr.toString().trim()));
-        } else {
-			console.log("got here");
-            cb(null);
-        }
-    });
-};
+// rendersvgtest.js
+rendersvg = require("rendersvg");
 
 // Load the http module to create an http server.
 var http = require('http');
@@ -49,12 +21,22 @@ var server = http.createServer(function (request, response) {
 		var infile = filename + ".svg";
 		var outfile = filename + ".png";
 		fs.writeFileSync(infile, body);
- 		svgToPng(infile, outfile, 2, function (err) {
-			// PNGs for everyone!
-    		success = false;
-    		console.log(err);
-			});
-			
+
+		var readStream = fs.createReadStream(infile);
+		var writeStream = fs.createWriteStream(outfile);
+            
+		rendersvg(readStream, writeStream, null, function() {
+			 console.log('rendering callback');
+			//callback();
+    
+		});
+            
+
+ 		rendersvg(body, outfile);
+
+
+
+		console.log(outfile);
 		if (success) {
 			response.writeHead(200, {"Content-Type": "text/plain"});
 			response.end(outfile);
