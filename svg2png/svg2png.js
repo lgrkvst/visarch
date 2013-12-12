@@ -1,38 +1,9 @@
 // svg2png.js
-var path = require("path");
-var execFile = require("child_process").execFile;
-
-var phantomjsCmd = path.resolve(__dirname, "../node_modules/svg2png/node_modules/phantomjs/bin/phantomjs");
-var converterFileName = path.resolve(__dirname, "../node_modules/svg2png/lib/converter.js");
-
-function svgToPng(sourceFileName, destFileName, scale, cb) {
-    if (typeof scale === "function") {
-        cb = scale;
-        scale = 1.0;
-    }
-    var args = [phantomjsCmd, converterFileName, sourceFileName, destFileName, scale];
-	console.log(__dirname);
-    execFile(process.execPath, args, function (err, stdout, stderr) {
-
-        if (err) {
-            cb(err);
-        } else if (stdout.length > 0) { // PhantomJS always outputs to stdout.
-			console.log("got here");
-            cb(new Error(stdout.toString().trim()));
-        } else if (stderr.length > 0) { // But hey something else might get to stderr.
-			console.log("got here");
-            cb(new Error(stderr.toString().trim()));
-        } else {
-			console.log("got here");
-            cb(null);
-        }
-    });
-};
+var svg2png = require('svg2png');
 
 // Load the http module to create an http server.
 var http = require('http');
 var fs = require('fs');
-
 // Configure our HTTP server to respond with Hello World to all requests.
 var server = http.createServer(function (request, response) {
 	response.setHeader('Access-Control-Allow-Origin', request.headers['origin']);
@@ -44,25 +15,27 @@ var server = http.createServer(function (request, response) {
     body += chunk;
   });
   request.on('end', function () {
+  	console.time('svg2png process time');
 		var success = true;
 		var filename = "convert/" + (new Date()).getTime();
 		var infile = filename + ".svg";
-		var outfile = filename + ".png";
+		// Evidently, the extension determines target format
+		var outfile = filename + ".jpg";
 		fs.writeFileSync(infile, body);
- 		svgToPng(infile, outfile, 2, function (err) {
-			// PNGs for everyone!
+ 		svg2png(infile, outfile, 2, function (err) {
+			// JPGs for everyone!
     		success = false;
-    		console.log(err);
+    		if (err) console.log(err);
+    		else {
+					response.writeHead(200, {"Content-Type": "text/plain"});
+					response.end(outfile);
+		  		console.timeEnd('svg2png process time');    			
+    			}
 			});
-			
-		if (success) {
-			response.writeHead(200, {"Content-Type": "text/plain"});
-			response.end(outfile);
-		}
   });
 });
 
-// Listen on port 8000, IP defaults to 127.0.0.1
+// Listen on port 3000, IP defaults to 127.0.0.1
 server.listen(3000);
 
 // Put a friendly message on the terminal

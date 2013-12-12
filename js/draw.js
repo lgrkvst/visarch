@@ -20,6 +20,10 @@ var svg = d3.select("#observatory").attr("width", w).attr("height", h)
 		var sunburst = svg.selectAll("g.radial");
 		sunburst.remove();
 	});
+	
+// attrs vital to PhantomJS (svg2png goes m.i.a. without them)
+svg.attr("xmlns", "http://www.w3.org/2000/svg").attr("version", "1.1");
+
 var link = svg.insert("g").attr("class", "links").selectAll(".link");
 var node = svg.insert("g").attr("class", "nodes").selectAll(".node");
 
