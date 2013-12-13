@@ -31,7 +31,7 @@
 }
 
 .label_text {
-	font-family: seb basic, optima, sans-serif;
+	font-family: optima, 'SEB Basic', sans-serif;
 	fill:#fff;
 	opacity:1;
 }
@@ -47,5 +47,5 @@
     -o-background-size: cover;
   background-size: cover;
   background-position: center center;
-	background-image: url('cartographer.jpg');
+	background-image: url('bg.jpg');
 }

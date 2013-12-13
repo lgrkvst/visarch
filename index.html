@@ -60,17 +60,20 @@
 					update();
 					});
 
-
+			$('#rotateLabels').bootstrapSwitch('setAnimated', true);
 			$('#rotateLabels').popover({animation:false, placement: "top", trigger: "hover", title: "", content: "Each label's angle is calculated from the positions of neighbouring nodes, hoping to reduce clutter."});
 
 			$('#rotateLabels').on('switch-change', function (e, data) {
 				Settings.rotateLabels = data.value
 				update(true);
+				setCookie("selectedRotation", data.value, 365);
 			});
 
 			$('#themeswitcher').on('change', function (e, data) {
 				var base_path = "css/themes/"
 				document.getElementById('css_theme').href=base_path+this.value+'/theme.css';
+				setCookie("selectedCSS", this.value, 365);
+				
 			});
 				
 			$('#jumpref').click(function(){
@@ -82,8 +85,34 @@
 		});
 		$(document).ready(function() {
 			$('#q').focus();
+			$('#themeswitcher')[0].value = getCookie("selectedCSS") ? getCookie("selectedCSS") : "stellar";
+			var base_path = "css/themes/"
+			document.getElementById('css_theme').href=base_path+$('#themeswitcher')[0].value+'/theme.css';
+			var rot = getCookie("selectedRotation");
+			if (rot == "true") {
+				$('#rotateLabels').bootstrapSwitch('setState', true);
+			}
 		});		
 
+		function setCookie(c_name, value, exdays) {
+		    var exdate = new Date();
+		    exdate.setDate(exdate.getDate() + exdays);
+		    var c_value = escape(value) + ((exdays == null) ? "" : "; expires=" + exdate.toUTCString());
+		    document.cookie = c_name + "=" + c_value;
+		}
+
+		function getCookie(c_name) {
+		    var i, x, y, ARRcookies = document.cookie.split(";");
+		    for (i = 0; i < ARRcookies.length; i++) {
+		        x = ARRcookies[i].substr(0, ARRcookies[i].indexOf("="));
+		        y = ARRcookies[i].substr(ARRcookies[i].indexOf("=") + 1);
+		        x = x.replace(/^\s+|\s+$/g, "");
+		        if (x == c_name) {
+		            return unescape(y);
+		        }
+		    }
+		}
+		
 		// Save-as-image feature:
 		$('#filemodal').avgrund();
 		$(function() {
@@ -97,7 +126,8 @@
 							type:'POST',
 							data: $('#background').html(),
 							success: function(data) {
-								$('#imagelink').text("<a style=\"color:#fff\" href=\"http://localhost/visarch/svg2png/"+data+"\">Download</a>");
+								$('#imagelink').html("<a target=\"_blank\" style=\"color:#fff\" href=\"http://localhost/visarch/svg2png/"+data+"\"><img class=\"ladda-imagelink\" height=\"61px\" src=\"http://localhost/visarch/svg2png/"+data+"\"></a>");
+								l.stop();
 							},
 							error: function () {},
 							url: 'http://localhost:3000/?t='+$('#themeswitcher').val(),
@@ -106,7 +136,7 @@
 						setTimeout('var l = Ladda.create(document.querySelector(\'#laddare\'));l.start();', 400);
 					},
                     template: 	'<div class="text-center"><h4>Save as image...</h4>'+
-								'</p><button id="laddare" class="ladda-button" data-style="expand-right"><span class="ladda-label" id="imagelink">Download</span></button></div>'
+								'<small>Drag this to your desktop:</small><p id="imagelink" class="ladda-padding"><button id="laddare" class="ladda-button" data-size="l" data-style="expand-right"><span class="ladda-label">Creating image...</span></button></p></div>'
             });
     	});		
 		</script>
@@ -198,7 +228,7 @@
 			<span class="col-sm-12">
 				<div class="page-header">
 					<h1 id="jump">
-						The Observatory <small> &mdash; A Solution Architecture Overview <sup><small><a href="docs/index.html">[docs]</a></sup></small></small>
+						The Observatory <small> &mdash; A Solution Architecture Overview <sup><small><a target="_blank" href="docs/index.html">[docs]</a></sup></small></small>
 					</h1>
 				</div>
 			</span>
@@ -239,15 +269,15 @@ You can add entire compartments by passing its name within square brackets, e.g.
 						<div>
 						<label>Rotate&nbsp;labels</label>
 						</div>
-						<div id="rotateLabels" class="make-switch switch-mini">
-						    <input type="checkbox" />
-						</div>&nbsp;<i class="glyphicon glyphicon-question-sign"></i>
+							<div id="rotateLabels" class="make-switch switch-mini">
+								<input type="checkbox">
+							</div>&nbsp;<i class="glyphicon glyphicon-question-sign"></i>
 					</div>
 					<div class="col-sm-6">
 						<label>Theme</label>
 						<div>
 							<select class="input-small" id="themeswitcher">
-							  <option value="stellar" selected>Stellar</option>
+							  <option value="stellar">Stellar</option>
 							  <option value="cartographer">Cartographer</option>
 							  <option value="meadow">Meadow</option>
 							  <option value="paper">Paper</option>

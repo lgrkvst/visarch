@@ -21,7 +21,7 @@
 	fill:none;
 }
 .label_text {
-	font-family: seb basic, optima, sans-serif;
+	font-family: optima, 'SEB Basic', sans-serif;
 	filter:none !important;
 	fill:#fff;
 }
@@ -38,13 +38,12 @@
     -o-background-size: cover;
   background-size: cover;
   background-position: center center;
-	background-image: url('stellar.jpg');
+	background-image: url('bg.jpg');
 }
 .navbar {
   background-color: #222222;
 }
 
 .radial {
-	font-family: 'seb basic' !important;
 	fill: #fff !important;
 }
