@@ -15,7 +15,7 @@ Net.init(ALL.node2links);
 Force.init(w, h);
 
 // Attach d3 to the DOM. Load it with our radial menu.
-var svg = d3.select("#observatory").attr("width", w).attr("height", h)
+var svg = d3.select("#background").append("svg:svg").attr("id", "observatory").attr("width", w).attr("height", h)
 	.on("mouseup", function () {
 		var sunburst = svg.selectAll("g.radial");
 		sunburst.remove();
@@ -149,9 +149,8 @@ d3.json("json/nodes_links.json", function (error, graph) {
 /** __update__ takes care of drawing and interaction. Quite d3 intense... */
 function update() {
 	// call start before doing svg stuff, since we want any new nodes instantiated
-	
 	Force.force().start();
-
+	
 	node = node.data(Net.nodes, function (n) {
 		return n.id;
 	});
