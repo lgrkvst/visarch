@@ -13,7 +13,8 @@
     "d3": null,
     "hogan": null,
     "typeahead.js": null,
-    "jquery.avgrund": null
+    "jquery.avgrund": null,
+    "ladda-bootstrap": null
   },
   "main": "index.html",
   "license": "MIT",

@@ -83,7 +83,10 @@ module.exports = function(grunt) {
 			        {expand: true, flatten:true, src: ['bower/bootstrap-switch/static/stylesheets/bootstrap-switch.css'], dest: 'css/lib/'},
 			        {expand: true, flatten:true, src: ['bower/jquery.avgrund/jquery.avgrund.min.js'], dest: 'js/lib/'},
 			        {expand: true, flatten:true, src: ['bower/jquery.avgrund/style/avgrund.css'], dest: 'css/lib/'},
-			        {expand: true, flatten:true, src: ['bower/bootstrap/dist/fonts/*'], dest: 'css/fonts/'}
+			        {expand: true, flatten:true, src: ['bower/bootstrap/dist/fonts/*'], dest: 'css/fonts/'},
+			        {expand: true, flatten:true, src: ['bower/ladda-bootstrap/dist/ladda.min.js'], dest: 'js/lib/'},
+			        {expand: true, flatten:true, src: ['bower/ladda-bootstrap/dist/spin.min.js'], dest: 'js/lib/'},
+			        {expand: true, flatten:true, src: ['bower/ladda-bootstrap/dist/ladda.min.css'], dest: 'css/lib/'},
 				]
 			}
 		}

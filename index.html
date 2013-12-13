@@ -18,14 +18,12 @@
 		<script type='text/javascript' src='js/helpers.js'></script>
 
 		<script type="text/javascript" src="js/lib/jquery.avgrund.min.js"></script>
-		<script type="text/javascript" src="js/lib/ladda.min.js"></script>
 		<script type="text/javascript" src="js/lib/spin.min.js"></script>
+		<script type="text/javascript" src="js/lib/ladda.min.js"></script>
 
 		<link rel="stylesheet" href="css/lib/avgrund.css">
 		<link rel="stylesheet" href="css/lib/ladda.min.css">
 
-
-		
 		<link rel="stylesheet" href="css/lib/bootstrap.min.css" type="text/css" media="screen" charset="utf-8">
 		<link rel="stylesheet" href="css/lib/bootstrap-switch.css" type="text/css" media="screen" charset="utf-8">
 		<link rel="stylesheet" href="css/themes/stellar/theme.css" type="text/css" media="screen" charset="utf-8" id="css_theme">
@@ -86,33 +84,34 @@
 			$('#q').focus();
 		});		
 
-	// Save-as-image feature:
-				function asd(){
-				$.ajax({
-					type:'POST',
-					data: $('#background').html(),
-					success: function(data) {
-						$('#imagelink').text("<a style=\"color:#fff\" href=\"http://localhost/visarch/svg2png/"+data+"\">http://localhost/visarch/svg2png/"+data+"</a>");
-						},
-					error: function () {},
-					url: 'http://localhost:3000/?t='+$('#themeswitcher').val(),
-					cache: false
-				});
-			};
-			$('#filemodal').avgrund();
-			$(function() {
-			                $('#filemodal').avgrund({
-			                        height: 200,
-			                        holderClass: 'custom',
-			                        showClose: true,
-			                        showCloseText: 'close',
-			                        onBlurContainer: '.container',
-			                        template: 	'<h4>Save as Image</h4>'+
-												'<p>Here the link: <span id="imagelink"></span></p><button class="ladda-button" data-style="expand-right"><span class="ladda-label">Submit</span></button>'
-			                });
-			        });		</script>
+		// Save-as-image feature:
+		$('#filemodal').avgrund();
+		$(function() {
+            $('#filemodal').avgrund({
+                    height: 200,
+                    showClose: true,
+                    showCloseText: 'close',
+                    onBlurContainer: '.w',
+					onLoad: function() {
+						$.ajax({
+							type:'POST',
+							data: $('#background').html(),
+							success: function(data) {
+								$('#imagelink').text("<a style=\"color:#fff\" href=\"http://localhost/visarch/svg2png/"+data+"\">Download</a>");
+							},
+							error: function () {},
+							url: 'http://localhost:3000/?t='+$('#themeswitcher').val(),
+							cache: false
+						});
+						setTimeout('var l = Ladda.create(document.querySelector(\'#laddare\'));l.start();', 400);
+					},
+                    template: 	'<div class="text-center"><h4>Save as image...</h4>'+
+								'</p><button id="laddare" class="ladda-button" data-style="expand-right"><span class="ladda-label" id="imagelink">Download</span></button></div>'
+            });
+    	});		
+		</script>
 	</head>
-	<body>		
+	<body>
 <nav class="navbar navbar-inverse" role="navigation">
   <!-- Brand and toggle get grouped for better mobile display -->
   <div class="navbar-header">
@@ -134,7 +133,7 @@
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Options <b class="caret"></b></a>
         <ul class="dropdown-menu">
           <li><a href="docs/index.html" target="_blank">Documentation</a></li>
-          <li><a id="filemodal" onClick="asd();" href="#">Save as image...</a></li>
+          <li><a id="filemodal" href="#">Save as image...</a></li>
           <li class="divider"></li>
           <li><a href="#"><input type="checkbox" id="toggleFixedGlobal" onClick="Net.toggleFixedGlobal()"/> <label for="toggleFixedGlobal">Freeze</label></a></li>
           <li><a href="#"><label for="linkConstant" id="linkLabel">Repel: 25</label><br/><input type="range" min="0" max="30" value="25" id="linkConstant" step="0.01"/></a></li>

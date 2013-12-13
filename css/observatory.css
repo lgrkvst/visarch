@@ -56,3 +56,12 @@
 label {
 font-weight:normal;
 }
+
+
+.navbar {
+border-radius: 0px !important;
+}
+
+#laddare {
+	margin-top:40px
+}
