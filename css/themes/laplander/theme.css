@@ -30,12 +30,15 @@
 }
 
 .label_text {
-	font-family: 'crete round', optima, 'SEB Basic', sans-serif;
-	fill:#fff;
+	font-family: 'Crete Round', 'SEB Basic', sans-serif;
+	fill:#554433;
 	opacity:1;
 }
 
 .label_background {
+	fill:#000;
+	opacity:1;
+	fill: #eeeedd !important;
 }
 
 .radial {

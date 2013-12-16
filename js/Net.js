@@ -92,8 +92,15 @@ var Net = (function () {
 		determineCenter(index, n.size);
 		return nodes[index];
 		};
+		/** Derive a __new__ node with a link to __n__ */
+	var derive = function (n) {
+		var new_node_id = Date.now()
+		var new_node = Net.add({"name": "new", "id": new_node_id, "size": 16, "description": "user added", "compartment": "Other SEB Systems"});
+		var l = {"source":{"id":n}, "target": {"id":new_node.id}};
+		addLink(l);
+	};
 	/** Helper function, add a link... */
-	var addLink = function (l){
+	var addLink = function (l) {
 		var s = ix(l.source.id), t = ix(l.target.id);
 		if (s==t) return; // no self-linking
 		if (s>=0&&t>=0 && !lix(s,t).length)	{
@@ -150,6 +157,7 @@ var Net = (function () {
 		getNeighbors: getNeighbors,
 		drop: drop,
 		add: add,
+		derive: derive,
 		supernova: supernova,
 		toggleFixed: toggleFixed,
 		toggleFixedGlobal: toggleFixedGlobal,

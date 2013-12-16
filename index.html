@@ -3,6 +3,8 @@
 	<head>
 		<meta charset="utf-8">
 		<title>The Observatory</title>
+		<link href='http://fonts.googleapis.com/css?family=Crete+Round' rel='stylesheet' type='text/css'>
+
 		<script src="js/lib/d3.min.js" type="text/javascript" charset="utf-8"></script>
 		<script src="js/lib/jquery.min.js" type="text/javascript" charset="utf-8"></script>		
 		<script src="js/lib/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
@@ -39,6 +41,7 @@
 				drawOrigo: false,
 				rotateLabels: false,
 				drawAngles: false,
+				svg2pngserver: 'http://localhost:3000/' /* trailing slash !important; */
 			}
 		}();
 		$(function() {
@@ -129,14 +132,16 @@
 								$('#imagelink').html("<a target=\"_blank\" style=\"color:#fff\" href=\"http://localhost/visarch/svg2png/"+data+"\"><img class=\"ladda-imagelink\" height=\"61px\" src=\"http://localhost/visarch/svg2png/"+data+"\"></a>");
 								l.stop();
 							},
-							error: function () {},
-							url: 'http://localhost:3000/?t='+$('#themeswitcher').val(),
+							error: function () {
+								$('#image_instruction').html("<h1>Never mind</h1><strong>Seems there's no image server at the back-end.</strong><p>In the meantime, save the green bookmarklet (your design) and send an e-mail to christian.lagerkvist@seb.se. (And yes, you can close this window.)</p>")
+							},
+							url: Settings.svg2pngserver+'?t='+$('#themeswitcher').val(),
 							cache: false
 						});
 						setTimeout('var l = Ladda.create(document.querySelector(\'#laddare\'));l.start();', 400);
 					},
                     template: 	'<div class="text-center"><h4>Save as image...</h4>'+
-								'<small>Drag this to your desktop:</small><p id="imagelink" class="ladda-padding"><button id="laddare" class="ladda-button" data-size="l" data-style="expand-right"><span class="ladda-label">Creating image...</span></button></p></div>'
+								'<small id="image_instruction">Drag this to your desktop:</small><p id="imagelink" class="ladda-padding"><button id="laddare" class="ladda-button" data-size="l" data-style="expand-right"><span class="ladda-label">Creating image...</span></button></p></div>'
             });
     	});		
 		</script>
@@ -180,8 +185,16 @@
 					/* autoselect first match on enter */
 					$('#q').keypress(function (e) {
 					    if (e.which == 13) {
-					        var node = $('#q').data().ttView.dropdownView.getFirstSuggestion().datum;
-							onAdd(null, node);
+							try {
+								var node = $('#q').data().ttView.dropdownView.getFirstSuggestion().datum;
+								
+							} catch (e) {
+								// no such node, create a new one:
+//								var node = {"name":$('#q').val(), "id":$('#q').val(), description:"user added", "compartment":"ExternalSystems", size:"20"}
+							}
+							if(node) {
+								onAdd(null, node);
+							}
 							$(this).typeahead('setQuery', '');
 							
 					    }
@@ -193,8 +206,11 @@
 								if (n.size>0) Net.add(ALL.n(n.id));
 								});
 
-						} else Net.add(ALL.n(datum.id), ALL.node2links); // add system
-						update();						
+						} else if (datum.description=="user added") { // add custom system
+							Net.add(datum);
+						} 
+						else Net.add(ALL.n(datum.id)); // add RSA system
+						update();
 						$(this).typeahead('setQuery', '');
 					  }
 					</script>
@@ -282,6 +298,7 @@ You can add entire compartments by passing its name within square brackets, e.g.
 							  <option value="meadow">Meadow</option>
 							  <option value="paper">Paper</option>
 							  <option value="whiteboard">Whiteboard</option>
+							  <option value="laplander">Laplander</option>
 							</select>
 						</div>
 					</div>
@@ -302,7 +319,11 @@ You can add entire compartments by passing its name within square brackets, e.g.
 //		Net.add(ALL.nByName("cois")[0]);
 //		Net.add(ALL.nByName("vdr")[0]);
 //		Net.add(ALL.nByName("kurre")[0]);
-//		update();
+
+		var c = Compartments.all[0];
+		c.id = c.compartment;
+		onAdd(null, c);
+		update();
 	}
 	</script>
 	<script type='text/javascript' src='js/draw.js'></script>

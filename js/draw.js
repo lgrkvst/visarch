@@ -320,6 +320,11 @@ function update() {
 					"icon": "#icon_fixed",
 					"size": "10",
 					"callback": function (node) {Net.toggleFixed(node.id);update();}
+					}, {
+					"label": "new",
+					"id": n.id,
+					"size": "10",
+					"callback": function (node) {Net.derive(node.id);update();}
 				}]
 		};
 		var links = ALL.node2links(n.id);
