@@ -16,7 +16,7 @@ server
   .use(restify.fullResponse())
   .use(restify.bodyParser())
 									  
-server.listen(3000, function () {
+server.listen(3001, function () {
 	console.log('%s listening at %s', server.name, server.url)
 });
 
@@ -24,7 +24,7 @@ server.listen(3000, function () {
 
 var graph;
 
-fs.readFile('/Users/cla/github/visarch/json/nodes_links.json', function (err, data) {
+fs.readFile('../json/nodes_links.json', function (err, data) {
   if (err) {
 	  console.log(err);
   }
@@ -36,9 +36,17 @@ server.get("/", function (req, res, next) {
 	res.send(graph);
 });
 
+server.get('/name', function (req, res, next) {
+	res.send("What name?");
+});
+
 server.get('/name/:name', function (req, res, next) {
 	var node = ALL.nByName(req.params.name);
 	res.send(buildResponse(node[0]));
+});
+
+server.get('/id', function (req, res, next) {
+	res.send("What id?");
 });
 
 server.get('/id/:id', function (req, res, next) {
@@ -74,7 +82,11 @@ function buildResponse(node) {
 		}
 		else if (Net.nodes[n.target].id == node.id) {
 			incoming.push({
-				"name": Net.nodes[n.source].name,
+				"node": {
+					"name":Net.nodes[n.source].name,
+					"id":Net.nodes[n.source].id
+				},
+				"name": n.name,
 				"type": n.type,
 				"description": n.description
 			});

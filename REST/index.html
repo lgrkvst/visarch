@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>The Observatory</title>
+		<link href='http://fonts.googleapis.com/css?family=Crete+Round' rel='stylesheet' type='text/css'>
+
+		<script src="../js/lib/jquery.min.js" type="text/javascript" charset="utf-8"></script>		
+		<script src="../js/lib/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/lib/bootstrap-switch.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="jquery.dynatable.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript" src="../js/lib/ladda.min.js"></script>
+
+		<link rel="stylesheet" href="../css/lib/ladda.min.css">
+		<link rel="stylesheet" href="css.css">
+		<link rel="stylesheet" href="../css/lib/bootstrap.min.css" type="text/css" media="screen" charset="utf-8">
+		<link rel="stylesheet" href="../css/themes/laplander/theme.css" type="text/css" media="screen" charset="utf-8" id="css_theme">
+		<link rel="stylesheet" href="jquery.dynatable.css" type="text/css" media="screen" title="no title" charset="utf-8">
+	</head>
+	<body>
+  
+		    <!-- Full Page Image Header Area -->
+		    <div id="top" class="header col-md-12">
+		      <div class="vert-text">
+		        <h1>Julobservatoriet</h1>
+		        <h3>Architecture for the REST</h3>
+				<p><input style="text-align:left;width:300px;" class=" btn btn-default btn-lg" type="text" id="q" autocomplete="off" placeholder="System... (e.g. &quot;BIW Core SE&quot;)"></p>
+		      </div>		    
+			</div>
+			
+		    <!-- /Full Page Image Header Area -->
+			<script type="text/javascript">
+				$('#q').keypress(function (e) {
+				    if (e.which == 13) {
+					    $.ajax({
+			               url: 'http://localhost:3001/name/'+$('#q').val(),
+			               success: function(data){
+							   $('#incoming_header').html('Where ' + data.node.name + ' is TARGET');
+							   $('#outgoing_header').html('Where ' + data.node.name + ' is SOURCE');
+							   var incoming = [];
+							   var outgoing = [];
+							   
+							   data.links.outgoing.forEach(function(l) {
+								   var description = type = verb = "";
+								   
+								   // set a description if there is any
+								   if (!!l.name) description = l.name + " ";
+								   if (!!l.description) description += l.description;
+								   
+								   if (l.type == "uml:InformationFlow") {
+									   type = "provides";
+									   if (!!description) verb = "with";
+								   } else {
+									   type = "is using";
+									   if (!!description) verb = "for";
+								   }
+								   
+									incoming.push({	"system":l.node.name,
+								   	 				"type": type,
+													"current": data.node.name,
+													"verb": verb,
+													"description": description
+													})
+							   });
+							   
+							   data.links.incoming.forEach(function(l) {
+								   var description = type = verb = "";
+								   
+								   // set a description if there is any
+								   if (!!l.name) description = l.name + " ";
+								   if (!!l.description) description += l.description;
+								   
+								   if (l.type == "uml:InformationFlow") {
+									   type = "provides";
+									   if (!!description) verb = "with";
+								   } else {
+									   type = "is using";
+									   if (!!description) verb = "for";
+								   }
+								   
+									outgoing.push({	"system":l.node.name,
+								   	 				"type": type,
+													"current": data.node.name,
+													"verb": verb,
+													"description": description
+													})
+							   });
+							   
+			                   $('#incoming').dynatable({
+			                       dataset: {
+			                           records: incoming
+			                       },
+								   features: {
+								          paginate: false,
+								          search: false,
+								          recordCount: true
+								   },
+			                       params: {
+			                         records: 'connections'
+			                       },
+								   writers: {
+								       _rowWriter: myWriter
+								    }
+			                   });
+							   
+							   
+			                   $('#outgoing').dynatable({
+			                       dataset: {
+			                           records: outgoing
+			                       },
+								   features: {
+								          paginate: false,
+								          search: false,
+								          recordCount: true
+								   },
+			                       params: {
+			                         records: 'connections'
+			                       },
+								   writers: {
+								       _rowWriter: myWriter
+								    }
+				                   });
+							   }
+						   });
+						   function myWriter(rowIndex, record, columns, cellWriter) {
+							   var tbl = "<tr>"
+							   			+"<td class='system'>" + record.system + "</td>"
+									    +"<td class='umltype'>" + record.type + "</td>"
+									    +"<td class='current'>" + record.current + "</td>"
+									    +"<td class='verb'>" + record.verb + "</td>"
+									    +"<td class='description'>" + record.description + "</td>"
+										+"</tr>";
+							   return tbl;
+						   }
+						/*
+						$.get("http://localhost:3001/name/"+$('#q').val(), function( data ) {
+							console.log(data);
+						});
+						*/
+				    }
+				});
+			</script>
+  
+		    <!-- Table -->
+		    <div id="services" class="services">
+		      <div class="container">
+		        <div class="row">
+		          <div class="col-md-6">
+		            <h2 id="incoming_header">Incoming Connections</h2>
+					<table id="incoming">
+					  <thead>
+  					    <th>System</th>
+  					    <th>Type</th>
+  					    <th>Current</th>
+  					    <th>Verb</th>
+					    <th>Description</th>
+					  </thead>
+					  <tbody>
+					  </tbody>
+					</table>
+		          </div>
+				  
+		          <div class="col-md-6">
+		            <h2 id="outgoing_header">Outgoing Connections</h2>
+					<table id="outgoing">
+					  <thead>
+  					    <th>System</th>
+  					    <th>Type</th>
+					    <th>Description</th>
+					  </thead>
+					  <tbody>
+					  </tbody>
+					</table>
+		          </div>
+
+		        </div>
+		      </div>
+		    </div>
+		    <!-- /Table -->
+		    <script>
+		      $(function() {
+		        $('a[href*=#]:not([href=#])').click(function() {
+		          if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'') 
+		            || location.hostname == this.hostname) {
+
+		            var target = $(this.hash);
+		            target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
+		            if (target.length) {
+		              $('html,body').animate({
+		                scrollTop: target.offset().top
+		              }, 1000);
+		              return false;
+		            }
+		          }
+		        });
+		      });
+		    </script>
+
+  
+  			<div class="col-md-12">
+	  			<blockquote id="s35000" class="pull-right">
+	  				<p>
+	  					Julobservatoriet
+	  				</p> <small><a href="mailto:christian.lagerkvist@seb.se">Christian Lagerkvist</a>, SAA Processing Support</small>
+	  			</blockquote>
+  			</div>
+
+</body>
+</html>

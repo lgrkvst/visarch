@@ -104,7 +104,7 @@ var Net = (function () {
 		var s = ix(l.source.id), t = ix(l.target.id);
 		if (s==t) return; // no self-linking
 		if (s>=0&&t>=0 && !lix(s,t).length)	{
-			links.push({"source":s, "target":t, "name": l.name, "type": l.type});
+			links.push({"source":s, "target":t, "name": l.name, "type": l.type, "description": l.description});
 			}
 		};
 	/** Explode a node, bringing all its neighbours into the Network */
