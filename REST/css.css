@@ -11,6 +11,15 @@ h1,h3 {
 	text-shadow: 0px 0px 10px #000;
 	
 }
+
+h2 {
+    font-family: 'crete round' !important;
+	
+}
+
+td {
+    font-family: 'crete round' !important;
+}
 .vert-text {
   display: table-cell;
   vertical-align: middle;
@@ -122,6 +131,10 @@ h1,h3 {
   -o-background-size: cover;
   background-size: cover;
   color: #eeeedd;
+}
+
+.dynatable-sort-header {
+    color: #554433;
 }
 
 .system {
