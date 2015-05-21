@@ -27,8 +27,8 @@ var ALL = (function () {
 		};
 
 	/** Return __neighbouring_nodes__ by __id__ */
-	var node2links = function (id) { 
-		//  _node2links is used as a callback (Net.addNode)_
+	var nodeSource = function (id) { 
+		//  _nodeSource is used as a callback (Net.add)_
 		return l(id).map(function (l) {return {"source":nodes[l.source], "target":nodes[l.target], "name": l.name, "type": l.type, "description": l.description};});
 		};
 
@@ -48,7 +48,7 @@ var ALL = (function () {
 		n: n,
 		nByName: nByName,
 		l: l,
-		node2links: node2links,
+		nodeSource: nodeSource,
 		nsByCompartment: nsByCompartment,
 		init: init
 		}

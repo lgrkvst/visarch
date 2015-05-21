@@ -1,5 +1,5 @@
 /** __Net__ contains the _currently visualized_ nodes and links (='the Network').
- *	Upon adding a node, the Observatory will fetch the node object via __ALL__, add it to __Net__ (which also gets its links through its spring-loaded nodes2links callback), and visualize it via __draw__.
+ *	Upon adding a node, the Observatory will fetch the node object via __ALL__, add it to __Net__ (which also gets its links through its spring-loaded nodeSource callback), and visualize it via __draw__.
  * 
  * @author Christian Lagerkvist [christian.lagerkvist@seb.se]
  */
@@ -11,7 +11,7 @@ var Net = (function () {
 	 *
 	 */
 
-	var nodes = [], links = [], center = [], node2links, globalFixed = false;
+	var nodes = [], links = [], center = [], nodeSource, globalFixed = false;
 	
 	/** determineCenter returns the Network's 3 heaviest nodes
 	*	This information is used by __getCenter()__ to determine the alignment of text labels. Cheap but effective...
@@ -82,13 +82,13 @@ var Net = (function () {
 	 *			 N = callback, returns a node id given what's in link.source and link.target (id or index)
 	 */
 	var add = function (n) {
-		if (!node2links) {throw "undefined callback: node2links"; return;}
+		if (!nodeSource) {throw "Failed dependency injection – undefined callback: nodeSource"; return;}
 		if (!n.id) {throw "node lacks id"; return;}
 		if (typeof n.size == "undefined") {n.size=0; console.warn("Net added explicit size for node " + n.name);}
 		if (ix(n.id) < 0) var index = nodes.push(n)-1;
 		else return; // return if already among nodes
 		if (dropLinks(n.id)){ throw("Found garbage links to drop before adding node."); debugger; }
-		node2links(n.id).forEach(function(l) {addLink(l);});
+		nodeSource(n.id).forEach(function(l) {addLink(l);});
 		determineCenter(index, n.size);
 		return nodes[index];
 		};
@@ -109,7 +109,7 @@ var Net = (function () {
 		};
 	/** Explode a node, bringing all its neighbours into the Network */
 	var supernova = function (id) {
-			node2links(id).forEach(function (l) { add(l.source); add(l.target);})
+			nodeSource(id).forEach(function (l) { add(l.source); add(l.target);})
 		};
 	/** Toggle movement on ONE node (freeze/unfreeze) 
 		Bug on hover, as hovering increases fixed (in this case n.fixed = 2) */
@@ -126,7 +126,7 @@ var Net = (function () {
 		};
 	/** Adds a callback function that can be used to obtain a node's links */
 	var init = function (callback) {
-			node2links = callback;			
+			nodeSource = callback;			
 		};
 	/** for Debug use only */
 	var dump = function (n, l) {
