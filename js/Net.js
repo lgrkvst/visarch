@@ -93,15 +93,15 @@ var Net = (function () {
 		return nodes[index];
 		};
 		/** Derive a __new__ node with a link to __n__ */
-	var derive = function (n) {
+	var derive = function (node_id) {
 		var new_node_id = Date.now()
 		var new_node = Net.add({"name": "new", "id": new_node_id, "size": 16, "description": "user added", "compartment": "Other SEB Systems"});
-		var l = {"source":{"id":n}, "target": {"id":new_node.id}};
+		var l = {"source":Net.nodes[ix(node_id)], "target": new_node};
 		addLink(l);
 	};
 	/** Helper function, add a link... */
 	var addLink = function (l) {
-		var s = ix(l.source.id), t = ix(l.target.id);
+		var s = ix(l.source.id), t = ix(l.target.id);		
 		if (s==t) return; // no self-linking
 		if (s>=0&&t>=0 && !lix(s,t).length)	{
 			links.push({"source":s, "target":t, "name": l.name, "type": l.type, "description": l.description});
@@ -111,11 +111,12 @@ var Net = (function () {
 	var supernova = function (id) {
 			node2links(id).forEach(function (l) { add(l.source); add(l.target);})
 		};
-	/** Toggle movement on ONE node (freeze/unfreeze) */
+	/** Toggle movement on ONE node (freeze/unfreeze) 
+		Bug on hover, as hovering increases fixed (in this case n.fixed = 2) */
 	var toggleFixed = function(id) {
 		var n = nodes[ix(id)];
 		n.fixed = !n.fixed;
-		};
+	};
 	/** Toggle movement on ALL nodes (freeze/unfreeze) */
 	var toggleFixedGlobal = function() {
 		Net.globalFixed = !Net.globalFixed;
@@ -158,6 +159,7 @@ var Net = (function () {
 		drop: drop,
 		add: add,
 		derive: derive,
+		addLink: addLink,
 		supernova: supernova,
 		toggleFixed: toggleFixed,
 		toggleFixedGlobal: toggleFixedGlobal,

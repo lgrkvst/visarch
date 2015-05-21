@@ -27,10 +27,6 @@ svg.attr("xmlns", "http://www.w3.org/2000/svg").attr("version", "1.1");
 var link = svg.insert("g").attr("class", "links").selectAll(".link");
 var node = svg.insert("g").attr("class", "nodes").selectAll(".node");
 
-// bookmarklet handling ("save/cancel")
-var bookmarks = ["javascript:(function(){Net.importN(JSON.parse('[]'));})();", "javascript:(function(){Net.importN(JSON.parse('[]'));})();"];
-var d3bookmarks = d3.select("#bookmarks").selectAll("a");
-
 // svg filter for adding halos to nodes
 svg.append("filter").attr("id", "blurMe").append("feGaussianBlur").attr("in", "SourceGraphic").attr("stdDeviation", "2");
 
@@ -104,11 +100,19 @@ svg.selectAll("defs")
 	.attr("fill", "white")
 	.attr("transform", "scale(0.015) translate(0,130)");
 
+// add icon (plus)
+svg.selectAll("defs")
+	.append("g")
+	.attr("id", "icon_add")
+	.append("path")
+	.attr("d", "M301.588,150.794C301.588,67.513,234.075,0,150.794,0S0,67.513,0,150.794c0,62.362,37.857,115.879,91.842,138.832V420c0,28.167,22.833,51,51,51h15c28.167,0,51-22.833,51-51V290.002C263.307,267.265,301.588,213.502,301.588,150.794z")
+	.attr("fill", "#272727")
+	.attr("transform", "scale(0.04) translate(0,260)");
+
 
 
 // import RSA components and relationships
-d3.json("json/nodes_links.json", function (error, graph) {
-
+	var graph = nodes_links;
 	// Load everything into __ALL__
 	ALL.init(graph.nodes, graph.links);
 	
@@ -144,7 +148,6 @@ d3.json("json/nodes_links.json", function (error, graph) {
 	try {
 		JsonReady();
 	} catch (err) {console.log(err);}
-});
 
 /** __update__ takes care of drawing and interaction. Quite d3 intense... */
 function update() {
@@ -320,25 +323,41 @@ function update() {
 					"icon": "#icon_fixed",
 					"size": "10",
 					"callback": function (node) {Net.toggleFixed(node.id);update();}
-					}, {
-					"label": "new",
+					}/*, {
+					"label": "add",
 					"id": n.id,
-					"size": "10",
+					"icon": "#icon_add",
+					"size": "15",
 					"callback": function (node) {Net.derive(node.id);update();}
-				}]
+				}*/]
 		};
-		var links = ALL.node2links(n.id);
-		// push all links/edge menu items onto the radial menu JSON
-		links.forEach(function (l) {
-			var c = l.target.id == n.id ? l.source : l.target;
-			var push = {};
-			push.name = c.name;
-			push.id = c.id;
-			push.compartment = c.compartment;
-			push.size = c.size;
-			push.callback = function(node){Net.add(ALL.n(node.id)); update()};
-			tree.children[1].children.push(push);
-		});
+		//
+		if (n.description == "user added") {
+			// push all Net.nodes onto the radial menu JSON
+			Net.nodes.forEach(function (node) {
+				var push = {};
+				push.name = node.name;
+				push.id = node.id;
+				push.compartment = node.compartment;
+				push.size = node.size;
+				var arg = {"source":{"id":n.id}, "target": {"id":node.id}};
+				push.callback = function(){Net.addLink(arg); update();};
+				tree.children[1].children.push(push);
+				});
+		} else {
+			var links = ALL.node2links(n.id);
+			// push all links/edge menu items onto the radial menu JSON
+			links.forEach(function (l) {
+				var c = l.target.id == n.id ? l.source : l.target;
+				var push = {};
+				push.name = c.name;
+				push.id = c.id;
+				push.compartment = c.compartment;
+				push.size = c.size;
+				push.callback = function(node){Net.add(ALL.n(node.id)); update()};
+				tree.children[1].children.push(push);
+			});
+		}
 		console.A ="var tree = JSON.parse('" + JSON.stringify(tree) + "');";
 		console.B = "var n = JSON.parse('" + JSON.stringify(n) + "');";
 		
@@ -420,7 +439,8 @@ function update() {
 		this.attr("transform", function (d, i) {
 //			this.childNodes[4].setAttribute("style", "display: "+ (d.fixed ? "block" : "none"));
 			
-			var angle = 0;
+			var angle = rotate = 0, anchor = "start";
+			
 			if (text = this.childNodes[0].childNodes[1]) {
 				var offset = 14 + 0.3 * d.size;				
 
@@ -439,11 +459,8 @@ function update() {
 						var anchor = "end";
 						var offset = -offset
 						var rotate = 180;
-					} else {
-						var anchor = "start";
-						var rotate = 0;
 					}
-
+					
 					text.setAttribute("transform", "rotate(" + rotate + ")");
 					text.setAttribute("x", offset);
 					text.setAttribute("text-anchor", anchor);
@@ -463,8 +480,7 @@ function update() {
 					}
 					text.setAttribute("x", offset);
 					text.setAttribute("text-anchor", anchor);
-					text.setAttribute("transform", "rotate(" + 0 + ")");
-					
+					text.setAttribute("transform", "rotate(" + 0 + ")");	
 				}
 			}
 
@@ -483,37 +499,28 @@ function update() {
 	}
 
 	// Hooking bookmarklet generation into the simulation sequence
-	Force.force().on("start", start()); // Parenthesis due to d3 bug? (Won't call start on very first update...)
+	Force.force().on("start", start());
 	Force.force().on("tick", tick);
 	Force.force().on("end", end);
 	
 	function start() {
-	//	FPS.init();
+		//	FPS.init();
 		// everything is set up for rendering - create a bookmarklet for saving:
-		bookmarks.push(Net.exportN(false));
-		bookmarks.shift();
-		d3bookmarks = d3bookmarks.data(bookmarks, function (n,i) {return i;});
-		d3bookmarks.enter().append("a");
-		d3bookmarks.attr("href", function(d){return d;}).attr("class", function (n,i) { return i ? "btn-sm btn-warning" : "btn-sm btn-danger"; });
-		d3bookmarks.text(function(n,i) { return (i ? "save" : "< back");});
-		d3bookmarks.exit().remove();
+		if (Net.nodes.length) {
+			$("#buttonbar").show();
+			$("#bookmarklet").attr("class", "btn-sm btn-warning");
+		}
 	}
 	
 	function end() {
-		if (bookmarks[0] != bookmarks[1]) {
-			bookmarks.push(Net.exportN(false));
-			bookmarks.shift();
-		}
-		d3bookmarks.attr("href", function(d){return d;}).attr("class", function (n,i) { return i ? "btn-sm btn-success" : "btn-sm btn-danger"; });
-		d3bookmarks.text(function(n,i) { return (i ? "save" : "< back");});
-//		$("#bookmarks").children(':last-child').href(Net.exportN());
+		$("#bookmarklet").attr("class", "btn-sm btn-success");
+		$("#bookmarklet").attr("href", Net.exportN());		
 	}
 
 	// Do this every iteration
 	function tick (e) {
-
 		// update percent counter
-		$("#bookmarks").children(':last-child').text(Math.floor(1000*(0.1-(Force.force().alpha()))) + "%")
+		$("#bookmarklet").text(Math.floor(1000*(0.1-(Force.force().alpha()))) + 6 + "%")
 
 		// for benchmarking
 		// FPS.sample();

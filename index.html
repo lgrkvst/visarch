@@ -12,6 +12,7 @@
 		<script src="js/lib/typeahead.min.js" type="text/javascript" charset="utf-8"></script>
 		<script src="js/lib/hogan-2.0.0.min.js" type="text/javascript" charset="utf-8"></script>
 		
+		<script type='text/javascript' src='json/nodes_links.js'></script>
 		<script type='text/javascript' src='js/ALL.js'></script>
 		<script type='text/javascript' src='js/Net.js'></script>
 		<script type='text/javascript' src='js/Force.js'></script>
@@ -78,12 +79,17 @@
 				setCookie("selectedCSS", this.value, 365);
 				
 			});
-				
+		
 			$('#jumpref').click(function(){
 			    $('html, body').animate({
 			        scrollTop: $( $.attr(this, 'href') ).offset().top
 			    }, 500);
 			    return false;
+			});
+			
+			$('#reset').click(function(){
+				Net.importN([]);
+				$('#buttonbar').hide();
 			});
 		});
 		$(document).ready(function() {
@@ -114,6 +120,12 @@
 		            return unescape(y);
 		        }
 		    }
+		}
+
+		function derive(node_id) {
+			Net.derive(node_id);
+			console.log("2got here");
+			$('#myModal').modal();
 		}
 		
 		// Save-as-image feature:
@@ -147,6 +159,22 @@
 		</script>
 	</head>
 	<body>
+		<!-- default invisible objects (modals...) -->
+		<!--
+		<div class="modal-content">
+				      <div class="modal-header">
+				        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				        <h4 class="modal-title" id="myModalLabel">Add a Node</h4>
+				      </div>
+				      <div class="modal-body">Please enter the name of the new node.</div>
+					  <input style="text-align:left;width:300px;" class=" btn btn-default btn-lg" type="text" id="q" autocomplete="off" placeholder="Name...">
+				      <div class="modal-footer">
+				        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				        <button type="button" class="btn btn-primary">Add</button>
+				      </div>
+				    </div>
+	-->
+		<!-- /default -->
 <nav class="navbar navbar-inverse" role="navigation">
   <!-- Brand and toggle get grouped for better mobile display -->
   <div class="navbar-header">
@@ -217,7 +245,6 @@
       </div>
     </form>
 			</li>
-			<li><span style="min-width:132px" class="btn navbar-btn" id="bookmarks"></span></li>
 		</ul>
   </div><!-- /.navbar-collapse -->
 </nav>
@@ -225,16 +252,24 @@
 
 	<div id="wrap" oncontextmenu="return false;">
 		<div id="main" class="clear-top" style=" border-bottom:1px gray">
-			<div class="row-fluid">
-				<div class="col-12" id="background">
+			<div class="row">
+				<div class="col-sm-12" id="background">
 				</div>
 			</div>
-			<div class="text-center jump">
-				<a id="jumpref" href="#jump">
-					<i class="glyphicon glyphicon-chevron-down"></i>
-					<strong>scroll down for more info</strong>
-					<i class="glyphicon glyphicon-chevron-down"></i>
-				</a>
+			<div class="row">
+				<div class="col-xs-4"></div>
+				<div class="col-xs-4 text-center jump">
+					<a id="jumpref" href="#jump">
+						<i class="glyphicon glyphicon-chevron-down"></i>
+						<strong>scroll down for more info</strong>
+						<i class="glyphicon glyphicon-chevron-down"></i>
+					</a>
+				</div>
+				<div class="col-xs-4">
+					<span id="buttonbar" class="pull-right">
+						<a href="#" class="btn-sm btn-danger" id="reset">reset</a><a href="#" id="bookmarklet"></a>
+					</span>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -312,19 +347,14 @@ You can add entire compartments by passing its name within square brackets, e.g.
 			</div>
 		</div>
 	</div>
+	
+
+	
 	<script>
 	function JsonReady() {
-//		Net.add(ALL.nByName("inlån")[0]);
-//		Net.add(ALL.nByName("loro")[0]);
-//		Net.add(ALL.nByName("cois")[0]);
-//		Net.add(ALL.nByName("vdr")[0]);
-//		Net.add(ALL.nByName("kurre")[0]);
-
-/*		var c = Compartments.all[0];
+		var c = Compartments.all[4];
 		c.id = c.compartment;
-		onAdd(null, c);
-		update();
-*/
+	//	onAdd(null, c);
 	}
 	</script>
 	<script type='text/javascript' src='js/draw.js'></script>
