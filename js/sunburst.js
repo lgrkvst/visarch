@@ -1,6 +1,7 @@
 /** Draw radial menu - a quite undocumented module at the moment.
  * 
  * @author Christian Lagerkvist [christian.lagerkvist@seb.se]
+ * Unfortunately, sunburst currently has a dependency to "groups", an array which functions as color-lookup. I'm ashamed.
  */
 
 function drawRadial(root, n) {
@@ -21,7 +22,7 @@ var arc = d3.svg.arc()
 		})
 	.outerRadius(function(d) {
 		return radius/3*(d.depth+epicentre+1);
-		}).cornerRadius(4) /* OBS anpassad version av d3.min.js från bm-w (via github), pull-req men ej merge:ad, idag är det 2013-07-19... */;
+		}).cornerRadius(4);
 
 var partition = d3.layout.partition()
 	.sort(function(a, b) {
@@ -29,9 +30,8 @@ var partition = d3.layout.partition()
 		})
 	.size([2 * Math.PI, radius * radius])
 	.value(function(d) {
-	return Math.sqrt(d.size); // try d.size for action
+	return Math.sqrt(d.size);
 });
-//	console.log(arc.innerRadius("150"));
 
 /*************** BASE CONTAINER **************/
 var sunburst = svg.append("g").attr("class", "radial");
@@ -74,7 +74,7 @@ g.append("path")
 		if (d.label == "rogues") return "url(#m10)";
 		if (d.label == "explode") return "url(#m15)";
 		// some kind of link...
-		//return "url(#m" + Compartments.RSA().indexOf(d.compartment) + ")";
+		return "url(#m" + groups.indexOf(d.group) + ")";
 		})
 	.style("fill-rule", "evenodd"); /*  why? */
 
@@ -154,7 +154,7 @@ function curved(g) {
 		.attr("x", function(d) {
 			return Math.sqrt(d.y);
 			})
-	// Textens höjd i respektive cirkelsektor
+	// Text height in each circle sector
 	// .attr("dy", function(d) {
 	// 	console.log(d.depth)
 	// 	return "27";

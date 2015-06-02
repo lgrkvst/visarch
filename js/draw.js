@@ -65,8 +65,10 @@ var gs = svg.selectAll("defs").selectAll("radialGradient")
 	.enter()
 	.append("radialGradient")
 	.attr("id", function (n, i) {
-	return "g" + i;
-}).attr("cx", "50%").attr("cy", "50%").attr("r", "50%");
+		return "g" + i;
+	})
+	.attr("cx", "50%").attr("cy", "50%").attr("r", "50%");
+	
 gs.append("stop").attr("stop-color", function (n) {
 	return n;
 }).attr("offset", "40%").attr("stop-opacity", "100%");
@@ -116,6 +118,7 @@ svg.selectAll("defs")
 	// Load everything into __ALL__
 	ALL.init(graph.nodes, graph.links);
 	var groups = [];
+	var groupObjects = [];
 	
 	var autoSuggest = [];
 	// add __group__ to autoSuggest
@@ -131,9 +134,9 @@ svg.selectAll("defs")
 			groups.push(n.group);
 		}
 	});
-	groups = groups.map(function(n) {return {"name": "[" + n + "]", "group": n, "color": color(n), "id": n, description: "group"};});
+	groupObjects = groups.map(function(n) {return {"name": "[" + n + "]", "group": n, "color": color(n), "id": n, description: "group"};});
 	// init autoSuggest
-	autoSuggest = autoSuggest.concat(groups);
+	autoSuggest = autoSuggest.concat(groupObjects);
 
 	$('#q').typeahead({
 		name: 'stellar',
@@ -167,11 +170,16 @@ function update() {
 	});
 
 	// 	Adding basic links
-	//	link.enter().append("line").attr("class", "link");
+	link.enter().append("line").attr("class", "link");
+	// experimental: put arrows on links
+	//.attr("marker-end", "url(#end)");
 
+
+/*	// polygonlinks
 	link.enter()
         .append('path')
-        .attr("class", "polygonlink");
+		.attr("class", "polygonlink");
+*/	
 
 		// experimental: link labels
 		/*
@@ -195,12 +203,7 @@ function update() {
 
 		link.exit().remove();
 
-		// experimental: put arrows on links
-		/*.append("line")
-			.attr("class", "link")
-			.attr("marker-end", "url(#end)");
-		*/
-
+		
 
 	
 	// draw an svg:group for each node	
@@ -245,7 +248,7 @@ function update() {
 		return "halo";
 	})
 		.style("fill", function (d) {
-		return "url(#g" + (d.group) + ")";
+		return "url(#g" + (groups.indexOf(d.group)) + ")";
 	});
 
 	// put a circle in each group
@@ -362,8 +365,8 @@ function update() {
 				tree.children[1].children.push(push);
 			});
 		}
-		console.A ="var tree = JSON.parse('" + JSON.stringify(tree) + "');";
-		console.B = "var n = JSON.parse('" + JSON.stringify(n) + "');";
+//		console.A ="var tree = JSON.parse('" + JSON.stringify(tree) + "');";
+//		console.B = "var n = JSON.parse('" + JSON.stringify(n) + "');";
 		
 		drawRadial(tree, n);
 	});
@@ -381,6 +384,7 @@ function update() {
 
 	// links are actually little trapezoids (arrows). You can barely see the link direction...
 	var updateLink = function () {
+		/*
 		this.attr('d', function(d) {
 
 			var sx = d.source.x; var sy = d.source.y; var tx = d.target.x; var ty = d.target.y;
@@ -417,8 +421,7 @@ function update() {
 			path +=   " Z";
 			return path;
 		});
-
-		/*
+*/
 		// Deprecated:
 		// Plain svg:line objects
 		this.attr("x1", function (d) {
@@ -430,7 +433,6 @@ function update() {
 		}).attr("y2", function (d) {
 			return d.target.y;
 		});
-		*/
 	}
 
 	var updateNode = function () {
