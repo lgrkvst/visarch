@@ -3,8 +3,8 @@
  * @author Christian Lagerkvist [christian.lagerkvist@seb.se]
  */
 
-// Create a handy color range - one theme color per group
-var color = d3.scale.category20();
+// Create a handy color range - one theme color per compartment
+var color = d3.scale.category20().domain(Compartments.RSA());
 
 // Setup draw area - the subtraction of the constant is for adjusting the area for the height of header+footer
 var w = $(window).width(),
@@ -115,25 +115,21 @@ svg.selectAll("defs")
 	var graph = nodes_links;
 	// Load everything into __ALL__
 	ALL.init(graph.nodes, graph.links);
-	var groups = [];
 	
 	var autoSuggest = [];
-	// add __group__ to autoSuggest
+	// add __Compartment__ to autoSuggest
 	graph.nodes.forEach(function (n) {
 		autoSuggest.push({
 			name: n.name,
 			id: n.id,
 			description: n.description,
-			color: color(n.group),
-			group: n.group
+			color: color(n.compartment),
+			compartment: Compartments.RSA2name(n.compartment)
 		});
-		if (groups.indexOf(n.group) == -1) {
-			groups.push(n.group);
-		}
 	});
-	groups = groups.map(function(n) {return {"name": "[" + n + "]", "group": n, "color": color(n), "id": n, description: "group"};});
+
 	// init autoSuggest
-	autoSuggest = autoSuggest.concat(groups);
+	autoSuggest = autoSuggest.concat(Compartments.all.map(function (c){return {name:c.name, color: color(c.compartment),compartment:c.name, id:c.compartment, description:"compartment"};}));
 
 	$('#q').typeahead({
 		name: 'stellar',
@@ -142,7 +138,7 @@ svg.selectAll("defs")
 		limit:16,
 		template: [
 				'<span class="tt-name">{{name}}</span>',
-				'<span style="background:{{color}}" class="label label-info pull-right">{{group}}</span>',
+				'<span style="background:{{color}}" class="label label-info pull-right">{{compartment}}</span>',
 				'<div class="tt-description"><em>{{description}}</em></div>'
 		].join(''),
 		engine: Hogan
@@ -150,7 +146,7 @@ svg.selectAll("defs")
 	
 	// Provides a hook for index.html for displaying systems on page load
 	try {
-//		JsonReady();
+		JsonReady();
 	} catch (err) {console.log(err);}
 
 /** __update__ takes care of drawing and interaction. Quite d3 intense... */
@@ -206,7 +202,7 @@ function update() {
 	// draw an svg:group for each node	
 	var g = node.enter().append("g")
 		.attr("class", function (d) {
-		return d.group;
+		return Compartments.RSA2short(d.compartment);
 	})
 		.attr("transform", function () {
 		return "translate(" + w / 2 + "," + h / 2 + ")"
@@ -218,7 +214,7 @@ function update() {
 	g_label.append("rect")
 		.attr("class", "label_background")
 		.style("fill", function (d) {
-			return d3.rgb(color(d.group)).darker();
+			return d3.rgb(color(d.compartment)).darker();
 			});
 	g_label.append("text")
 		.attr("dy", ".35em")
@@ -234,7 +230,7 @@ function update() {
 	});
 	// add a hover:title in each group
 	g.append("title").text(function (d) {
-		return (d.description ? d.description + "\n" : "") + "[" + d.group + "]";
+		return (d.description ? d.description + "\n" : "") + "[" + d.compartment + "]";
 	});
 
 	// halo
@@ -245,7 +241,7 @@ function update() {
 		return "halo";
 	})
 		.style("fill", function (d) {
-		return "url(#g" + (d.group) + ")";
+		return "url(#g" + Compartments.RSA().indexOf(d.compartment) + ")";
 	});
 
 	// put a circle in each group
@@ -342,7 +338,7 @@ function update() {
 				var push = {};
 				push.name = node.name;
 				push.id = node.id;
-				push.group = node.group;
+				push.compartment = node.compartment;
 				push.size = node.size;
 				var arg = {"source":{"id":n.id}, "target": {"id":node.id}};
 				push.callback = function(){Net.addLink(arg); update();};
@@ -356,7 +352,7 @@ function update() {
 				var push = {};
 				push.name = c.name;
 				push.id = c.id;
-				push.group = c.group;
+				push.compartment = c.compartment;
 				push.size = c.size;
 				push.callback = function(node){Net.add(ALL.n(node.id)); update()};
 				tree.children[1].children.push(push);

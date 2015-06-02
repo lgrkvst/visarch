@@ -1,4 +1,4 @@
-/** __ALL__ is a simple utility closure, containing the entire nodes and links structure. It has a number of convenience methods for selecting nodes and links by name, id, group and neighbors.
+/** __ALL__ is a simple utility closure, containing the entire nodes and links structure. It has a number of convenience methods for selecting nodes and links by name, id, compartment and neighbors.
  * 
  * @author Christian Lagerkvist [christian.lagerkvist@seb.se]
  */
@@ -32,9 +32,9 @@ var ALL = (function () {
 		return l(id).map(function (l) {return {"source":nodes[l.source], "target":nodes[l.target], "name": l.name, "type": l.type, "description": l.description};});
 		};
 
-	/** Return __nodes__ in group __g__ */
-	var nsByGroup = function(g) {
-		return nodes.filter(function (n) {return n.group == g;})
+	/** Return __nodes__ in compartment __c__ */
+	var nsByCompartment = function(c) {
+		return nodes.filter(function (n) {return n.compartment == c;})
 		};
 		
 	/** Initialize _this_ */
@@ -49,7 +49,7 @@ var ALL = (function () {
 		nByName: nByName,
 		l: l,
 		nodeSource: nodeSource,
-		nsByGroup: nsByGroup,
+		nsByCompartment: nsByCompartment,
 		init: init
 		}
 })();

@@ -92,15 +92,13 @@ var Net = (function () {
 		determineCenter(index, n.size);
 		return nodes[index];
 		};
-		
-	/** Derive a __new__ node with a link to __n__ */
+		/** Derive a __new__ node with a link to __n__ */
 	var derive = function (node_id) {
-		var new_node_id = Date.now();
-		var new_node = Net.add({"name": "new", "id": new_node_id, "size": 16, "description": "user added", "group": "User Added"});
+		var new_node_id = Date.now()
+		var new_node = Net.add({"name": "new", "id": new_node_id, "size": 16, "description": "user added", "compartment": "Other SEB Systems"});
 		var l = {"source":Net.nodes[ix(node_id)], "target": new_node};
 		addLink(l);
 	};
-
 	/** Helper function, add a link... */
 	var addLink = function (l) {
 		var s = ix(l.source.id), t = ix(l.target.id);		

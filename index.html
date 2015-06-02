@@ -16,7 +16,7 @@
 		<script type='text/javascript' src='js/ALL.js'></script>
 		<script type='text/javascript' src='js/Net.js'></script>
 		<script type='text/javascript' src='js/Force.js'></script>
-<!--		<script type='text/javascript' src='js/Compartments.js'></script> -->
+		<script type='text/javascript' src='js/Compartments.js'></script>
 		<script type='text/javascript' src='js/sunburst.js'></script>
 		<script type='text/javascript' src='js/helpers.js'></script>
 
@@ -218,7 +218,7 @@
 								
 							} catch (e) {
 								// no such node, create a new one:
-//								var node = {"name":$('#q').val(), "id":$('#q').val(), description:"user added", "group":"ExternalSystems", size:"20"}
+//								var node = {"name":$('#q').val(), "id":$('#q').val(), description:"user added", "compartment":"ExternalSystems", size:"20"}
 							}
 							if(node) {
 								onAdd(null, node);
@@ -228,10 +228,10 @@
 					    }
 					});
 					function onAdd (e, datum) {
-						if(datum.description == "group") { // add entire group
-							var ns = ALL.nsByGroup(datum.id);
+						if(datum.description == "compartment") { // add entire compartment
+							var ns = ALL.nsByCompartment(datum.id);
 							ns.forEach(function (n, i) {
-								/*if (n.size>0)*/ Net.add(ALL.n(n.id));
+								if (n.size>0) Net.add(ALL.n(n.id));
 								});
 
 						} else if (datum.description=="user added") { // add custom system
@@ -351,13 +351,11 @@ You can add entire compartments by passing its name within square brackets, e.g.
 
 	
 	<script>
-/*
 	function JsonReady() {
 		var c = Compartments.all[4];
 		c.id = c.compartment;
 	//	onAdd(null, c);
 	}
-	*/
 	</script>
 	<script type='text/javascript' src='js/draw.js'></script>
 
