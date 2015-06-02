@@ -25,7 +25,7 @@ var arc = d3.svg.arc()
 
 var partition = d3.layout.partition()
 	.sort(function(a, b) {
-		return (a.compartment < b.compartment) ? 1 : -1; 
+		return (a.group < b.group) ? 1 : -1; 
 		})
 	.size([2 * Math.PI, radius * radius])
 	.value(function(d) {
@@ -73,7 +73,8 @@ g.append("path")
 		if (d.label == "remove") return "url(#m6)";
 		if (d.label == "rogues") return "url(#m10)";
 		if (d.label == "explode") return "url(#m15)";
-		return "url(#m" + Compartments.RSA().indexOf(d.compartment) + ")";
+		// some kind of link...
+		//return "url(#m" + Compartments.RSA().indexOf(d.compartment) + ")";
 		})
 	.style("fill-rule", "evenodd"); /*  why? */
 
