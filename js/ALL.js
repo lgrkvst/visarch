@@ -41,6 +41,13 @@ var ALL = (function () {
 	var init = function(ns, ls) {
 		nodes = ns;
 		links = ls;
+		nodes.forEach(function (n) {
+			n.size = 0;
+		});
+		links.forEach(function (l) {
+			n(l.source).size++;
+			n(l.target).size++;
+		})
 		};
 	
 	/** Revealing module pattern */
