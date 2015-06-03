@@ -40,7 +40,7 @@
 		var Settings = function(){
 			return {
 				drawOrigo: false,
-				rotateLabels: false,
+				rotateLabels: true,
 				drawAngles: false,
 				svg2pngserver: 'http://localhost:3000/' /* trailing slash !important; */
 			}
@@ -321,7 +321,7 @@ You can add entire compartments by passing its name within square brackets, e.g.
 						<label>Rotate&nbsp;labels</label>
 						</div>
 							<div id="rotateLabels" class="make-switch switch-mini">
-								<input type="checkbox">
+								<input type="checkbox" checked>
 							</div>&nbsp;<i class="glyphicon glyphicon-question-sign"></i>
 					</div>
 					<div class="col-sm-6">
