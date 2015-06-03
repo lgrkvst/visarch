@@ -22,15 +22,15 @@ var ALL = (function () {
 		};
 	
 	/** Return all __links__ involving __(node.)id__ */
-	var l = function (id) { 
-		return links.filter(function (l) {return nodes[l.target].id == id || nodes[l.source].id == id;});
+	var l = function (id) {
+		return links.filter(function (l) {return l.target == id || l.source == id;});
 		};
 
 	/** Return __neighbouring_nodes__ by __id__ */
 	var nodeSource = function (id) { 
 		//  _nodeSource is used as a callback (Net.add)_
-		return l(id).map(function (l) {return {"source":nodes[l.source], "target":nodes[l.target], "name": l.name, "type": l.type, "description": l.description};});
-		};
+		return l(id);
+	};
 
 	/** Return __nodes__ in group __g__ */
 	var nsByGroup = function(g) {

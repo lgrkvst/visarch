@@ -153,7 +153,7 @@ svg.selectAll("defs")
 	
 	// Provides a hook for index.html for displaying systems on page load
 	try {
-//		JsonReady();
+		JsonReady();
 	} catch (err) {console.log(err);}
 
 /** __update__ takes care of drawing and interaction. Quite d3 intense... */
@@ -347,6 +347,7 @@ function update() {
 				push.id = node.id;
 				push.group = node.group;
 				push.size = node.size;
+				// not properly updated since implemented id's instead of indices:
 				var arg = {"source":{"id":n.id}, "target": {"id":node.id}};
 				push.callback = function(){Net.addLink(arg); update();};
 				tree.children[1].children.push(push);
@@ -355,19 +356,12 @@ function update() {
 			var links = ALL.nodeSource(n.id);
 			// push all links/edge menu items onto the radial menu JSON
 			links.forEach(function (l) {
-				var c = l.target.id == n.id ? l.source : l.target;
-				var push = {};
-				push.name = c.name;
-				push.id = c.id;
-				push.group = c.group;
-				push.size = c.size;
-				push.callback = function(node){Net.add(ALL.n(node.id)); update()};
-				tree.children[1].children.push(push);
+				var c = l.target == n.id ? ALL.n(l.source) : ALL.n(l.target);
+				c = jQuery.extend(true, {"callback" : function(node){Net.add(ALL.n(node.id)); update()}}, c);
+				tree.children[1].children.push(c);
+				
 			});
-		}
-//		console.A ="var tree = JSON.parse('" + JSON.stringify(tree) + "');";
-//		console.B = "var n = JSON.parse('" + JSON.stringify(n) + "');";
-		
+		}		
 		drawRadial(tree, n);
 	});
 	

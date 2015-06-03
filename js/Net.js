@@ -86,7 +86,7 @@ var Net = (function () {
 		if (!n.id) {throw "node lacks id"; return;}
 		if (typeof n.size == "undefined") {n.size=0; console.warn("Net added explicit size for node " + n.name);}
 		if (ix(n.id) < 0) var index = nodes.push(n)-1;
-		else return; // return if already among nodes
+		else return; // already among nodes
 		if (dropLinks(n.id)){ throw("Found garbage links to drop before adding node."); debugger; }
 		nodeSource(n.id).forEach(function(l) {addLink(l);});
 		determineCenter(index, n.size);
@@ -103,7 +103,7 @@ var Net = (function () {
 
 	/** Helper function, add a link... */
 	var addLink = function (l) {
-		var s = ix(l.source.id), t = ix(l.target.id);		
+		var s = ix(l.source), t = ix(l.target);
 		if (s==t) return; // no self-linking
 		if (s>=0&&t>=0 && !lix(s,t).length)	{
 			links.push({"source":s, "target":t, "name": l.name, "type": l.type, "description": l.description});
