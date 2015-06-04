@@ -230,14 +230,14 @@
 					function onAdd (e, datum) {
 						if(datum.description == "group") { // add entire group
 							var ns = ALL.nsByGroup(datum.id);
-							ns.forEach(function (n, i) {
-								/*if (n.size>0)*/ Net.add(ALL.n(n.id));
+							ns.forEach(function (n) {
+								Net.add(ALL.n(n.id), ALL.ls);
 								});
 
 						} else if (datum.description=="user added") { // add custom system
-							Net.add(datum);
+							Net.add(datum, ALL.ls);
 						} 
-						else Net.add(ALL.n(datum.id)); // add RSA system
+						else Net.add(ALL.n(datum.id), ALL.ls); // add RSA system
 						update();
 						$(this).typeahead('setQuery', '');
 					  }
@@ -357,7 +357,7 @@ You can add entire compartments by passing its name within square brackets, e.g.
 //		c.id = c.compartment;
 //		onAdd(null, c);
 //		var c = ALL.nByName("CGI (Logica)");
-//		Net.add(c[0]);
+//		Net.add(c[0], ALL.ls);
 	}
 	</script>
 	<script type='text/javascript' src='js/draw.js'></script>

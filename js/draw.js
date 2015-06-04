@@ -10,8 +10,6 @@ var color = d3.scale.category20();
 var w = $(window).width(),
 	h = $(window).height()-42*2;
 
-// Initialize the Net object with a callback (ALL.nodeSource) allowing it to obtain a node's links.
-Net.init(ALL.nodeSource);
 Force.init(w, h);
 
 // Attach d3 to the DOM. Load it with our radial menu.
@@ -353,11 +351,11 @@ function update() {
 				tree.children[1].children.push(push);
 				});
 		} else {
-			var links = ALL.nodeSource(n.id);
+			var links = ALL.ls(n.id);
 			// push all links/edge menu items onto the radial menu JSON
 			links.forEach(function (l) {
 				var c = l.target == n.id ? ALL.n(l.source) : ALL.n(l.target);
-				c = jQuery.extend(true, {"callback" : function(node){Net.add(ALL.n(node.id)); update()}}, c);
+				c = jQuery.extend(true, {"callback" : function(node){Net.add(ALL.n(node.id), ALL.ls); update()}}, c);
 				tree.children[1].children.push(c);
 				
 			});

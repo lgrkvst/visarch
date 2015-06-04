@@ -1,8 +1,7 @@
 var fs = require('fs');
 var ALL = require('../js/ALL.js');
 var Net = require('../js/Net.js');
-
-Net.init(ALL.node2links);
+var nodes_links = require('../json/nodes_links.js');
 // ---
 var restify = require('restify');
  
@@ -22,89 +21,35 @@ server.listen(3001, function () {
 
 /* what are these? */
 
-var graph;
-
-fs.readFile('../json/nodes_links.json', function (err, data) {
-  if (err) {
-	  console.log(err);
-  }
-  graph = JSON.parse(data);
-  ALL.init(graph.nodes, graph.links);  
-});
+ALL.init(nodes_links.nodes, nodes_links.links);
 
 server.get("/", function (req, res, next) {
-	res.send(graph);
+	res.send(nodes_links);
 });
 
-server.get('/name', function (req, res, next) {
-	res.send("What name?");
-});
-
-server.get('/name/:name', function (req, res, next) {
-	var node = ALL.nByName(req.params.name);
-	res.send(buildResponse(node[0]));
-});
-
-server.get('/id', function (req, res, next) {
-	res.send("What id?");
-});
-
-server.get('/id/:id', function (req, res, next) {
-	var node = ALL.n(req.params.id);
-	res.send(buildResponse(node));
-});
-
-
-
-
-
-
-
-
-
-
-function buildResponse(node) {
-	Net.supernova(node.id)
-	var outgoing = [];
-	var incoming = [];
-	var neighbor_links = Net.links.filter(function (l) {return Net.nodes[l.target].id == node.id || Net.nodes[l.source].id == node.id;});
-	neighbor_links.forEach(function(n) {
-		if (Net.nodes[n.source].id == node.id) {
-			outgoing.push({
-				"node": {
-					"name":Net.nodes[n.target].name,
-					"id":Net.nodes[n.target].id
-				},
-				"name": n.name,
-				"type": n.type,
-				"description": n.description
-			});
-		}
-		else if (Net.nodes[n.target].id == node.id) {
-			incoming.push({
-				"node": {
-					"name":Net.nodes[n.source].name,
-					"id":Net.nodes[n.source].id
-				},
-				"name": n.name,
-				"type": n.type,
-				"description": n.description
-			});
-		}
+server.get("/index", function (req, res, next) {
+	var index = nodes_links.nodes.map(function (node) {
+		return {"id": node.id, "name": node.name};
 	});
-	
-	return {
-		"node":node,
-		"links":{
-			"outgoing": outgoing,
-			"incoming": incoming
-		}
-	};
-}
+	res.send(index);
+});
 
+server.get('/node', function (req, res, next) {
+	res.send(nodes_links.nodes);
+});
 
+server.get('/node/id/:id', function (req, res, next) {
+	res.send(ALL.n(decodeURIComponent(req.params.id)));
+});
 
+server.get('/group/id/:id', function (req, res, next) {
+	res.send(ALL.nsByGroup(decodeURIComponent(req.params.id)));
+});
 
+server.get('/node/id/:id/links', function (req, res, next) {
+	var id = decodeURIComponent(req.params.id);
+	res.send(ALL.ls(id));
+});
 
 
 

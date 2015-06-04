@@ -14,22 +14,11 @@ var ALL = (function () {
 		while (id != nodes[i].id && nodes[++i]);
 		return nodes[i];
 		};
-	
-	/** Return __array_of_nodes__ by (case-insensitive) __name__ */
-	var nByName = function (name) { 
-		name = name.toLowerCase();
-		return nodes.filter(function(n){return n.name.toLowerCase()==name;});
-		};
-	
-	/** Return all __links__ involving __(node.)id__ */
-	var l = function (id) {
-		return links.filter(function (l) {return l.target == id || l.source == id;});
-		};
 
-	/** Return __neighbouring_nodes__ by __id__ */
-	var nodeSource = function (id) { 
+	/** Return all __links__ involving __(node.)id__ */
+	var ls = function (id) { 
 		//  _nodeSource is used as a callback (Net.add)_
-		return l(id);
+		return links.filter(function (l) {return l.target == id || l.source == id;});
 	};
 
 	/** Return __nodes__ in group __g__ */
@@ -53,9 +42,7 @@ var ALL = (function () {
 	/** Revealing module pattern */
 	return {
 		n: n,
-		nByName: nByName,
-		l: l,
-		nodeSource: nodeSource,
+		ls: ls,
 		nsByGroup: nsByGroup,
 		init: init
 		}
