@@ -81,14 +81,19 @@ var Net = (function () {
 	 *			 L = callback, returns array of node's links
 	 *			 N = callback, returns a node id given what's in link.source and link.target (id or index)
 	 */
-	var add = function (n, links) {
-		if (!links) {throw "Failed dependency injection – no links callback"; return;}
+	var add = function (n) {
+		if (!n.links) {throw "Node objects must have a links method"; return;}
 		if (!n.id) {throw "node lacks id"; return;}
 		if (typeof n.size == "undefined") {n.size=0; console.warn("Net added explicit size for node " + n.name);}
 		if (ix(n.id) < 0) var index = nodes.push(n)-1;
 		else return; // already among nodes
 		if (dropLinks(n.id)){ throw("Found garbage links to drop before adding node."); debugger; }
-		links(n.id).forEach(function(l) {addLink(l);});
+		$.when(n.links()).done(function(links) {
+			links.forEach(function (l) {
+				addLink(l);				
+			});
+			update();
+		});
 		determineCenter(index, n.size);
 		return nodes[index];
 		};

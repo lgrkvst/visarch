@@ -13,7 +13,7 @@ var faucet = function() {
 				"index": "http://localhost:3001/index",
 				"node": "http://localhost:3001/node/id/:id",
 				"nodesInGroup": "http://localhost:3001/group/id/:id",
-				"nodeLinks": "http://localhost:3001/node/id/:id/links"
+				"links": "http://localhost:3001/node/id/:id/links"
 			},
 			precomp: function(node) {
 				var description = node.description || '&nbsp;';
@@ -23,10 +23,20 @@ var faucet = function() {
 		}
 	};
 
-	var Node = {
-		'name': null,
-		'group': null,
-		'size': null
+	var Node = function(id, name, group, size, tag) {
+		this.id = id;
+		this.name = name;
+		this.group = group || 'unknown';
+		this.size = size || 12;
+		this.tag = tag;
+	};
+	
+	Node.prototype.links = function() {
+		var deferred = $.Deferred();
+		$.get(id_into_str(sources[this.tag].api.links, this.id), function( links ) {
+			deferred.resolve(links);
+		});
+		return deferred.promise();
 	};
 
 	var get_typeahead_datasets = function() {
@@ -57,14 +67,17 @@ var faucet = function() {
 						url: source.api.index,
 						cache: false,
 						transform: function(nodes) {
+							var Nodes = [];
 							source.groups = [];
 							nodes.forEach(function(node) {
 								node.tag = key;
 								if (source.groups.indexOf(node.group) == -1) {
 									source.groups.push(node.group);
 								}
+								Nodes.push(new Node(node.id, node.name, node.group, node.size, node.tag));
 							});
 							//source.colorize = d3.scale.category20(groups);
+							return Nodes;
 							return nodes;
 						}
 					}
