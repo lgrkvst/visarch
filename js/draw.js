@@ -3,12 +3,12 @@
  * @author Christian Lagerkvist [christian.lagerkvist@seb.se]
  */
 
-// Create a handy color range - one theme color per group
-var color = d3.scale.category20();
-
 // Setup draw area - the subtraction of the constant is for adjusting the area for the height of header+footer
 var w = $(window).width(),
 	h = $(window).height()-42*2;
+
+// Create a handy color range - one theme color per group
+var color = d3.scale.category20();
 
 Force.init(w, h);
 
@@ -109,51 +109,6 @@ svg.selectAll("defs")
 	.attr("fill", "#272727")
 	.attr("transform", "scale(0.04) translate(0,260)");
 
-
-
-// import RSA components and relationships
-	var graph = nodes_links;
-	// Load everything into __ALL__
-	ALL.init(graph.nodes, graph.links);
-	var groups = [];
-	var groupObjects = [];
-	
-	var autoSuggest = [];
-	// add __group__ to autoSuggest
-	graph.nodes.forEach(function (n) {
-		autoSuggest.push({
-			name: n.name,
-			id: n.id,
-			description: n.description,
-			color: color(n.group),
-			group: n.group
-		});
-		if (groups.indexOf(n.group) == -1) {
-			groups.push(n.group);
-		}
-	});
-	groupObjects = groups.map(function(n) {return {"name": "[" + n + "]", "group": n, "color": color(n), "id": n, description: "group"};});
-	// init autoSuggest
-	autoSuggest = autoSuggest.concat(groupObjects);
-
-	$('#q').typeahead({
-		name: 'stellar',
-		local: autoSuggest,
-		valueKey: 'name',
-		limit:16,
-		template: [
-				'<span class="tt-name">{{name}}</span>',
-				'<span style="background:{{color}}" class="label label-info pull-right">{{group}}</span>',
-				'<div class="tt-description"><em>{{description}}</em></div>'
-		].join(''),
-		engine: Hogan
-	});
-	
-	// Provides a hook for index.html for displaying systems on page load
-	try {
-		JsonReady();
-	} catch (err) {console.log(err);}
-
 /** __update__ takes care of drawing and interaction. Quite d3 intense... */
 function update() {
 	// call start before doing svg stuff, since we want any new nodes instantiated
@@ -246,7 +201,7 @@ function update() {
 		return "halo";
 	})
 		.style("fill", function (d) {
-		return "url(#g" + (groups.indexOf(d.group)) + ")";
+		return "url(#g" + faucet.sources[d.tag].groups.indexOf(d.group) + ")";
 	});
 
 	// put a circle in each group
@@ -351,13 +306,13 @@ function update() {
 				tree.children[1].children.push(push);
 				});
 		} else {
-			var links = ALL.ls(n.id);
+//			var links = ALL.ls(n.id);
 			// push all links/edge menu items onto the radial menu JSON
 			links.forEach(function (l) {
-				var c = l.target == n.id ? ALL.n(l.source) : ALL.n(l.target);
+/*				var c = l.target == n.id ? ALL.n(l.source) : ALL.n(l.target);
 				c = jQuery.extend(true, {"callback" : function(node){Net.add(ALL.n(node.id), ALL.ls); update()}}, c);
 				tree.children[1].children.push(c);
-				
+*/				
 			});
 		}		
 		drawRadial(tree, n);

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<script src="../js/lib/jquery.min.js" type="text/javascript" charset="utf-8">
+</script>
+		<script src="../js/lib/bootstrap.min.js" type="text/javascript" charset="utf-8">
+</script>
+		<script src="../js/lib/typeahead.bundle.min.js" type="text/javascript" charset="utf-8">
+</script>
+		<script src="../json/nodes_links.js" type="text/javascript" charset="utf-8">
+</script>
+		<link rel="stylesheet" href="../css/lib/bootstrap.min.css" type="text/css" media="screen">
+		<link rel="stylesheet" href="../css/typeahead.css" type="text/css" media="screen">
+		<link rel="stylesheet" href="../css/observatory.css" type="text/css" media="screen">
+		<link rel="stylesheet" href="../css/hr.css" type="text/css" media="screen">
+		<link rel="stylesheet" href="../css/radial.css" type="text/css" media="screen">
+		<link rel="stylesheet" href="../css/static_footer.css" type="text/css" media="screen">
+		<link rel="stylesheet" href="../css/lib/avgrund.css" type="text/css" media="screen">
+		<link rel="stylesheet" href="../css/lib/styles.css" type="text/css" media="screen">
+		<link rel="stylesheet" href="../css/lib/ladda.min.css" type="text/css" media="screen">
+		<link rel="stylesheet" href="../css/lib/bootstrap-switch.css" type="text/css" media="screen">
+		<title>
+			Typeahead
+		</title>
+		<script type='text/javascript' src='../js/config.js'>
+</script>
+	</head>
+	<body>
+¨
+					<nav class="navbar navbar-inverse" role="navigation">
+
+				    <!-- Brand and toggle get grouped for better mobile display -->
+				    <div class="navbar-header">
+				      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+				        <span class="sr-only">Toggle navigation</span>
+				        <span class="icon-bar"></span>
+				        <span class="icon-bar"></span>
+				        <span class="icon-bar"></span>
+				      </button>
+				      <a class="navbar-brand" style="font-weight: normal; font-size:2em; padding-top:13px; margin-left:15px !important" href="#">The&nbsp;Observatory</a>
+				    </div>
+					<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+						    <ul class="nav navbar-nav">
+						<!--      <li class="active"><a href="#">Link</a></li>
+						      <li><a href="#">Link</a></li> -->
+						      <li class="dropdown">
+						        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Options <b class="caret"></b></a>
+						        <ul class="dropdown-menu">
+						          <li><a href="docs/index.html" target="_blank">Documentation</a></li>
+						          <li><a id="filemodal" href="#">Save as image...</a></li>
+						          <li class="divider"></li>
+						          <li><a href="#"><input type="checkbox" id="toggleFixedGlobal" onClick="Net.toggleFixedGlobal()"/> <label for="toggleFixedGlobal">Freeze</label></a></li>
+						          <li><a href="#"><label for="linkConstant" id="linkLabel">Repel: 25</label><br/><input type="range" min="0" max="30" value="25" id="linkConstant" step="0.01"/></a></li>
+						        </ul>
+						      </li>
+						    </ul>
+						<ul class="nav navbar-nav navbar-right">
+							<li>
+								<form class="navbar-form navbar-left" role="search">
+									<div id="bloodhound">
+										<input id="q" class="typeahead" type="text" placeholder="States of USA">
+									</div>
+								</form>
+							</li>
+						</ul>
+					</div>
+					</nav>
+					
+
+
+					<script type="text/javascript">
+					// constructs the suggestion engine
+					var db = new Bloodhound({
+					  datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+					  queryTokenizer: Bloodhound.tokenizers.whitespace,
+						prefetch: 'http://localhost:3001/index'
+					});
+
+					$('#q').typeahead({
+					  hint: true,
+					  highlight: true,
+					  minLength: 1,
+					},
+					{
+						"limit": 10,
+						"templates": {
+							header: '<h4 style="background-color: #000" class="faucet_header">Applications</h3>',
+							suggestion: function (node) {
+						var description = node.description || '&nbsp;';
+						var ret = '<div><span class="tt-name">'+node.name+'<span class="tt-description"><em>'+description+'</em></span></span><span style="background:#826" class="label label-info pull-right">node.group</span></div>';
+						return ret;}
+						},
+						
+					  displayKey: 'name',
+					  name: 'name',
+					  source: db,
+						cache:false
+					});
+					$('#q').bind('typeahead:select', function(ev, node) {
+						console.log(node);
+					});
+
+					</script>
+	</body>
+</html>

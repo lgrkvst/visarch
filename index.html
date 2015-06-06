@@ -3,20 +3,17 @@
 	<head>
 		<meta charset="utf-8">
 		<title>The Observatory</title>
-		<link href='http://fonts.googleapis.com/css?family=Crete+Round' rel='stylesheet' type='text/css'>
-
+<!--		<link href='http://fonts.googleapis.com/css?family=Crete+Round' rel='stylesheet' type='text/css'>
+-->
 		<script src="js/lib/d3.min.js" type="text/javascript" charset="utf-8"></script>
 		<script src="js/lib/jquery.min.js" type="text/javascript" charset="utf-8"></script>		
 		<script src="js/lib/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
 		<script src="js/lib/bootstrap-switch.min.js" type="text/javascript" charset="utf-8"></script>
-		<script src="js/lib/typeahead.min.js" type="text/javascript" charset="utf-8"></script>
-		<script src="js/lib/hogan-2.0.0.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type='text/javascript' src='js/config.js'></script>
+		<script src="js/lib/typeahead.bundle.min.js" type="text/javascript" charset="utf-8"></script>
 		
-		<script type='text/javascript' src='json/nodes_links.js'></script>
-		<script type='text/javascript' src='js/ALL.js'></script>
 		<script type='text/javascript' src='js/Net.js'></script>
 		<script type='text/javascript' src='js/Force.js'></script>
-<!--		<script type='text/javascript' src='js/Compartments.js'></script> -->
 		<script type='text/javascript' src='js/sunburst.js'></script>
 		<script type='text/javascript' src='js/helpers.js'></script>
 
@@ -159,22 +156,6 @@
 		</script>
 	</head>
 	<body>
-		<!-- default invisible objects (modals...) -->
-		<!--
-		<div class="modal-content">
-				      <div class="modal-header">
-				        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-				        <h4 class="modal-title" id="myModalLabel">Add a Node</h4>
-				      </div>
-				      <div class="modal-body">Please enter the name of the new node.</div>
-					  <input style="text-align:left;width:300px;" class=" btn btn-default btn-lg" type="text" id="q" autocomplete="off" placeholder="Name...">
-				      <div class="modal-footer">
-				        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-				        <button type="button" class="btn btn-primary">Add</button>
-				      </div>
-				    </div>
-	-->
-		<!-- /default -->
 <nav class="navbar navbar-inverse" role="navigation">
   <!-- Brand and toggle get grouped for better mobile display -->
   <div class="navbar-header">
@@ -206,42 +187,32 @@
     <ul class="nav navbar-nav navbar-right">
     	<li>
     		<form class="navbar-form navbar-left" role="search">
-      <div class="form-group">
-        <input id="q" autocomplete="off" spellcheck="false" dir="auto" type="text" class="form-control" placeholder="Search...">
-       		<script>
-					$('#q').on('typeahead:selected', onAdd);
-					/* autoselect first match on enter */
-					$('#q').keypress(function (e) {
-					    if (e.which == 13) {
-							try {
-								var node = $('#q').data().ttView.dropdownView.getFirstSuggestion().datum;
-								
-							} catch (e) {
-								// no such node, create a new one:
-//								var node = {"name":$('#q').val(), "id":$('#q').val(), description:"user added", "group":"ExternalSystems", size:"20"}
-							}
-							if(node) {
-								onAdd(null, node);
-							}
-							$(this).typeahead('setQuery', '');
-							
-					    }
-					});
-					function onAdd (e, datum) {
-						if(datum.description == "group") { // add entire group
-							var ns = ALL.nsByGroup(datum.id);
-							ns.forEach(function (n) {
-								Net.add(ALL.n(n.id), ALL.ls);
-								});
+      <div>
+        <input id="q" type="text" class="typeahead" placeholder="Search...">
+		<script>
 
-						} else if (datum.description=="user added") { // add custom system
-							Net.add(datum, ALL.ls);
-						} 
-						else Net.add(ALL.n(datum.id), ALL.ls); // add RSA system
-						update();
-						$(this).typeahead('setQuery', '');
-					  }
-					</script>
+		$('#q').typeahead({highlight: true}, faucet.get_typeahead_datasets());
+		$('#q').keypress(function (e) {
+		    if (e.which == 13) {
+				try {
+					$('.tt-suggestion:nth-child(2)').trigger('click');	
+				} catch (e) {
+// no such node, create a new one:
+// var node = {"name":$('#q').val(), "id":$('#q').val(), description:"user added", "group":"ExternalSystems", size:"20"}
+				}
+// $(this).typeahead('setQuery', '');
+				
+		    }
+		});
+
+		
+		$('#q').bind('typeahead:select', function(ev, node) {
+			Net.add(node, function(){return []});
+			update();
+			$('#q').typeahead('val', '')
+		});		
+		
+		</script>
       </div>
     </form>
 			</li>

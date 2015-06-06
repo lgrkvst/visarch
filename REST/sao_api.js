@@ -1,7 +1,7 @@
 var fs = require('fs');
 var ALL = require('../js/ALL.js');
 var Net = require('../js/Net.js');
-var nodes_links = require('../json/nodes_links.js');
+var nodes_links = require('../json/nodes_links.json');
 // ---
 var restify = require('restify');
  
@@ -20,7 +20,6 @@ server.listen(3001, function () {
 });
 
 /* what are these? */
-
 ALL.init(nodes_links.nodes, nodes_links.links);
 
 server.get("/", function (req, res, next) {
@@ -28,8 +27,9 @@ server.get("/", function (req, res, next) {
 });
 
 server.get("/index", function (req, res, next) {
+	console.log("index got called");
 	var index = nodes_links.nodes.map(function (node) {
-		return {"id": node.id, "name": node.name};
+		return {"id": node.id, "name": node.name, "group": node.group, "size": node.size};
 	});
 	res.send(index);
 });
