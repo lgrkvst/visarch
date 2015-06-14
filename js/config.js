@@ -32,11 +32,11 @@ var faucet = function() {
 	};
 	
 	Node.prototype.links = function() {
-		var deferred = $.Deferred();
-		$.get(id_into_str(sources[this.tag].api.links, this.id), function( links ) {
-			deferred.resolve(links);
+		return $.get(id_into_str(sources[this.tag].api.links, this.id), function(nodelist){
+			nodelist.forEach(function(node){
+				node = new Node(node.id, node.name, node.group, node.size, this.tag);
+			});
 		});
-		return deferred.promise();
 	};
 
 	var get_typeahead_datasets = function() {
@@ -109,14 +109,7 @@ var faucet = function() {
 		});
 	}
 */
-	/*
-	var getLinks = function(n) {
-		$.getJSON(id_into_str(data[n.tag].api.node, n.id), function (node) {
-			Net.add(node);
-		});
-	}
 
-*/
 	return {
 		sources: sources,
 		get_typeahead_datasets: get_typeahead_datasets

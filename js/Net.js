@@ -90,7 +90,7 @@ var Net = (function () {
 		if (dropLinks(n.id)){ throw("Found garbage links to drop before adding node."); debugger; }
 		$.when(n.links()).done(function(links) {
 			links.forEach(function (l) {
-				addLink(l);				
+				addLink({source:n.id, target:l.id});
 			});
 			update();
 		});

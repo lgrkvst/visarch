@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Force based label placement</title>
+		<script src="../js/lib/d3.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/lib/jquery.min.js" type="text/javascript" charset="utf-8"></script>		
+		<script src="../js/lib/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/lib/bootstrap-switch.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/lib/typeahead.bundle.min.js" type="text/javascript" charset="utf-8"></script>
+		
+
+		<link rel="stylesheet" href="../css/lib/bootstrap.min.css" type="text/css" media="screen" charset="utf-8">
+		<link rel="stylesheet" href="../css/lib/bootstrap-switch.css" type="text/css" media="screen" charset="utf-8">
+		<link rel="stylesheet" href="../css/hr.css" type="text/css" media="screen" charset="utf-8">
+		<link rel="stylesheet" href="../css/observatory.css" type="text/css" media="screen" charset="utf-8">
+		<link rel="stylesheet" href="../css/radial.css" type="text/css" media="screen" charset="utf-8">
+		<link rel="stylesheet" href="../css/static_footer.css" type="text/css" media="screen" charset="utf-8">
+		<link rel="stylesheet" href="../css/typeahead.css" type="text/css" media="screen" charset="utf-8">
+
+		<style>
+			.link {
+				stroke: #CCC;
+				stroke-width: 10px;
+				opacity:0.1;
+			}
+			.node {
+				opacity:0.8;
+			}
+			.nodelabel {
+				font-family: optima, sans-serif;
+				filter:none !important;
+			}
+			.radial {
+				font-size:12px;
+				font-family: 'helvetica neue', tahoma,sans-serif;
+				font-weight:bold;
+			}
+			text {fill:#fff}
+			.nodelabeltext {
+/*				opacity:0.3;
+				font-size:3em; */
+			}
+			body {
+				background-color: #000000;
+				background-image: url('../css/themes/stellar/bg.old.jpg');
+				background-position: top center;
+				background-repeat: no-repeat;
+				background-attachment: fixed;
+				margin: 0px;
+				font-family:Arial, Verdana, Helvetica, sans-serif;
+				font-size:12px;
+			}
+			.mouseover {
+				opacity:0.5;
+			}
+			
+		</style>
+	</head>
+	<body>
+
+					<script type="text/javascript" charset="utf-8">var width = 960,
+  height = 500,
+  radius = Math.min(width, height) / 2;
+var grad = Math.PI / 180;
+
+var color = d3.scale.ordinal().range(["#24b4d1", "#b1da42", "#fede17", "#d0164a", "#ef5822"]);
+
+var segmentVal = [20, 40, 10, 60, 120];
+var segmentOffsets = [0.05, 0.1, 0, 0.2, 0.27];
+//this is the label i want to flow along with the donut chart
+var segments = ["label 1", "label 2", "label 3", "label 4", "label 5"];
+var name = "center>>>";
+
+var arc = d3.svg.arc().outerRadius(radius - 5).innerRadius(radius - 150);
+
+var pie = d3.layout.pie().startAngle(-30 * grad).endAngle(330 * grad);
+
+var svg = d3.select("body")
+  .append("svg")
+  .attr("width", width)
+  .attr("height", height)
+  .append("g")
+  .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+var g = svg.selectAll(".arc")
+  .data(pie(segmentVal))
+  .enter().append("g")
+  .attr("class", "arc");
+
+var arcTxt = d3.svg.arc()
+  .innerRadius(function(d, i) {
+    return i * 35;
+  })
+  .outerRadius(function(d, i) {
+    return (i * 35 + 30);
+  })
+  .startAngle(0)
+  .endAngle(2 * Math.PI);
+
+g.append("path")
+  .attr("fill", function(d, i) {
+    return color(i);
+  })
+  .attr("id", function(d, i) {
+    return "s" + i;
+  })
+  .transition()
+  .ease("exp")
+  .ease("bounce")
+  .duration(2500)
+  .delay(function(d, i) {
+    return i * 10;
+  })
+  .attrTween("d", tweenPie);
+
+function tweenPie(b) {
+  var i = d3.interpolate({
+    startAngle: -30 * grad,
+    endAngle: -31 * grad
+  }, b);
+  return function(t) {
+    return arc(i(t));
+  };
+}
+
+
+var text = g.append("text")  
+  .style("font-size", 20)
+  .append("textPath")
+  .attr("textLength", function(d, i) {
+    return 90 - i * 5;
+  })
+  .attr("xlink:href", function(d, i) {
+    return "#s" + i;
+  })
+  .attr("startOffset", function(d, i) {
+    return segmentOffsets[i];
+  })
+
+.text(function(d, i) {
+    return segments[i];
+  })
+  //.text(function(d){return d.label;})
+  /*.attr("text-anchor", "middle")
+  .transition()
+   .ease("exp")
+   .ease("bounce")
+   .duration(2500)
+   .delay(function(d,i) { return i*10;})
+   .attrTween("transform", tweenText);*/
+
+function tweenText(b) {
+  var i = d3.interpolate({
+    startAngle: -30 * grad,
+    endAngle: -31 * grad
+  }, b);
+  return function(t) {
+    return "translate(" + arc.centroid(i(t)) + ")";
+  };
+}
+
+					</script>
+					
+					
+	</body>
+
+</html>

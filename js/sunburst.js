@@ -74,7 +74,7 @@ g.append("path")
 		if (d.label == "rogues") return "url(#m10)";
 		if (d.label == "explode") return "url(#m15)";
 		// some kind of link...
-		return "url(#m" + groups.indexOf(d.group) + ")";
+		return "url(#m" + color(d.group) + ")";
 		})
 	.style("fill-rule", "evenodd"); /*  why? */
 

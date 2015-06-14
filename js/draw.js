@@ -265,57 +265,56 @@ function update() {
 			"size": n.size,
 			"children": [{
 					"label": "remove",
-					"id": n.id,
+					"id": n.id, // used for what exaclty? We're sending in the node as well...
 					"icon": "#icon_remove",
-					"size": "10",
-		// we inject a callback for each menu item, what to execute on selection. Maybe I can become a decent js-coder afterall?
+					// inject a callback for each menu item, what to execute on selection. Maybe I'm a decent js-coder afterall?
 					"callback": function (node) {Net.drop(node.id);update();}
 					}, {
-					"label": "explode",
+					"label": "Applications",
 					"id": n.id,
-					"icon": "#icon_explode",
-					"size": "10",
 					"children": [],
 					"callback": function (node) {Net.supernova(node.id);update();}
 					}, {
-					"label": "freeze",
+					"label": "Processes",
 					"id": n.id,
-					"icon": "#icon_fixed",
-					"size": "10",
-					"callback": function (node) {Net.toggleFixed(node.id);update();}
-					}/*, {
-					"label": "add",
+					"children": [],
+					"callback": function (node) {Net.supernova(node.id);update();}
+					}, {
+					"label": "Platforms",
 					"id": n.id,
-					"icon": "#icon_add",
-					"size": "15",
-					"callback": function (node) {Net.derive(node.id);update();}
-				}*/]
+					"children": [],
+					"callback": function (node) {Net.supernova(node.id);update();}
+					}]
 		};
-		//
-		if (n.description == "user added") {
-			// push all Net.nodes onto the radial menu JSON
-			Net.nodes.forEach(function (node) {
-				var push = {};
-				push.name = node.name;
-				push.id = node.id;
-				push.group = node.group;
-				push.size = node.size;
-				// not properly updated since implemented id's instead of indices:
-				var arg = {"source":{"id":n.id}, "target": {"id":node.id}};
-				push.callback = function(){Net.addLink(arg); update();};
-				tree.children[1].children.push(push);
-				});
-		} else {
 //			var links = ALL.ls(n.id);
 			// push all links/edge menu items onto the radial menu JSON
-			links.forEach(function (l) {
-/*				var c = l.target == n.id ? ALL.n(l.source) : ALL.n(l.target);
-				c = jQuery.extend(true, {"callback" : function(node){Net.add(ALL.n(node.id), ALL.ls); update()}}, c);
-				tree.children[1].children.push(c);
-*/				
+			
+			tree.children[2].children.push({"label":"Retail", "children": []});
+			tree.children[2].children[0].children.push({"label": "Enkla Lånet"});
+
+			tree.children[3].children.push({"label":"Rissne", "children":[]});
+			tree.children[3].children.push({"label":"Grytet", "children":[]});
+			tree.children[3].children[0].children.push({"label":"wsp1001a"});
+			tree.children[3].children[0].children.push({"label":"wsp1001b"});
+			tree.children[3].children[0].children.push({"label":"wsp1001c"});
+			tree.children[3].children[1].children.push({"label":"wsp1002a"});
+			tree.children[3].children[1].children.push({"label":"wsp1002b"});
+			tree.children[3].children[1].children.push({"label":"wsp1002c"});
+
+
+
+			$.when(n.links()).done(function(links) {
+				links.forEach(function (l) {
+					console.log(l);
+					var l = jQuery.extend(true, {"callback" : function(node){Net.add(node); update()}}, l);
+					tree.children[1].children.push(l);
+				});
+				console.log(tree);
+				console.A = JSON.stringify(tree);
+				console.tree = tree;
+				drawRadial(tree, n);
+				update();
 			});
-		}		
-		drawRadial(tree, n);
 	});
 	
 	node.call(Force.nodeDrag);
@@ -329,47 +328,7 @@ function update() {
 
 	/* ---------------------------- FOR SIMULATION ----------------------------- */
 
-	// links are actually little trapezoids (arrows). You can barely see the link direction...
 	var updateLink = function () {
-		/*
-		this.attr('d', function(d) {
-
-			var sx = d.source.x; var sy = d.source.y; var tx = d.target.x; var ty = d.target.y;
-			var Dx = tx-sx; var Dy = ty-sy; // D as in Delta
-			var pDx = Dy; var pDy = -Dx; 	// p as in perpendicular
-			// normalize
-			var length = Math.sqrt(pDx*pDx+pDy*pDy);
-			pDx /= length;
-			pDy /= length;
-
-
-			var sC = 1;
-			var tC = 0.6;
-//			var sS = 6 + d.source.size * 0.2;
-//			var tS = 6 + d.target.size * 0.2;
-			var sS = 7*sC;
-			var tS = 7*tC;
-
-			var s1x = sx+pDx*sS;
-			var s1y = sy+pDy*sS;
-
-			var s2x = sx-pDx*sS;
-			var s2y = sy-pDy*sS;
-
-			var t1x = tx+pDx*tS;
-			var t1y = ty+pDy*tS;
-
-			var t2x = tx-pDx*tS;
-			var t2y = ty-pDy*tS;
-			var path = "M " + s1x + " " + s1y;
-			path +=   " L " + t1x + " " + t1y;
-			path +=   " L " + t2x + " " + t2y;
-			path +=   " L " + s2x + " " + s2y;
-			path +=   " Z";
-			return path;
-		});
-*/
-		// Deprecated:
 		// Plain svg:line objects
 		this.attr("x1", function (d) {
 			return d.source.x;

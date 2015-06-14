@@ -48,7 +48,13 @@ server.get('/group/id/:id', function (req, res, next) {
 
 server.get('/node/id/:id/links', function (req, res, next) {
 	var id = decodeURIComponent(req.params.id);
-	res.send(ALL.ls(id));
+	var nodes = [];
+	ALL.ls(id).forEach(function(n){
+		var c = (n.target == id ? n.source : n.target);
+		// append uml:Type to return object someday?
+		nodes.push(ALL.n(c));
+	});
+	res.send(nodes);
 });
 
 
