@@ -8,7 +8,7 @@ var w = $(window).width(),
 	h = $(window).height()-42*2;
 
 // Create a handy color range - one theme color per group
-var color = d3.scale.category20();
+var color = d3.scale.category20b();
 
 Force.init(w, h);
 
@@ -305,11 +305,9 @@ function update() {
 
 			$.when(n.links()).done(function(links) {
 				links.forEach(function (l) {
-					console.log(l);
 					var l = jQuery.extend(true, {"callback" : function(node){Net.add(node); update()}}, l);
 					tree.children[1].children.push(l);
 				});
-				console.log(tree);
 				console.A = JSON.stringify(tree);
 				console.tree = tree;
 				drawRadial(tree, n);

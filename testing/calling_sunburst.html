@@ -218,6 +218,11 @@
 								// })
 								.attr("class", "nodelabeltext")
 								.attr("fill", function(n, i) {
+									if (label(n).toUpperCase() == "GRYTET") {
+										console.log("i is " + i);
+										console.log(color(1));
+									}
+									
 									return d3.rgb(color(Math.floor(i/3)%20)).brighter();
 								})
 								.attr("font-size", function(n){
