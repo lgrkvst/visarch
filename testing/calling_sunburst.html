@@ -134,7 +134,7 @@
 									* Testa ta bort all css
 									* Blir himla läckert i gråskalor – testa!
 								 */
-								var radius = 180;
+								var radius = 140;
 								var rotate = Math.PI/4;
 //								var sunburstColor = d3.scale.category20();
 
@@ -158,22 +158,16 @@
 								var arc = d3.svg.arc()
 								    .startAngle(function(d) { return d.x; })
 								    .endAngle(function(d) { return d.x + d.dx - .01 / (d.depth + .5); })
-								    .innerRadius(function(d) { return radius / 3 * d.depth; })
-								    .outerRadius(function(d) { return radius / 3 * (d.depth + 1) - 1; });
+								    .innerRadius(function(d) { return radius / 3 * (d.depth+1); })
+								    .outerRadius(function(d) { return radius / 3 * (d.depth + 2) - 1; });
 
 
 
 								// got these from http://bl.ocks.org/mbostock/5944371
-								function key(d) {
-								  var k = [], p = d;
-								  while (p.depth) k.push(p.name), p = p.parent;
-								  return k.reverse().join(".");
-								}
-
 								function fill(d) {
 								  var p = d;
 								  while (p.depth > 1) p = p.parent;
-								  var c = d3.lab(color(p.name));
+								  var c = d3.lab(color(p.group));
 								  c.l = luminance(d.sum);
 								  return c;
 								}
@@ -199,14 +193,13 @@
 								        .forEach(function(d) {
 								          d._children = d.children;
 								          d.sum = d.value;
-								          d.key = key(d);
 								          d.fill = fill(d);
 								        });
 
 								    // Now redefine the value function to use the previously-computed sum.
 								    partition
-								        .children(function(d, depth) { return depth < 2 ? d._children : null; })
-								        .value(function(d) { return Math.sqrt(d.sum); });
+								        .children(function(d, depth) { return depth < 1 ? d._children : null; })
+								        .value(function(d) { return 1;/*Math.sqrt(d.sum); */ });
 									
 									var sunburst = container.append("svg").attr("class", "radial");
 
@@ -242,19 +235,14 @@
 										}
 									});
 										
-										
-								    // .data(partition.nodes(bp.data.preparedData).filter(
-								    //           function(d){return d.ci_type === 'type'}))
-										
-										
 								    var center = sunburst.append("circle")
-								        .attr("r", radius / 3)
+								        .attr("r", radius / 3*2)
 								        .on("click", zoomOut);
 										
 								    center.append("title")
 								        .text("zoom out");
 										
-									group = sunburst.selectAll("g").data([], function(d) {return d.key; }).enter().append("g");
+									group = sunburst.selectAll("g").append("g");
 									zoom(root, root);
 										
 									// var clip_path = group.append("clipPath")
@@ -306,8 +294,7 @@
 										
 
 									    function zoomIn(p) {
-									      if (p.depth > 1) p = p.parent;
-									      if (!p.children) return;
+									      if (p.callback) p.callback(p);
 									      zoom(p, p);
 									    }
 
@@ -336,8 +323,8 @@
 										        outsideAngle = d3.scale.linear().domain([0, 2 * Math.PI]);
 
 										    function insideArc(d) {
-										      return p.key > d.key
-										          ? {depth: d.depth - 1, x: 0, dx: 0} : p.key < d.key
+										      return p.id > d.id
+										          ? {depth: d.depth - 1, x: 0, dx: 0} : p.id < d.id
 										          ? {depth: d.depth - 1, x: 2 * Math.PI, dx: 0}
 										          : {depth: 0, x: 0, dx: 2 * Math.PI};
 										    }
@@ -351,8 +338,7 @@
 										    // Entering outside arcs start from the old layout.
 										    if (root === p) enterArc = outsideArc, exitArc = insideArc, outsideAngle.range([p.x, p.x + p.dx]);
 
-										    group = group.data(partition.nodes(root).slice(1), function(d) { return d.key; });
-											//group = group.data(partition.nodes(root).slice(1));
+										    group = group.data(partition.nodes(root).slice(1), function(d) { return d.id; });
 											
 										    // When zooming out, arcs enter from the inside and exit to the outside.
 										    // Exiting outside arcs transition to the new layout.
@@ -365,26 +351,22 @@
 										            .style("fill-opacity", function(d) { return d.depth === 1 + (root === p) ? 1 : 0; })
 										            .attrTween("d", function(d) { return arcTween.call(this, exitArc(d)); })
 												
-												// funkar i någon form
-												group = sunburst.selectAll("g")
-												.data(partition.nodes(root))
-												.enter().append("g")
+												group.enter().append("g")
 												.on("mouseout", function(n) {
 													this.setAttribute("class", "arc");
 													})
 												.on("mouseover", function(n) {
 													this.setAttribute("class", "arc mouseover");
 													})
-												.on("mouseup", zoomIn);
-									
-												path = group.append("path")
+												.on("mouseup", zoomIn)
+												.append("path")
 												.attr("d", arc)
 												.attr("id", function(d, i) {
 													return "path" + i;
 													})
 												.attr("fill-opacity", function(d, i) {
-		//										 	if (d.depth == 0) return 0;
-		//										 	return 1/(d.depth*d.depth);
+												 	if (d.depth == 0) return 0;
+												 	return 1/(d.depth*d.depth);
 												 	})
 												.style("fill", function(d, i) {
 													return "url(#m" + i + ")";
@@ -394,7 +376,7 @@
 												.each(function(d) { this._current = updateArc(d); });
 
 										        group.transition()
-													.select("path")
+													.selectAll("path")
 										            .style("fill-opacity", 1)
 										            .attrTween("d", function(d) { return arcTween.call(this, updateArc(d)); });
 										    });
@@ -552,7 +534,8 @@
 					<script>
 					var lces = JSON.parse('{"id":"_kj6SYO4eEeKkdbbircdmEA","size":14,"name":"LCES","group":"Processing Support Systems","size":12,"tag":"APP","index":0,"weight":0,"x":0.8829758936504,"y":0.2856600774035,"px":620.8869687205895,"py":280.2908698942541,"fixed":0}');
 
-					var lces_tree = JSON.parse('{"size":12,"children":[{"size":1,"name":"remove","id":"_kj6SYO4eEeKkdbbircdmEA","icon":"#icon_remove"},{"size":12,"name":"Applications","id":"_kj6SYO4eEeKkdbbircdmEA","children":[{"id":"_agmCcNOHEeKnyLpxuAUlyg","size":14,"name":"Aquarius","group":"Financing&Loans Systems","size":6},{"id":"_9zfWAM9uEeKTytfvtcsKjg","size":14,"name":"BIF","group":"Financing&Loans Systems","size":5},{"id":"_327Q8M9uEeKTytfvtcsKjg","size":14,"name":"Origo","group":"Financing&Loans Systems","size":12},{"id":"_Jv-KcKKeEeKvjd3eYA2x1A","size":14,"name":"Säljstöd","group":"Front System","size":53},{"id":"_Jv-KcKKeEeKvjd3eYA2x1A","size":14,"name":"Säljstöd","group":"Front System","size":53},{"id":"_Qv0KULCoEeKB3PjRdgQmKA","size":14,"name":"Kofax (TopCall)","group":"Processing Support Systems","size":7},{"id":"_fQC3AJCSEeKhnLIkYfvrAg","size":14,"name":"VDR","description":"Archive","group":"Processing Support Systems","size":17},{"id":"_4bDBoO4uEeKkdbbircdmEA","size":14,"name":"SPIK/Nödlid","description":"Case Management","group":"Processing Support Systems","size":4},{"id":"_hZVIIOTbEeKA2uegIInhsA","size":14,"name":"SEB Case","description":"Case Management","group":"Processing Support Systems","size":10},{"id":"_MkHKAO4hEeKkdbbircdmEA","size":14,"name":"CGI (Logica)","description":"External","group":"ExternalSystems","size":2},{"id":"_U6pXIO4hEeKkdbbircdmEA","size":14,"name":"Itella","description":"External","group":"ExternalSystems","size":3},{"id":"_HE3ewBryEeO66eJdk956ug","size":14,"name":"CSM 2","group":"Securities Systems","size":11}]},{"size":1,"name":"Processes","id":"_kj6SYO4eEeKkdbbircdmEA","children":[{"size":14,"name":"Retail","children":[{"size":14,"name":"Enkla Lånet"}]}]},{"size":2,"name":"Platforms","id":"_kj6SYO4eEeKkdbbircdmEA","children":[{"size":14,"name":"Rissne","children":[{"size":14,"name":"wsp1001a"},{"size":14,"name":"wsp1001b"},{"size":14,"name":"wsp1001c"}]},{"size":14,"name":"Grytet","children":[{"size":14,"name":"wsp1002a"},{"size":14,"name":"wsp1002b"},{"size":14,"name":"wsp1002c"}]}]}]}');
+					// Every item must have an id
+					var lces_tree = JSON.parse('{"id": "root", "size":12,"children":[{"size":1,"name":"remove","id":"_kj6SYO4eEeKkdbsircdmEA","icon":"#icon_remove"},{"size":12,"name":"Applications","id":"_kj6SYOfeEeKkdbbircdmEA","children":[{"id":"_agmCcNOHEeKnyLpxuAUlyg","size":14,"name":"Aquarius","group":"Financing&Loans Systems","size":6},{"id":"_9zfWAM9uEeKTytfvtcsKjg","size":14,"name":"BIF","group":"Financing&Loans Systems","size":5},{"id":"_327Q8M9uEeKTytfvtcsKjg","size":14,"name":"Origo","group":"Financing&Loans Systems","size":12},{"id":"_Jv-KcKKeEeKvjd3eYA1x1A","size":14,"name":"Säljstöd","group":"Front System","size":53},{"id":"_Jv-KcKKeEeKvjd3eYA2x1A","size":14,"name":"Säljstöd","group":"Front System","size":53},{"id":"_Qv0KULCoEeKB3PjRdgQmKA","size":14,"name":"Kofax (TopCall)","group":"Processing Support Systems","size":7},{"id":"_fQC3AJCSEeKhnLIkYfvrAg","size":14,"name":"VDR","description":"Archive","group":"Processing Support Systems","size":17},{"id":"_4bDBoO4uEeKkdbbircdmEA","size":14,"name":"SPIK/Nödlid","description":"Case Management","group":"Processing Support Systems","size":4},{"id":"_hZVIIOTbEeKA2uegIInhsA","size":14,"name":"SEB Case","description":"Case Management","group":"Processing Support Systems","size":10},{"id":"_MkHKAO4hEeKkdbbircdmEA","size":14,"name":"CGI (Logica)","description":"External","group":"ExternalSystems","size":2},{"id":"_U6pXIO4hEeKkdbbircdmEA","size":14,"name":"Itella","description":"External","group":"ExternalSystems","size":3},{"id":"_HE3ewBryEeO66eJdk956ug","size":14,"name":"CSM 2","group":"Securities Systems","size":11}]},{"size":1,"name":"Processes","id":"_kj6SYO4eaeKkdbbiacdmEA","children":[{"size":14,"id":"Retail","children":[{"size":14,"name":"Enkla Lånet", "id": "enkla"}]}]},{"size":2,"id":"Platforms","children":[{"size":14,"id":"Rissne","children":[{"size":14,"id":"wsp1001a"},{"size":14,"id":"wsp1001b"},{"size":14,"id":"wsp1001c"}]},{"size":14,"id":"Grytet","children":[{"size":14,"id":"wsp1002a"},{"size":14,"id":"wsp1002b"},{"size":14,"id":"wsp1002c"}]}]}]}');
 
 					drawRadial(lces_tree, lces, svg);
 
