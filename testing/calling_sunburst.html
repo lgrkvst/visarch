@@ -17,7 +17,7 @@
 		<link rel="stylesheet" href="../css/radial.css" type="text/css" media="screen" charset="utf-8">
 		<link rel="stylesheet" href="../css/static_footer.css" type="text/css" media="screen" charset="utf-8">
 		<link rel="stylesheet" href="../css/typeahead.css" type="text/css" media="screen" charset="utf-8">
-		<link href='http://fonts.googleapis.com/css?family=Stint+Ultra+Condensed' rel='stylesheet' type='text/css'>
+<!--		<link href='http://fonts.googleapis.com/css?family=Stint+Ultra+Condensed' rel='stylesheet' type='text/css'> -->
 		<style>
 			.link {
 				stroke: #CCC;
@@ -141,19 +141,27 @@
 								var x = d3.scale.linear().range([0, 2 * Math.PI]);
 								var y = d3.scale.sqrt().range([0, radius]);
 
+								// var arc = d3.svg.arc()
+								// 	.startAngle(function(d, i) {
+								// 		return Math.max(0, rotate+Math.min(2 * Math.PI, x(d.x)));
+								// 		})
+								// 	.endAngle(function(d) {
+								// 		return Math.max(0, rotate+Math.min(2 * Math.PI, x(d.x + d.dx)));
+								// 		})
+								// 	.innerRadius(function(d) {
+								// 		return Math.max(0, y(d.y));
+								// 		})
+								// 	.outerRadius(function(d) {
+								// 		return Math.max(0, y(d.y + d.dy));
+								// 		});
+
 								var arc = d3.svg.arc()
-									.startAngle(function(d, i) {
-										return Math.max(0, rotate+Math.min(2 * Math.PI, x(d.x)));
-										})
-									.endAngle(function(d) {
-										return Math.max(0, rotate+Math.min(2 * Math.PI, x(d.x + d.dx)));
-										})
-									.innerRadius(function(d) {
-										return Math.max(0, y(d.y));
-										})
-									.outerRadius(function(d) {
-										return Math.max(0, y(d.y + d.dy));
-										});
+								    .startAngle(function(d) { return d.x; })
+								    .endAngle(function(d) { return d.x + d.dx - .01 / (d.depth + .5); })
+								    .innerRadius(function(d) { return radius / 3 * d.depth; })
+								    .outerRadius(function(d) { return radius / 3 * (d.depth + 1) - 1; });
+
+
 
 								// got these from http://bl.ocks.org/mbostock/5944371
 								function key(d) {
@@ -176,6 +184,10 @@
 								    .range([90, 20]);
 								
 								var partition = d3.layout.partition()
+									.sort(function(a, b) { return d3.ascending(a.name, b.name); })
+									.size([2 * Math.PI, radius]);
+									
+								var group, path;
 									
 								function drawRadial(root, n, container) {
 
@@ -194,7 +206,7 @@
 								    // Now redefine the value function to use the previously-computed sum.
 								    partition
 								        .children(function(d, depth) { return depth < 2 ? d._children : null; })
-								        .value(function(d) { return 1/*d.sum*/; });
+								        .value(function(d) { return Math.sqrt(d.sum); });
 									
 									var sunburst = container.append("svg").attr("class", "radial");
 
@@ -234,87 +246,60 @@
 								    // .data(partition.nodes(bp.data.preparedData).filter(
 								    //           function(d){return d.ci_type === 'type'}))
 										
-									var group = sunburst.selectAll("g")
-										.data(partition.nodes(root).slice(1))
-										.enter().append("g")
-										.on("mouseout", function(n) {
-											this.setAttribute("class", "arc");
-											})
-										.on("mouseover", function(n) {
-											this.setAttribute("class", "arc mouseover");
-											});
+										
+								    var center = sunburst.append("circle")
+								        .attr("r", radius / 3)
+								        .on("click", zoomOut);
+										
+								    center.append("title")
+								        .text("zoom out");
+										
+									group = sunburst.selectAll("g").data([], function(d) {return d.key; }).enter().append("g");
+									zoom(root, root);
+										
+									// var clip_path = group.append("clipPath")
+									// 	.attr("id", function(d, i) {
+									// 		return "clipPath" + i;
+									// 	})
+									// 	.append("use")
+									// 	.attr("xlink:href", function(n, i) {
+									// 		return "#path" + i;
+									// 	});
 									//
-									var path = group.append("path")
-										.attr("d", arc)
-										.attr("id", function(d, i) {
-											return "path" + i;
-											})
-										// hide instead of remove - will listen to center clicks!
-										 .attr("fill-opacity", function(d, i) {
-										 	if (d.depth == 0) return 0;
-//										 	return 1/(d.depth*d.depth);
-										 	})
-										.style("fill", function(d, i) {
-											return "url(#m" + i + ")";
-											})
-										.style("stroke", "#272727")
-										.style("stroke-width", "3px")
-										.each(function(d) { this._current = updateArc(d); })
-										.on("mouseup", zoomIn);
-											
-											
-										
-									var clip_path = group.append("clipPath")
-										.attr("id", function(d, i) {
-											return "clipPath" + i;
-										})
-										.append("use")
-										.attr("xlink:href", function(n, i) {
-											return "#path" + i;
-										});
-
-									var text = group.append("g")
-										.attr("clip-path", function(n, i) {
-											return "url(#clipPath" + i + ")";
-										})
-										.append("text")
-										.attr("dy", function(d, i) {
-											var x = d.depth;
-											return 1.5 * x * x - 13.5 * x + 55; //try 47
-										})
-									// Text height in each circle sector
-										.attr("class", "nodelabeltext")
-										.attr("fill", function(n, i) {
-											 return "#fff"
-											return d3.rgb(sunburstColor(Math.floor(i / 3) % 20)).brighter();
-										})
-										.attr("font-size", function(n) {
-											var x = n.depth;
-											return 3 * x * x - 25 * x + 72;
-											})
-										.append("textPath")
-										.attr("xlink:href", function(n, i) {
-											return "#path" + i;
-											})
-										.text(function (n) {
-											if (n.depth < 2) return label(n);
-											})
-										.attr("startOffset", function(n) {
-											var x = n.depth;
-											return (23 + 4.5 * x - 2.5 * x * x) + "%";
-										})
-										.attr("text-anchor", "middle")
-										.attr("letter-spacing", function(n) {
-											return 3 - n.depth;
-										});
-										
-										
-										
-										
-										
-										
-										
-										
+									// var text = group.append("g")
+									// 	.attr("clip-path", function(n, i) {
+									// 		return "url(#clipPath" + i + ")";
+									// 	})
+									// 	.append("text")
+									// 	.attr("dy", function(d, i) {
+									// 		var x = d.depth;
+									// 		return 1.5 * x * x - 13.5 * x + 55; //try 47
+									// 	})
+									// // Text height in each circle sector
+									// 	.attr("class", "nodelabeltext")
+									// 	.attr("fill", function(n, i) {
+									// 		 return "#fff"
+									// 		return d3.rgb(sunburstColor(Math.floor(i / 3) % 20)).brighter();
+									// 	})
+									// 	.attr("font-size", function(n) {
+									// 		var x = n.depth;
+									// 		return 3 * x * x - 25 * x + 72;
+									// 		})
+									// 	.append("textPath")
+									// 	.attr("xlink:href", function(n, i) {
+									// 		return "#path" + i;
+									// 		})
+									// 	.text(function (n) {
+									// 		if (n.depth < 2) return label(n);
+									// 		})
+									// 	.attr("startOffset", function(n) {
+									// 		var x = n.depth;
+									// 		return (23 + 4.5 * x - 2.5 * x * x) + "%";
+									// 	})
+									// 	.attr("text-anchor", "middle")
+									// 	.attr("letter-spacing", function(n) {
+									// 		return 3 - n.depth;
+									// 	});
 										
 										
 										
@@ -327,7 +312,7 @@
 									    }
 
 									    function zoomOut(p) {
-									      if (!p.parent) return;
+									      if (!p || !p.parent) return;
 									      zoom(p.parent, p);
 									    }
 										
@@ -361,30 +346,57 @@
 										      return {depth: d.depth + 1, x: outsideAngle(d.x), dx: outsideAngle(d.x + d.dx) - outsideAngle(d.x)};
 										    }
 
+										    center.datum(root);
 										    // When zooming in, arcs enter from the outside and exit to the inside.
 										    // Entering outside arcs start from the old layout.
 										    if (root === p) enterArc = outsideArc, exitArc = insideArc, outsideAngle.range([p.x, p.x + p.dx]);
-										    path = path.data(partition.nodes(root).slice(1), function(d) { return d.key; });
 
+										    group = group.data(partition.nodes(root).slice(1), function(d) { return d.key; });
+											//group = group.data(partition.nodes(root).slice(1));
+											
 										    // When zooming out, arcs enter from the inside and exit to the outside.
 										    // Exiting outside arcs transition to the new layout.
 										    if (root !== p) enterArc = insideArc, exitArc = outsideArc, outsideAngle.range([p.x, p.x + p.dx]);
 
-										    d3.transition().duration(250).each(function() {
-										      path.exit().transition()
-										          .style("fill-opacity", function(d) { console.log("a"); return d.depth === 1 + (root === p) ? 1 : 0; })
-										          .attrTween("d", function(d) { return arcTween.call(this, exitArc(d)); })
-										          .remove();
+										    d3.transition().ease("cubic-out").duration(250).each(function() {
+												
+										        group.exit().transition().remove() // sätt på slutet?
+													.select("path")
+										            .style("fill-opacity", function(d) { return d.depth === 1 + (root === p) ? 1 : 0; })
+										            .attrTween("d", function(d) { return arcTween.call(this, exitArc(d)); })
+												
+												// funkar i någon form
+												group = sunburst.selectAll("g")
+												.data(partition.nodes(root))
+												.enter().append("g")
+												.on("mouseout", function(n) {
+													this.setAttribute("class", "arc");
+													})
+												.on("mouseover", function(n) {
+													this.setAttribute("class", "arc mouseover");
+													})
+												.on("mouseup", zoomIn);
+									
+												path = group.append("path")
+												.attr("d", arc)
+												.attr("id", function(d, i) {
+													return "path" + i;
+													})
+												.attr("fill-opacity", function(d, i) {
+		//										 	if (d.depth == 0) return 0;
+		//										 	return 1/(d.depth*d.depth);
+												 	})
+												.style("fill", function(d, i) {
+													return "url(#m" + i + ")";
+													})
+												.style("stroke", "#272727")
+												.style("stroke-width", "3px")
+												.each(function(d) { this._current = updateArc(d); });
 
-										      path.enter().append("path")
-										          .style("fill-opacity", function(d) { console.log("b"); return d.depth === 2 - (root === p) ? 1 : 0; })
-										          .style("fill", function(d) { return d.fill; })
-										          .on("click", expand)
-										          .each(function(d) { this._current = enterArc(d); });
-
-										      path.transition()
-										          .style("fill-opacity", 1)
-										          .attrTween("d", function(d) { return arcTween.call(this, updateArc(d)); });
+										        group.transition()
+													.select("path")
+										            .style("fill-opacity", 1)
+										            .attrTween("d", function(d) { return arcTween.call(this, updateArc(d)); });
 										    });
 										  }
 										
