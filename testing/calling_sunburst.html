@@ -64,7 +64,7 @@
 
 						var w = $(window).width(),
 							h = $(window).height();
-						var color = d3.scale.category20();
+							var color = d3.scale.category20c();
 
 						var svg = d3.select("body").append("svg")
 						    .attr("width", w)
@@ -128,54 +128,51 @@
 								/** Draw radial menu - a quite undocumented module at the moment.
 								 *
 								 * @author Christian Lagerkvist [christian.lagerkvist@seb.se]
-								 * Unfortunately, sunburst currently has a dependency to "groups", an array which functions as color-lookup. I'm ashamed.
-
-									* Move stuff to css
-									* Testa ta bort all css
-									* Blir himla läckert i gråskalor – testa!
+								 * Move stuff to css
+ 								 * Testa ta bort all css
+								 * Läckert i gråskalor? – testa!
 								 */
 								var radius = 140;
 								var rotate = Math.PI/4;
-//								var sunburstColor = d3.scale.category20();
 
-								var x = d3.scale.linear().range([0, 2 * Math.PI]);
-								var y = d3.scale.sqrt().range([0, radius]);
-
-								// var arc = d3.svg.arc()
-								// 	.startAngle(function(d, i) {
-								// 		return Math.max(0, rotate+Math.min(2 * Math.PI, x(d.x)));
-								// 		})
-								// 	.endAngle(function(d) {
-								// 		return Math.max(0, rotate+Math.min(2 * Math.PI, x(d.x + d.dx)));
-								// 		})
-								// 	.innerRadius(function(d) {
-								// 		return Math.max(0, y(d.y));
-								// 		})
-								// 	.outerRadius(function(d) {
-								// 		return Math.max(0, y(d.y + d.dy));
-								// 		});
-
+								// my first curry pattern - yay!!
+								var arcradius = function (inner_outer) {
+									return function(x) {
+										return Math.atan(x.depth+inner_outer)*radius;
+									}
+								}
 								var arc = d3.svg.arc()
-								    .startAngle(function(d) { return d.x; })
-								    .endAngle(function(d) { return d.x + d.dx - .01 / (d.depth + .5); })
-								    .innerRadius(function(d) { return radius / 3 * (d.depth+1); })
-								    .outerRadius(function(d) { return radius / 3 * (d.depth + 2) - 1; });
-
-
+								    .startAngle(function(d) { return d.x+rotate; })
+								    .endAngle(function(d) { return rotate + d.x + d.dx - .01 / (d.depth + .5); })
+								    .innerRadius(arcradius(0))
+								    .outerRadius(arcradius(1));
 
 								// got these from http://bl.ocks.org/mbostock/5944371
 								function fill(d) {
 								  var p = d;
-								  while (p.depth > 1) p = p.parent;
-								  var c = d3.lab(color(p.group));
-								  c.l = luminance(d.sum);
+								  var i = 0;
+								  while (p.depth > 1) {
+									  if (i == 0) {
+										  i = p.parent.children.indexOf(p)/(p.parent.children.length);
+									  }
+									  p = p.parent;
+									}
+								  var c = d3.hsl(color(label(p)));
+								  c.l = luminance(d.depth);
+								  console.log(i);
+								  c.s = saturation(i);
 								  return c;
 								}
 								
-								var luminance = d3.scale.sqrt()
-								    .domain([0, 1e6])
-								    .clamp(true)
-								    .range([90, 20]);
+								var luminance = d3.scale.linear()
+								    .domain([1,5])
+								    .clamp(false)
+								    .range([0.5, 0]);
+
+								var saturation = d3.scale.linear()
+								    .domain([0,1])
+								    .clamp(false)
+								    .range([1, 0]);
 								
 								var partition = d3.layout.partition()
 									.sort(function(a, b) { return d3.ascending(a.name, b.name); })
@@ -190,48 +187,34 @@
 								    // and stash the children so they can be restored as we descend.
 								    partition.value(function(d) { return d.size; })
 								        .nodes(root)
-								        .forEach(function(d) {
+								        .forEach(function(d, i) {
 								          d._children = d.children;
 								          d.sum = d.value;
-								          d.fill = fill(d);
+										  d.fill = fill(d);
 								        });
 
 								    // Now redefine the value function to use the previously-computed sum.
 								    partition
-								        .children(function(d, depth) { return depth < 1 ? d._children : null; })
+								        .children(function(d, depth) { return depth < 3 ? d._children : null; })
 								        .value(function(d) { return 1;/*Math.sqrt(d.sum); */ });
 									
-									var sunburst = container.append("svg").attr("class", "radial");
+									var sunburst = container.append("g").attr("class", "radial");
+									sunburst.attr("transform", "translate(300,300)");
 
-									sunburst
-										.attr("viewBox", "-" + radius + " -" + radius + " " + radius*2 + " " + radius*2)
-										.attr("width", radius*2)
-										.attr("height", radius*2)
-										.attr("x", n.x)
-										.attr("y", n.y);
+									// har precis gjort om från svg till g för att slippa viewPort clipping
+									// verkar dragga mjukt, men dragalgon är offsettad något...
+									// m är global, s likaså. Kan vara radius som används på annat sätt i denna bilevel-implementation
 
 									// attach event listener to container
 									container.on("mousemove", function(e){
-										var offset = 20; // activate move slighly before reaching menu edge
+										var offset = 0; // activate move slighly before reaching menu edge
 										var r = radius-offset;
-										var m = {
-											x: d3.mouse(this)[0]-offset,
-											y: d3.mouse(this)[1]-offset
-										};
-										var s = {
-											x: sunburst.attr("x"),
-											y: sunburst.attr("y")
-										}
-										var o = {
-											x: 1*s.x+r,
-											y: 1*s.y+r
-										}
-										if (((m.x-o.x)*(m.x-o.x)+(m.y-o.y)*(m.y-o.y)) > r*r) {
-											var A = Math.atan2((m.y-o.y),(m.x-o.x));
-											var deltaX = Math.cos(A)*r;
-											var deltaY = Math.sin(A)*r;
-											sunburst.attr("x", 1*m.x-deltaX-1*r);
-											sunburst.attr("y", 1*m.y-deltaY-1*r);										
+										var m = d3.mouse(this);
+										var s = sunburst.attr("transform").match(/translate\((\d+),(\d+)/).filter(function(a,b){return b ? a : false;});
+								
+										if (((m[0]-s[0])*(m[0]-s[0])+(m[1]-s[1])*(m[1]-s[1])) > r*r) {
+											var A = Math.atan2((m[1]-s[1]),(m[0]-s[0]));
+											sunburst.attr("transform", "translate("+Math.round(1*m[0]-Math.cos(A)*r)+","+Math.round(1*m[1]-Math.sin(A)*r)+")")
 										}
 									});
 										
@@ -240,7 +223,7 @@
 								        .on("click", zoomOut);
 										
 								    center.append("title")
-								        .text("zoom out");
+								        .text("back");
 										
 									group = sunburst.selectAll("g").append("g");
 									zoom(root, root);
@@ -289,10 +272,6 @@
 									// 		return 3 - n.depth;
 									// 	});
 										
-										
-										
-										
-
 									    function zoomIn(p) {
 									      if (p.callback) p.callback(p);
 									      zoom(p, p);
@@ -303,18 +282,8 @@
 									      zoom(p.parent, p);
 									    }
 										
-										
-										
-										
-										
-										
-										
-										
-										
-										
-										
-										
 										function zoom(root, p) {
+											
 										    if (document.documentElement.__transition__) return;
 
 										    // Rescale outside angles to match the new layout.
@@ -364,11 +333,8 @@
 												.attr("id", function(d, i) {
 													return "path" + i;
 													})
-												.attr("fill-opacity", function(d, i) {
-												 	if (d.depth == 0) return 0;
-												 	return 1/(d.depth*d.depth);
-												 	})
 												.style("fill", function(d, i) {
+													return d.fill;
 													return "url(#m" + i + ")";
 													})
 												.style("stroke", "#272727")
@@ -464,7 +430,7 @@
 
 								function label(n) {
 									//								if (!n.children) return;
-									var label = n.label || n.name || "";
+									var label = n.name || n.id || "";
 									label = label.toUpperCase();
 									//								if (n.value == 1) return label.substring(0,1);
 									return label;
