@@ -148,7 +148,7 @@
 								    .innerRadius(arcradius(0))
 								    .outerRadius(arcradius(1))
 									.padAngle(0.01)
-									.cornerRadius(3);
+//									.cornerRadius(3);
 
 								// got these from http://bl.ocks.org/mbostock/5944371
 								function fill(d) {
@@ -197,7 +197,7 @@
 
 								    // Now redefine the value function to use the previously-computed sum.
 								    partition
-								        // .children(function(d, depth) { return depth < 2 ? d._children : null; })
+//								         .children(function(d, depth) { return d.depth < 10 ? d._children : null; })
 								        .value(function(d) { return 1;/*Math.sqrt(d.sum); */ });
 									
 									var sunburst = container.append("g").attr("class", "radial");
@@ -220,15 +220,15 @@
 										}
 									});
 								    //
-								    var center = sunburst.append("circle")
-								        .attr("r", radius / 3*2)
-								        .on("click", zoomIn);
-
-								    center.append("title")
-								        .text("back");
+								    // var center = sunburst.append("circle")
+								    //     .attr("r", radius / 3*2)
+								    //     .on("click", zoomIn);
+								    //
+								    // center.append("title")
+								    //     .text("back");
 										
 									group = sunburst.selectAll("g");
-									zoom(root, root);
+									traverse(root, root);
 										
 									// var clip_path = group.append("clipPath")
 									// 	.attr("id", function(d, i) {
@@ -274,118 +274,52 @@
 									// 		return 3 - n.depth;
 									// 	});
 										
-									    function zoomIn(p) {
+									    function zoom(p) {
   									      if (!p || !p.parent) return;
 									      if (p.callback) {
 											  p.callback(p);
 										  }
 										  if (p.depth) {
-										  	zoom(p, p);
+										  	traverse(p, p);
 										  } else {
-											  zoom(p.parent, p);										  	
+											traverse(p.parent, p);										  	
 										  }
 										  
 									    }
 										
-										function zoom(root, p) {
-										    // Rescale outside angles to match the new layout.
-										    var enterArc,
-										        exitArc,
-										        outsideAngle = d3.scale.linear().domain([0, 2 * Math.PI]);
+										function traverse(root, p) {
+										    // center.datum(root);
+											group = group.data(partition.nodes(root), function(d) { return d.id; });
 
-											    function insideArc(d) {
-											      return p.key > d.key
-											          ? {depth: d.depth - 1, x: 0, dx: 0} : p.key < d.key
-											          ? {depth: d.depth - 1, x: 2 * Math.PI, dx: 0}
-											          : {depth: 0, x: 0, dx: 2 * Math.PI};
-											    }
-
-											    function outsideArc(d) {
-											      return {depth: d.depth + 1, x: outsideAngle(d.x), dx: outsideAngle(d.x + d.dx) - outsideAngle(d.x)};
-											    }
-
-										    center.datum(root);
-											group = group.data(partition.nodes(root).slice(1), function(d) { return d.id; });
-										    // When zooming in, arcs enter from the outside and exit to the inside.
-										    // Entering outside arcs start from the old layout.
-										    if (root === p) {
-												enterArc = outsideArc;
-												exitArc = insideArc;
-												outsideAngle.range([p.x, p.x + p.dx]);
-												}
+											group.exit().remove();
 											
-										    // When zooming out, arcs enter from the inside and exit to the outside.
-										    // Exiting outside arcs transition to the new layout.
-										    if (root !== p) {
-												enterArc = insideArc;
-												exitArc = outsideArc;
-												outsideAngle.range([p.x, p.x + p.dx]);
-												}
-											//
-											// group.exit().remove();
-											// group.enter().append("g")
-											// 	.on("mouseup", zoomIn)
-											// 	.append("path")
-											// 	.attr("d", arc)
-											// 	.style("fill", function(d, i) {
-											// 		return d.fill;
-											// 	});
-											//
-											// 	group.transition()
-											// 		.selectAll("path")
-											// 		.duration(600)
-											// 		.ease("elastic")
-											// 		.delay(function (d, i) {return i*500;})
-											// 		.attrTween("d", tweenDonut);
-											// 		//.style("fill-opacity", 1)
-											//
-											// 		// kan inte navigera mellan nivåer. återgår till gamla varianten och modifierar denna.
-											// 	function tweenDonut(b) {
-											// 		var i = d3.interpolate({depth:b.depth+1, dx:0}, b);
-											// 	  return function(t) { return arc(i(t)); };
-											// 	}
-											//
-											// }
-											d3.transition().ease("elastic").duration(600).each(function() {
-												group.exit().transition()
-													.select("path")
-													.style("fill-opacity", 0)
-													.attrTween("d", function(d) { return arcTween.call(this, exitArc(d)); }).remove();
-
-												group.enter().append("g")
-													// .on("mouseout", function(n) {
-													// 	this.setAttribute("class", "arc");
-													// 	})
-													// .on("mouseover", function(n) {
-													// 	this.setAttribute("class", "arc mouseover");
-													// 	})
-													.on("mouseup", zoomIn)
-													.append("path")
-													.attr("d", arc)
-													.attr("id", function(d, i) { return "path" + i; })
-													.style("fill", function(d) { return d.fill; })
-													// .style("stroke", "#272727")
-//													.style("stroke-width", "2px")
-													.each(function(d) { this._current = enterArc(d); });
+											group.enter().append("g")
+												.on("mouseup", zoom)
+												.append("path")
+												.attr("d", arc)
+												.style("fill", function(d, i) {
+													return d.fill;
+												});
 
 												group.transition()
 													.selectAll("path")
-													.style("fill-opacity", 1)
-													.attrTween("d", function(d) { return arcTween.call(this, updateArc(d)); });
-												});
+													.duration(600)
+													.ease("elastic")
+													.delay(function (d, i) {return i*500;})
+													.attrTween("d", tweenDonut)
+													.style("fill-opacity", function(b) {
+														return b.depth ? 1:0;
+													})
+
+												function tweenDonut(b) {
+													var inout = (root === p) ? 1 : -1;
+													var i = d3.interpolate({depth:b.depth+inout, x:b.x-0.3*inout}, b);
+												  return function(t) {
+													  return arc(i(t)); };
+												}
+
 											}
 
-										  function arcTween(b) {
-										    var i = d3.interpolate(this._current, b);
-										    this._current = i(0);
-										    return function(t) {
-										      return arc(i(t));
-										    };
-										  }
-
-										  function updateArc(d) {
-										    return {depth: d.depth, x: d.x, dx: d.dx};
-										  }
 									}
 
 								/** Determine label text */
