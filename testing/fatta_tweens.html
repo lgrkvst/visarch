@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<title>Pie Chart</title>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+<script>
+
+var width = 960,
+    height = 500,
+    radius = Math.min(width, height) / 2 - 10;
+
+var data = d3.range(10).map(Math.random).sort(d3.descending);
+
+var color = d3.scale.category20();
+
+var arc = d3.svg.arc()
+    .outerRadius(radius);
+
+var pie = d3.layout.pie();
+
+var svg = d3.select("body").append("svg")
+    .datum(data)
+    .attr("width", width)
+    .attr("height", height)
+    .append("g")
+    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+var arcs = svg.selectAll()
+    .data(function(b) {console.log(b); return pie(b);})
+	.enter().append("g");
+	console.log(arcs);
+	
+arcs.append("path")
+    .attr("fill", function(d, i) { return color(i); }).attr("d", arc)
+  // .transition()
+  //   .duration(1000)
+  //   .attrTween("d", tweenPie)
+  .transition()
+    .ease("elastic")
+    .delay(function(d, i) { return i * 50; })
+    .duration(750)
+    .attrTween("d", tweenDonut);
+
+function tweenPie(b) {
+  b.innerRadius = 0;
+  var i = d3.interpolate({startAngle: 0, endAngle: 0}, b);
+  return function(t) { return arc(i(t)); };
+}
+
+function tweenDonut(b) {
+  // det är varje element i data() som kommer in som b
+  b.innerRadius = radius * .6;
+  var i = d3.interpolate({innerRadius: 0}, b);
+  return function(t) { return arc(i(t)); };
+}
+</script>
+</body>
+</html>
