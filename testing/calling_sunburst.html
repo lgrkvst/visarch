@@ -321,71 +321,71 @@
 												exitArc = outsideArc;
 												outsideAngle.range([p.x, p.x + p.dx]);
 												}
+											//
+											// group.exit().remove();
+											// group.enter().append("g")
+											// 	.on("mouseup", zoomIn)
+											// 	.append("path")
+											// 	.attr("d", arc)
+											// 	.style("fill", function(d, i) {
+											// 		return d.fill;
+											// 	});
+											//
+											// 	group.transition()
+											// 		.selectAll("path")
+											// 		.duration(600)
+											// 		.ease("elastic")
+											// 		.delay(function (d, i) {return i*500;})
+											// 		.attrTween("d", tweenDonut);
+											// 		//.style("fill-opacity", 1)
+											//
+											// 		// kan inte navigera mellan nivåer. återgår till gamla varianten och modifierar denna.
+											// 	function tweenDonut(b) {
+											// 		var i = d3.interpolate({depth:b.depth+1, dx:0}, b);
+											// 	  return function(t) { return arc(i(t)); };
+											// 	}
+											//
+											// }
+											d3.transition().ease("elastic").duration(600).each(function() {
+												group.exit().transition()
+													.select("path")
+													.style("fill-opacity", 0)
+													.attrTween("d", function(d) { return arcTween.call(this, exitArc(d)); }).remove();
 
-											group.exit().remove();
-											group.enter().append("g")
-												.on("mouseup", zoomIn)
-												.append("path")
-												.attr("d", arc)
-												.style("fill", function(d, i) {
-													return d.fill;
-												});
+												group.enter().append("g")
+													// .on("mouseout", function(n) {
+													// 	this.setAttribute("class", "arc");
+													// 	})
+													// .on("mouseover", function(n) {
+													// 	this.setAttribute("class", "arc mouseover");
+													// 	})
+													.on("mouseup", zoomIn)
+													.append("path")
+													.attr("d", arc)
+													.attr("id", function(d, i) { return "path" + i; })
+													.style("fill", function(d) { return d.fill; })
+													// .style("stroke", "#272727")
+//													.style("stroke-width", "2px")
+													.each(function(d) { this._current = enterArc(d); });
 
 												group.transition()
 													.selectAll("path")
-													.duration(600)
-													.ease("elastic")
-													.delay(function (d, i) {return i*500;})
-													.attrTween("d", tweenDonut);
-													//.style("fill-opacity", 1)
-
-													// kan inte navigera mellan nivåer. återgår till gamla varianten och modifierar denna.
-												function tweenDonut(b) {
-													var i = d3.interpolate({depth:b.depth+1, dx:0}, b);
-												  return function(t) { return arc(i(t)); };
-												}
-
+													.style("fill-opacity", 1)
+													.attrTween("d", function(d) { return arcTween.call(this, updateArc(d)); });
+												});
 											}
-// 											d3.transition().ease("elastic").duration(600).each(function() {
-// 												group.exit().transition()
-// 													.select("path")
-// 													.style("fill-opacity", 0)
-// 													.attrTween("d", function(d) { return arcTween.call(this, exitArc(d)); }).remove();
-//
-// 												group.enter().append("g")
-// 													// .on("mouseout", function(n) {
-// 													// 	this.setAttribute("class", "arc");
-// 													// 	})
-// 													// .on("mouseover", function(n) {
-// 													// 	this.setAttribute("class", "arc mouseover");
-// 													// 	})
-// 													.on("mouseup", zoomIn)
-// 													.append("path")
-// 													.attr("d", arc)
-// 													.attr("id", function(d, i) { return "path" + i; })
-// 													.style("fill", function(d) { return d.fill; })
-// 													// .style("stroke", "#272727")
-// //													.style("stroke-width", "2px")
-// 													.each(function(d) { this._current = enterArc(d); });
-//
-// 												group.transition()
-// 													.selectAll("path")
-// 													.style("fill-opacity", 1)
-// 													.attrTween("d", function(d) { return arcTween.call(this, updateArc(d)); });
-// 												});
-// 											}
-//
-// 										  function arcTween(b) {
-// 										    var i = d3.interpolate(this._current, b);
-// 										    this._current = i(0);
-// 										    return function(t) {
-// 										      return arc(i(t));
-// 										    };
-// 										  }
-//
-// 										  function updateArc(d) {
-// 										    return {depth: d.depth, x: d.x, dx: d.dx};
-// 										  }
+
+										  function arcTween(b) {
+										    var i = d3.interpolate(this._current, b);
+										    this._current = i(0);
+										    return function(t) {
+										      return arc(i(t));
+										    };
+										  }
+
+										  function updateArc(d) {
+										    return {depth: d.depth, x: d.x, dx: d.dx};
+										  }
 									}
 
 								/** Determine label text */
