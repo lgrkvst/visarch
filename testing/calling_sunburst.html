@@ -120,7 +120,7 @@
 								 */
 								var radius = 140;
 								var rotate = 0; //2/3*Math.PI;
-							    var hue = d3.scale.category20c();	
+							    var hue = d3.scale.category10();	
 
 								// my first curry pattern - yay!!
 								var arcradius = function (inner_outer) {
@@ -157,6 +157,7 @@
   									var c = d3.hsl(hue(label(p)));
   									c.l = luminance(i);
   									c.s = saturation(d.depth);
+									// c.s = 0;
 									d.fill = c;
   									return c;
   								}
@@ -174,14 +175,16 @@
 								var partition = d3.layout.partition()
 									.sort(function(a, b) { return d3.ascending(a.name, b.name); })
 									.size([2 * Math.PI, radius])
-//									.value(function(d){return d.depth;});
+									.value(function(d){return d.depth;});
 									
 								var group, path;
 									
 								function drawRadial(root, n, container) {
+									// we're only using n(ode) to obtain coordinates for drawing the menu
 								    partition
 								        .nodes(root)
 								        .forEach(function(d) {
+											console.log(d);
 										  // stash children in case we want to limit the menu
 								          d._children = d.children;
 								        });
@@ -213,7 +216,7 @@
 
 									group = sunburst.selectAll("g");
 									// zoom(root.children[0]);
-									traverse(root, root);																				
+									traverse(root, root);
 									}
 
 									function zoom(p) {
@@ -435,7 +438,7 @@
 					var lces = JSON.parse('{"id":"_kj6SYO4eEeKkdbbircdmEA","size":14,"name":"LCES","group":"Processing Support Systems","size":12,"tag":"APP","index":0,"weight":0,"x":0.8829758936504,"y":0.2856600774035,"px":620.8869687205895,"py":280.2908698942541,"fixed":0}');
 
 					// Every item must have an id
-					var lces_tree = JSON.parse('{"id": "root", "size":12,"children":[{"size":1,"name":"remove","id":"_kj6SYO4eEeKkdbsircdmEA"},{"size":12,"name":"Applications","id":"_kj6SYOfeEeKkdbbircdmEA","children":[{"id":"_agmCcNOHEeKnyLpxuAUlyg","size":14,"name":"Aquarius","group":"Financing&Loans Systems","size":6},{"id":"_9zfWAM9uEeKTytfvtcsKjg","size":14,"name":"BIF","group":"Financing&Loans Systems","size":5},{"id":"_327Q8M9uEeKTytfvtcsKjg","size":14,"name":"Origo","group":"Financing&Loans Systems","size":12},{"id":"_Jv-KcKKeEeKvjd3eYA1x1A","size":14,"name":"Säljstöd","group":"Front System","size":53},{"id":"_Jv-KcKKeEeKvjd3eYA2x1A","size":14,"name":"Säljstöd","group":"Front System","size":53},{"id":"_Qv0KULCoEeKB3PjRdgQmKA","size":14,"name":"Kofax (TopCall)","group":"Processing Support Systems","size":7},{"id":"_fQC3AJCSEeKhnLIkYfvrAg","size":14,"name":"VDR","description":"Archive","group":"Processing Support Systems","size":17},{"id":"_4bDBoO4uEeKkdbbircdmEA","size":14,"name":"SPIK/Nödlid","description":"Case Management","group":"Processing Support Systems","size":4},{"id":"_hZVIIOTbEeKA2uegIInhsA","size":14,"name":"SEB Case","description":"Case Management","group":"Processing Support Systems","size":10},{"id":"_MkHKAO4hEeKkdbbircdmEA","size":14,"name":"CGI (Logica)","description":"External","group":"ExternalSystems","size":2},{"id":"_U6pXIO4hEeKkdbbircdmEA","size":14,"name":"Itella","description":"External","group":"ExternalSystems","size":3},{"id":"_HE3ewBryEeO66eJdk956ug","size":14,"name":"CSM 2","group":"Securities Systems","size":11}]},{"size":1,"name":"Processes","id":"_kj6SYO4eaeKkdbbiacdmEA","children":[{"size":14,"id":"Retail","children":[{"size":14,"name":"Enkla Lånet", "id": "enkla"}]}]},{"size":2,"id":"Platforms","children":[{"size":14,"id":"Rissne","children":[{"size":14,"id":"wsp1001a"},{"size":14,"id":"wsp1001b"},{"size":14,"id":"wsp1001c"}]},{"size":14,"id":"Grytet","children":[{"size":14,"id":"wsp1002a"},{"size":14,"id":"wsp1002b"},{"size":14,"id":"wsp1002c"}]}]}]}');
+					var lces_tree = JSON.parse('{"children":[{"name":"remove","id":"remove","icon":"#icon_remove"},{"name":"Applications","id":"Applications","children":[{"id":"Financing&Loans Systems","name":"F&L","children":[{"id":"_agmCcNOHEeKnyLpxuAUlyg","name":"Aquarius","group":"Financing&Loans Systems","size":6},{"id":"_9zfWAM9uEeKTytfvtcsKjg","name":"BIF","group":"Financing&Loans Systems","size":5},{"id":"_327Q8M9uEeKTytfvtcsKjg","name":"Origo","group":"Financing&Loans Systems","size":12}]},{"id":"Front System","name":"Front","children":[{"id":"_Jv-KcKKeEeKvjd3eYA2x1A","name":"Säljstöd","group":"Front System","size":53}]},{"id":"Processing Support Systems","name":"PS","children":[{"id":"_Qv0KULCoEeKB3PjRdgQmKA","name":"Kofax (TopCall)","group":"Processing Support Systems","size":7},{"id":"_fQC3AJCSEeKhnLIkYfvrAg","name":"VDR","description":"Archive","group":"Processing Support Systems","size":17},{"id":"_4bDBoO4uEeKkdbbircdmEA","name":"SPIK/Nödlid","description":"Case Management","group":"Processing Support Systems","size":4},{"id":"_hZVIIOTbEeKA2uegIInhsA","name":"SEB Case","description":"Case Management","group":"Processing Support Systems","size":10}]},{"id":"ExternalSystems","name":"External","children":[{"id":"_MkHKAO4hEeKkdbbircdmEA","name":"CGI (Logica)","description":"External","group":"ExternalSystems","size":2},{"id":"_U6pXIO4hEeKkdbbircdmEA","name":"Itella","description":"External","group":"ExternalSystems","size":3}]},{"id":"Securities Systems","name":"Securities","children":[{"id":"_HE3ewBryEeO66eJdk956ug","name":"CSM 2","group":"Securities Systems","size":11}]}]},{"name":"Processes","id":"Processes","children":[{"id":"Retail","children":[{"id":"Enkla Lånet"},{"id":"Investeringssparkonto"}]}]},{"name":"Platforms","id":"Platforms","children":[{"id":"Rissne","children":[{"id":"wsp1001a"},{"id":"wsp1001b"},{"id":"wsp1001c"}]},{"id":"Grytet","children":[{"id":"wsp1002a"},{"id":"wsp1002b"},{"id":"wsp1002c"}]}]}]}');
 
 					drawRadial(lces_tree, lces, svg);
 

@@ -262,52 +262,54 @@ function update() {
 		.on("contextmenu", function (n) {
 		// The radial menu function takes a JSON structure, according to d3's docs on pie menus.
 		var tree = {
-			"size": n.size,
 			"children": [{
-					"label": "remove",
-					"id": n.id, // used for what exaclty? We're sending in the node as well...
+					"name": "remove",
+					"id": "remove", // used for what exaclty? We're sending in the node as well...
 					"icon": "#icon_remove",
 					// inject a callback for each menu item, what to execute on selection. Maybe I'm a decent js-coder afterall?
 					"callback": function (node) {Net.drop(node.id);update();}
 					}, {
-					"label": "Applications",
-					"id": n.id,
-					"children": [],
-					"callback": function (node) {Net.supernova(node.id);update();}
+					"name": "Applications",
+					"id": "Applications",
+					"children": []
 					}, {
-					"label": "Processes",
-					"id": n.id,
-					"children": [],
-					"callback": function (node) {Net.supernova(node.id);update();}
+					"name": "Processes",
+					"id": "Processes",
+					"children": []
 					}, {
-					"label": "Platforms",
-					"id": n.id,
-					"children": [],
-					"callback": function (node) {Net.supernova(node.id);update();}
+					"name": "Platforms",
+					"id": "Platforms",
+					"children": []
 					}]
 		};
 //			var links = ALL.ls(n.id);
 			// push all links/edge menu items onto the radial menu JSON
 			
-			tree.children[2].children.push({"label":"Retail", "children": []});
-			tree.children[2].children[0].children.push({"label": "Enkla Lånet"});
+			tree.children[2].children.push({"id":"Retail", "children": []});
+			tree.children[2].children[0].children.push({"id": "Enkla Lånet"});
+			tree.children[2].children[0].children.push({"id": "Investeringssparkonto"});
 
-			tree.children[3].children.push({"label":"Rissne", "children":[]});
-			tree.children[3].children.push({"label":"Grytet", "children":[]});
-			tree.children[3].children[0].children.push({"label":"wsp1001a"});
-			tree.children[3].children[0].children.push({"label":"wsp1001b"});
-			tree.children[3].children[0].children.push({"label":"wsp1001c"});
-			tree.children[3].children[1].children.push({"label":"wsp1002a"});
-			tree.children[3].children[1].children.push({"label":"wsp1002b"});
-			tree.children[3].children[1].children.push({"label":"wsp1002c"});
+			tree.children[3].children.push({"id":"Rissne", "children":[]});
+			tree.children[3].children.push({"id":"Grytet", "children":[]});
+			tree.children[3].children[0].children.push({"id":"wsp1001a"});
+			tree.children[3].children[0].children.push({"id":"wsp1001b"});
+			tree.children[3].children[0].children.push({"id":"wsp1001c"});
+			tree.children[3].children[1].children.push({"id":"wsp1002a"});
+			tree.children[3].children[1].children.push({"id":"wsp1002b"});
+			tree.children[3].children[1].children.push({"id":"wsp1002c"});
 
-
-
+			// add applications
 			$.when(n.links()).done(function(links) {
-				links.forEach(function (l) {
-					var l = jQuery.extend(true, {"callback" : function(node){Net.add(node); update()}}, l);
-					tree.children[1].children.push(l);
-				});
+				// remove duplicate id:s from links array
+				var uniqueLinks = d3.map([]), l = [];
+				links.forEach(function(d){ uniqueLinks.set(d.id, d); });
+				uniqueLinks.forEach(function(d){ l.push(uniqueLinks.get(d)); });
+				
+				// group by l.group
+				var key_values = d3.nest().key(function (d) {return d.group;}).entries(l);
+				// append to menu tree
+				var id_children = key_values.map(function (n) {return {id:n.key, name:faucet.sources["APP"].groupLabel(n.key), children:n.values}});
+				tree.children[1].children = id_children;
 				console.A = JSON.stringify(tree);
 				console.tree = tree;
 				drawRadial(tree, n);
@@ -352,7 +354,7 @@ function update() {
 			var angle = rotate = 0, anchor = "start";
 			
 			if (text = this.childNodes[0].childNodes[1]) {
-				var offset = 14 + 0.3 * d.size;				
+				var offset = 14 + 0.3 * d.size;
 
 				// rotate labels
 				if (Settings.rotateLabels) {
