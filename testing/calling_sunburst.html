@@ -4,6 +4,7 @@
 		<meta charset="utf-8">
 		<title>Force based label placement</title>
 		<script src="../js/lib/d3.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/d3.circlegen.js" type="text/javascript" charset="utf-8"></script>
 		<script src="../js/lib/jquery.min.js" type="text/javascript" charset="utf-8"></script>
 		<script src="../js/lib/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
 		<script src="../js/lib/bootstrap-switch.min.js" type="text/javascript" charset="utf-8"></script>
@@ -17,7 +18,7 @@
 <!--		<link rel="stylesheet" href="../css/radial.css" type="text/css" media="screen" charset="utf-8"> -->
 		<link rel="stylesheet" href="../css/static_footer.css" type="text/css" media="screen" charset="utf-8">
 		<link rel="stylesheet" href="../css/typeahead.css" type="text/css" media="screen" charset="utf-8">
-<!--		<link href='http://fonts.googleapis.com/css?family=Stint+Ultra+Condensed' rel='stylesheet' type='text/css'> -->
+		<link href='http://fonts.googleapis.com/css?family=Stint+Ultra+Condensed' rel='stylesheet' type='text/css'>
 		<style>
 			.link {
 				stroke: #CCC;
@@ -34,6 +35,7 @@
 			.radial {
 				font-family: 'stint ultra condensed', tahoma,sans-serif;
 				font-weight:100;
+				fill: #fff !important;
 			}
 			.nodelabeltext {
 /*				opacity:0.3;
@@ -64,60 +66,44 @@
 
 						var w = $(window).width(),
 							h = $(window).height();
-							var color = d3.scale.category20c();
 
 						var svg = d3.select("body").append("svg")
 						    .attr("width", w)
 							.attr("height", h);
-						
-							// define gradients
-						  var gs = svg.append("defs").selectAll("defs")
-						  	.data(color.range())
-						  	.enter()
-						  	.append("radialGradient")
-						  	.attr("id", function (n, i) {
-						  	return "m" + i;
-						  }).attr("cx", "0%").attr("cy", "0%").attr("fx", "0%").attr("fy", "0%").attr("r", "100%");
-						  gs.append("stop").attr("stop-color", function (n) {
-						  	return d3.rgb(n).brighter();
-						  }).attr("offset", "0%").attr("stop-opacity", "100%");
-						  gs.append("stop").attr("stop-color", function (n) {
-						  	return n;
-						  }).attr("offset", "100%").attr("stop-opacity", "100%");
 
-							svg.selectAll("defs")
-								.append("g")
-								.attr("id", "icon_remove")
-								.append("polygon")
-								.attr("points", "438.393,374.595 319.757,255.977 438.378,137.348 374.595,73.607 255.995,192.225 137.375,73.622 73.607,137.352 192.246,255.983 73.622,374.625 137.352,438.393 256.002,319.734 374.652,438.378")
-								.attr("fill", "white")
-								.attr("transform", "scale(0.03) translate(-80,150)");
+						svg.selectAll("defs")
+							.append("g")
+							.attr("id", "icon_remove")
+							.append("polygon")
+							.attr("points", "438.393,374.595 319.757,255.977 438.378,137.348 374.595,73.607 255.995,192.225 137.375,73.622 73.607,137.352 192.246,255.983 73.622,374.625 137.352,438.393 256.002,319.734 374.652,438.378")
+							.attr("fill", "white")
+							.attr("transform", "scale(0.03) translate(-80,150)");
 
-							svg.selectAll("defs")
-								.append("g")
-								.attr("id", "icon_fixed")
-								.append("path")
-								.attr("d", "M20.812,19.5h5.002v-6.867c-0.028-1.706-0.61-3.807-2.172-5.841c-1.539-2.014-4.315-3.72-7.939-3.687C12.076,3.073,9.3,4.779,7.762,6.792C6.2,8.826,5.617,10.928,5.588,12.634V19.5h5v-6.866c-0.027-0.377,0.303-1.789,1.099-2.748c0.819-0.979,1.848-1.747,4.014-1.778c2.165,0.032,3.195,0.799,4.013,1.778c0.798,0.959,1.126,2.372,1.099,2.748V19.5L20.812,19.5zM25.814,25.579c0,0,0-2.354,0-5.079h-5.002c0,2.727,0,5.08,0,5.08l5.004-0.001H25.814zM5.588,25.58h5c0,0,0-2.354,0-5.08h-5C5.588,23.227,5.588,25.58,5.588,25.58z")
-								.attr("fill", "white")
-								.attr("transform", "scale(0.52) translate(-5,10)");
+						svg.selectAll("defs")
+							.append("g")
+							.attr("id", "icon_fixed")
+							.append("path")
+							.attr("d", "M20.812,19.5h5.002v-6.867c-0.028-1.706-0.61-3.807-2.172-5.841c-1.539-2.014-4.315-3.72-7.939-3.687C12.076,3.073,9.3,4.779,7.762,6.792C6.2,8.826,5.617,10.928,5.588,12.634V19.5h5v-6.866c-0.027-0.377,0.303-1.789,1.099-2.748c0.819-0.979,1.848-1.747,4.014-1.778c2.165,0.032,3.195,0.799,4.013,1.778c0.798,0.959,1.126,2.372,1.099,2.748V19.5L20.812,19.5zM25.814,25.579c0,0,0-2.354,0-5.079h-5.002c0,2.727,0,5.08,0,5.08l5.004-0.001H25.814zM5.588,25.58h5c0,0,0-2.354,0-5.08h-5C5.588,23.227,5.588,25.58,5.588,25.58z")
+							.attr("fill", "white")
+							.attr("transform", "scale(0.52) translate(-5,10)");
 
 /*
-							svg.selectAll("defs")
-								.append("g")
-								.attr("id", "icon_explode")
-								.append("path")
-								.attr("d", "M6.812,17.202l7.396-3.665v-2.164h-0.834c-0.414,0-0.808-0.084-1.167-0.237v1.159l-7.396,3.667v2.912h2V17.202zM26.561,18.875v-2.913l-7.396-3.666v-1.158c-0.358,0.152-0.753,0.236-1.166,0.236h-0.832l-0.001,2.164l7.396,3.666v1.672H26.561zM16.688,18.875v-7.501h-2v7.501H16.688zM27.875,19.875H23.25c-1.104,0-2,0.896-2,2V26.5c0,1.104,0.896,2,2,2h4.625c1.104,0,2-0.896,2-2v-4.625C29.875,20.771,28.979,19.875,27.875,19.875zM8.125,19.875H3.5c-1.104,0-2,0.896-2,2V26.5c0,1.104,0.896,2,2,2h4.625c1.104,0,2-0.896,2-2v-4.625C10.125,20.771,9.229,19.875,8.125,19.875zM13.375,10.375H18c1.104,0,2-0.896,2-2V3.75c0-1.104-0.896-2-2-2h-4.625c-1.104,0-2,0.896-2,2v4.625C11.375,9.479,12.271,10.375,13.375,10.375zM18,19.875h-4.625c-1.104,0-2,0.896-2,2V26.5c0,1.104,0.896,2,2,2H18c1.104,0,2-0.896,2-2v-4.625C20,20.771,19.104,19.875,18,19.875z")
-								.attr("fill", "white")
-								.attr("transform", "scale(1) rotate(180) translate(-30,-55)");
+						svg.selectAll("defs")
+							.append("g")
+							.attr("id", "icon_explode")
+							.append("path")
+							.attr("d", "M6.812,17.202l7.396-3.665v-2.164h-0.834c-0.414,0-0.808-0.084-1.167-0.237v1.159l-7.396,3.667v2.912h2V17.202zM26.561,18.875v-2.913l-7.396-3.666v-1.158c-0.358,0.152-0.753,0.236-1.166,0.236h-0.832l-0.001,2.164l7.396,3.666v1.672H26.561zM16.688,18.875v-7.501h-2v7.501H16.688zM27.875,19.875H23.25c-1.104,0-2,0.896-2,2V26.5c0,1.104,0.896,2,2,2h4.625c1.104,0,2-0.896,2-2v-4.625C29.875,20.771,28.979,19.875,27.875,19.875zM8.125,19.875H3.5c-1.104,0-2,0.896-2,2V26.5c0,1.104,0.896,2,2,2h4.625c1.104,0,2-0.896,2-2v-4.625C10.125,20.771,9.229,19.875,8.125,19.875zM13.375,10.375H18c1.104,0,2-0.896,2-2V3.75c0-1.104-0.896-2-2-2h-4.625c-1.104,0-2,0.896-2,2v4.625C11.375,9.479,12.271,10.375,13.375,10.375zM18,19.875h-4.625c-1.104,0-2,0.896-2,2V26.5c0,1.104,0.896,2,2,2H18c1.104,0,2-0.896,2-2v-4.625C20,20.771,19.104,19.875,18,19.875z")
+							.attr("fill", "white")
+							.attr("transform", "scale(1) rotate(180) translate(-30,-55)");
 */
 
-							svg.selectAll("defs")
-								.append("g")
-								.attr("id", "icon_explode")
-								.append("path")
-								.attr("d", "m567.072327,32.324581l-142.898529,364.1077l-390.230839,26.652069l302.105686,248.419556l-95.20694,379.358398l329.609894,-210.542419l331.372925,207.780212l-98.380493,-378.565002l300.019348,-250.946625l-390.436523,-23.39035l-145.954529,-362.873539z")
-								.attr("fill", "white")
-								.attr("transform", "scale(0.015) translate(0,130)");
+						svg.selectAll("defs")
+							.append("g")
+							.attr("id", "icon_explode")
+							.append("path")
+							.attr("d", "m567.072327,32.324581l-142.898529,364.1077l-390.230839,26.652069l302.105686,248.419556l-95.20694,379.358398l329.609894,-210.542419l331.372925,207.780212l-98.380493,-378.565002l300.019348,-250.946625l-390.436523,-23.39035l-145.954529,-362.873539z")
+							.attr("fill", "white")
+							.attr("transform", "scale(0.015) translate(0,130)");
 					</script>
 
 
@@ -133,37 +119,46 @@
 								 * Läckert i gråskalor? – testa!
 								 */
 								var radius = 140;
-								var rotate = Math.PI/4;
+								var rotate = 0; //2/3*Math.PI;
+							    var hue = d3.scale.category20c();	
 
 								// my first curry pattern - yay!!
 								var arcradius = function (inner_outer) {
 									return function(x) {
-//										if(x.depth == 0) return radius/1.4+(inner_outer*10);//(inner_outer*1.4)*radius/2;
 										return Math.atan(x.depth+inner_outer)*radius-inner_outer*3;
 									}
 								}
 								var arc = d3.svg.arc()
-								    .startAngle(function(d) { return d.x+rotate; })
+								    .startAngle(function(d) { return rotate+d.x; })
 								    .endAngle(function(d) { return rotate + d.x + d.dx})
 								    .innerRadius(arcradius(0))
 								    .outerRadius(arcradius(1))
-									.padAngle(0.01)
-//									.cornerRadius(3);
-
+									.padAngle(0.01);
+							    
+								var textArc = d3.svg.arc()
+								    .startAngle(function(d) { return rotate + d.x + d.dx/2 - Math.PI+0.1})
+								    .endAngle(function(d) { return rotate + d.x + d.dx/2 + Math.PI-0.1})
+								    .innerRadius(arcradius(0))
+								    .outerRadius(arcradius(1));
+								
+								
 								// got these from http://bl.ocks.org/mbostock/5944371
 								function fill(d) {
-								  var p = d;
-								  var i = 0;
-								  while (p.depth > 1) {
-									  if (i == 0) {
-										  i = p.parent.children.indexOf(p)/(p.parent.children.length);
-									  }
-									  p = p.parent;
-									}
-  								  var c = d3.hsl(color(label(p)));
-  								  c.l = luminance(i);
-  								  c.s = saturation(d.depth);
-  								  return c;
+									if (d.fill) return d.fill;
+									var p = d;
+									var i = 0;
+                        			
+									while (p.depth > 1) {
+										  if (i == 0) {
+											  i = p.parent.children.indexOf(p)/(p.parent.children.length);
+										  }
+										  p = p.parent;
+										}
+  									var c = d3.hsl(hue(label(p)));
+  									c.l = luminance(i);
+  									c.s = saturation(d.depth);
+									d.fill = c;
+  									return c;
   								}
 								
   								var saturation = d3.scale.linear()
@@ -178,27 +173,23 @@
 
 								var partition = d3.layout.partition()
 									.sort(function(a, b) { return d3.ascending(a.name, b.name); })
-									.size([2 * Math.PI, radius]);
+									.size([2 * Math.PI, radius])
+//									.value(function(d){return d.depth;});
 									
 								var group, path;
 									
 								function drawRadial(root, n, container) {
-
-								    // Compute the initial layout on the entire tree to sum sizes.
-								    // Also compute the full name and fill color for each node,
-								    // and stash the children so they can be restored as we descend.
-								    partition.value(function(d) { return d.size; })
+								    partition
 								        .nodes(root)
 								        .forEach(function(d) {
+										  // stash children in case we want to limit the menu
 								          d._children = d.children;
-								          d.sum = d.value;
-										  d.fill = fill(d);
 								        });
 
 								    // Now redefine the value function to use the previously-computed sum.
 								    partition
-//								         .children(function(d, depth) { return d.depth < 10 ? d._children : null; })
-								        .value(function(d) { return 1;/*Math.sqrt(d.sum); */ });
+//								         .children(function(d, depth) { return d.depth < 1 ? d._children : null; })
+								        .value(function(d) { return 1/(d.parent.children.length*Math.pow(d.depth, 1)); /*Math.sqrt(d.size)*/; });
 									
 									var sunburst = container.append("g").attr("class", "radial");
 									sunburst.attr("transform", "translate(300,300)");
@@ -217,131 +208,100 @@
 										if (((m[0]-s[0])*(m[0]-s[0])+(m[1]-s[1])*(m[1]-s[1])) > r*r) {
 											var A = Math.atan2((m[1]-s[1]),(m[0]-s[0]));
 											sunburst.attr("transform", "translate("+Math.round(1*m[0]-Math.cos(A)*r)+","+Math.round(1*m[1]-Math.sin(A)*r)+")")
-										}
-									});
-								    //
-								    // var center = sunburst.append("circle")
-								    //     .attr("r", radius / 3*2)
-								    //     .on("click", zoomIn);
-								    //
-								    // center.append("title")
-								    //     .text("back");
-										
-									group = sunburst.selectAll("g");
-									traverse(root, root);
-										
-									// var clip_path = group.append("clipPath")
-									// 	.attr("id", function(d, i) {
-									// 		return "clipPath" + i;
-									// 	})
-									// 	.append("use")
-									// 	.attr("xlink:href", function(n, i) {
-									// 		return "#path" + i;
-									// 	});
-									//
-									// var text = group.append("g")
-									// 	.attr("clip-path", function(n, i) {
-									// 		return "url(#clipPath" + i + ")";
-									// 	})
-									// 	.append("text")
-									// 	.attr("dy", function(d, i) {
-									// 		var x = d.depth;
-									// 		return 1.5 * x * x - 13.5 * x + 55; //try 47
-									// 	})
-									// // Text height in each circle sector
-									// 	.attr("class", "nodelabeltext")
-									// 	.attr("fill", function(n, i) {
-									// 		 return "#fff"
-									// 		return d3.rgb(sunburstColor(Math.floor(i / 3) % 20)).brighter();
-									// 	})
-									// 	.attr("font-size", function(n) {
-									// 		var x = n.depth;
-									// 		return 3 * x * x - 25 * x + 72;
-									// 		})
-									// 	.append("textPath")
-									// 	.attr("xlink:href", function(n, i) {
-									// 		return "#path" + i;
-									// 		})
-									// 	.text(function (n) {
-									// 		if (n.depth < 2) return label(n);
-									// 		})
-									// 	.attr("startOffset", function(n) {
-									// 		var x = n.depth;
-									// 		return (23 + 4.5 * x - 2.5 * x * x) + "%";
-									// 	})
-									// 	.attr("text-anchor", "middle")
-									// 	.attr("letter-spacing", function(n) {
-									// 		return 3 - n.depth;
-									// 	});
-										
-									    function zoom(p) {
-  									      if (!p || !p.parent) return;
-									      if (p.callback) {
-											  p.callback(p);
-										  }
-										  if (p.depth) {
-										  	traverse(p, p);
-										  } else {
-											traverse(p.parent, p);										  	
-										  }
-										  
-									    }
-										
-										function traverse(root, p) {
-										    // center.datum(root);
-											group = group.data(partition.nodes(root), function(d) { return d.id; });
-
-											group.exit().remove();
-											
-											group.enter().append("g")
-												.on("mouseup", zoom)
-												.append("path")
-												.attr("d", arc)
-												.style("fill", function(d, i) {
-													return d.fill;
-												});
-
-												group.transition()
-													.selectAll("path")
-													.duration(600)
-													.ease("elastic")
-													.delay(function (d, i) {return i*500;})
-													.attrTween("d", tweenDonut)
-													.style("fill-opacity", function(b) {
-														return b.depth ? 1:0;
-													})
-
-												function tweenDonut(b) {
-													var inout = (root === p) ? 1 : -1;
-													var i = d3.interpolate({depth:b.depth+inout, x:b.x-0.3*inout}, b);
-												  return function(t) {
-													  return arc(i(t)); };
-												}
-
 											}
+										});
 
+									group = sunburst.selectAll("g");
+									// zoom(root.children[0]);
+									traverse(root, root);																				
+									}
+
+									function zoom(p) {
+										if (!p || !p.parent) return;
+										if (p.callback) {
+											p.callback(p);
+										}
+										if (p.depth) {
+											traverse(p, p);
+										} else {
+											traverse(p.parent, p);
+										}
+									}
+
+
+									function traverse(tree, p) {
+										group = group.data(partition.nodes(tree), function(d) { return d.id; });
+
+										group.exit().remove();
+										
+										group.enter().append("g")
+											.on("mouseup", zoom)
+											.append("path")
+											.attr("d", arc)
+											.attr("class", "menuitem")
+											.attr("id", function(d){return "path_" + safelabel(d);})
+											.each(addGradient)
+											.each(addText)
+											.each(addClipPath);
+										
+										group.transition()
+											.duration(500)
+											.ease("elastic")
+											.each(function() {
+												d3.selectAll("text.curved")
+													.filter(function(d){return d.depth;})
+													.transition()
+													.attrTween("font-size", function(d, i, a){
+														var tw = d3.interpolate(arc.outerRadius()(d) - arc.innerRadius()(d)-5, arc.outerRadius()(d) - arc.innerRadius()(d));
+														return function (t) { return tw(t); }
+														})
+													.attr("dy", function(d, i, a) {
+														return (arc.outerRadius()(d)-arc.innerRadius()(d))*.85;
+														})
+												d3.selectAll("path.labelpath")
+													.filter(function(d){return d.depth;})
+													.attr("d", function(n) {
+														return "M "+(arc.outerRadius()(n)*Math.sin(n.x+n.dx/2-Math.PI/2))+" "+(-arc.outerRadius()(n)*Math.cos(n.x+n.dx/2-Math.PI/2))+ " \
+														A " + arc.outerRadius()(n) + " " + arc.outerRadius()(n) + ", \
+														"+ (n.x+n.dx/2)*180/Math.PI +", 0, 1, \
+														"+(arc.outerRadius()(n)*Math.sin(n.x+n.dx/2+Math.PI/2))+" "+(-arc.outerRadius()(n)*Math.cos(n.x+n.dx/2+Math.PI/2));
+														})
+													
+													})
+											.selectAll("path.menuitem")
+											.attrTween("d", tweenDonut)
+											.style("fill-opacity", function(b) {
+												return b.depth ? 1:0;
+											})
+																				
+										function tweenDonut(b) {
+											var impact = 0;
+											if (b.impact) {
+												impact=b.impact;
+												delete(b.impact);
+											}
+											var inout = (tree === p) ? 1 : -1;
+											var i = d3.interpolate({depth:b.depth+inout+impact, x:b.x-0.3*inout}, b);
+										  return function(t) {
+											  return arc(i(t)); };
+										}
 									}
 
 								/** Determine label text */
 
 								function label(n) {
-									//								if (!n.children) return;
 									var label = n.name || n.id || "";
 									label = label.toUpperCase();
-									//								if (n.value == 1) return label.substring(0,1);
 									return label;
 								}
 
-								/*************** SOME COLORS...? **************/
-								/*	.style("fill", function(d) {
-										if (d.label == "freeze") return "url(#m14)";
-										if (d.label == "remove") return "url(#m6)";
-										if (d.label == "rogues") return "url(#m10)";
-										if (d.label == "explode") return "url(#m15)";
-										// some kind of link...
-										return "url(#m" + color(d.group) + ")";
-										})
-								*/
+								function safelabel(n) {
+									var label = n.id || n.name || "";
+									label = label.toUpperCase();
+									label = label.replace(/[ )(]/g, '');
+									return label;
+								}
+
 								/******************* ICONS *******************/
 								/*
 								g.filter(function (n,i){if (n.hasOwnProperty("icon")) {return true;}})
@@ -361,34 +321,113 @@
 								*/
 								/******************* LABEL LAYOUTS *******************/
 								/** Radial label layout */
+									
+								
 
-								function radial(g) {
-									return text = g.append("text")
-										.attr("transform", function(d) {
-											return "rotate(" + (d.x + d.dx / 2 - Math.PI / 2) / Math.PI * 180 + ")";
-										})
-										.attr("x", function(d) {
-											if (d.depth == 1) return radius / 3 * (d.depth + epicentre);
-											return radius / 3 * (d.depth + epicentre + 1);
-											return Math.sqrt(d.y + d.dy);
-										})
-										.attr("dx", "6") // margin
-									.attr("dy", function(d) {
-										return ".35em"
-									})
-										.text(function(n) {
-											if (!n.icon) return label(n)
-										})
-										.attr("text-anchor", function(d) {
-											if (d.depth == 1) return "end";
-										})
-										.attr("startOffset", "50%");
+								function addText(g) {
+									if (g.icon) {
+										// add icon
+										return;
+									}
+									if (!g.depth) return;
+									
+									// if ((g.children || g.depth == 1))
+										 addCurvedText.call(this);
+									// else {
+									 //	addRadialText.call(this);
+									// }
 								}
 								
-								function isNumeric(n) {
-								  return !isNaN(parseFloat(n)) && isFinite(n);
+								function addClipPath(g) {
+									d3.select(this.parentNode)
+										.append("clipPath")
+										.attr("id", function(d) {
+											return "clipPath_" + safelabel(d);
+											})
+										.append("use")
+										.attr("xlink:href", function(d) {
+											return "#path_" + safelabel(d);
+											});
+										}
+								
+								function addCurvedText() {
+									d3.select(this.parentNode)
+										.append("path")
+										.attr("class", "labelpath")
+										.style("fill", "none")
+										.style("stroke", "none")
+										.style("stroke-width", "2px")
+										.attr("id", function(n) {
+											return "textpath_" + safelabel(n);
+										});
+										
+									
+									d3.select(this.parentNode)
+										.append("text")
+										.attr("clip-path", function(n, i) {
+											return "url(#clipPath_" + safelabel(n) + ")";
+										})
+										.attr("class", "nodelabeltext")
+										.attr("class", "curved")
+										.attr("fill", "#fff")
+										.attr("pointer-events", "none")
+										.append("textPath")
+										.attr("xlink:href", function(n) {
+											return "#textpath_" + safelabel(n);
+											})
+										.text(label)
+										.attr("startOffset", function(n) {
+											return "50%";
+											})
+										.attr("text-anchor", "middle")
+										.attr("letter-spacing", function(n) {
+											return 3 - n.depth;
+											});
+
 								}
 
+
+
+
+
+
+								function addRadialText(g) {
+									d3.select(this.parentNode)
+										.append("g")
+										.attr("transform", function (n) {
+											return "translate(" + (arc.innerRadius()(n)*Math.sin(n.x+n.dx/2)) + "," + (-arc.innerRadius()(n)*Math.cos(n.x+n.dx/2)) + ")";
+										})			
+										.append("text")
+										.text(label)
+										.attr("dx", 50)
+										.style("font-size", 20)
+										.attr("transform", function (n) {
+											return "rotate(" + ((n.x+n.dx/2)-Math.PI/2)*180/Math.PI + ")";
+										})
+									}
+								
+									function addGradient() {
+										var gradients = d3.select(this.parentNode).append("radialGradient")
+											.attr("id", function(n) {
+												return "gradient_" + safelabel(n);
+											})
+											.attr("cx", "0%").attr("cy", "0%").attr("fx", "0%").attr("fy", "0%").attr("r", "100%");
+										gradients.append("stop").attr("stop-color", function(n) {
+											return fill(n).brighter();
+										})
+											.attr("offset", "0%").attr("stop-opacity", "100%");
+
+										gradients.append("stop").attr("stop-color", function(n) {
+											return fill(n);
+										})
+											.attr("offset", "100%")
+											.attr("stop-opacity", "100%");
+									
+										d3.select(this).style("fill", function(n) {
+											return "url('#gradient_" + safelabel(n) + "')";
+											});
+								
+									}
 					</script>
 
 
@@ -396,7 +435,7 @@
 					var lces = JSON.parse('{"id":"_kj6SYO4eEeKkdbbircdmEA","size":14,"name":"LCES","group":"Processing Support Systems","size":12,"tag":"APP","index":0,"weight":0,"x":0.8829758936504,"y":0.2856600774035,"px":620.8869687205895,"py":280.2908698942541,"fixed":0}');
 
 					// Every item must have an id
-					var lces_tree = JSON.parse('{"id": "root", "size":12,"children":[{"size":1,"name":"remove","id":"_kj6SYO4eEeKkdbsircdmEA","icon":"#icon_remove"},{"size":12,"name":"Applications","id":"_kj6SYOfeEeKkdbbircdmEA","children":[{"id":"_agmCcNOHEeKnyLpxuAUlyg","size":14,"name":"Aquarius","group":"Financing&Loans Systems","size":6},{"id":"_9zfWAM9uEeKTytfvtcsKjg","size":14,"name":"BIF","group":"Financing&Loans Systems","size":5},{"id":"_327Q8M9uEeKTytfvtcsKjg","size":14,"name":"Origo","group":"Financing&Loans Systems","size":12},{"id":"_Jv-KcKKeEeKvjd3eYA1x1A","size":14,"name":"Säljstöd","group":"Front System","size":53},{"id":"_Jv-KcKKeEeKvjd3eYA2x1A","size":14,"name":"Säljstöd","group":"Front System","size":53},{"id":"_Qv0KULCoEeKB3PjRdgQmKA","size":14,"name":"Kofax (TopCall)","group":"Processing Support Systems","size":7},{"id":"_fQC3AJCSEeKhnLIkYfvrAg","size":14,"name":"VDR","description":"Archive","group":"Processing Support Systems","size":17},{"id":"_4bDBoO4uEeKkdbbircdmEA","size":14,"name":"SPIK/Nödlid","description":"Case Management","group":"Processing Support Systems","size":4},{"id":"_hZVIIOTbEeKA2uegIInhsA","size":14,"name":"SEB Case","description":"Case Management","group":"Processing Support Systems","size":10},{"id":"_MkHKAO4hEeKkdbbircdmEA","size":14,"name":"CGI (Logica)","description":"External","group":"ExternalSystems","size":2},{"id":"_U6pXIO4hEeKkdbbircdmEA","size":14,"name":"Itella","description":"External","group":"ExternalSystems","size":3},{"id":"_HE3ewBryEeO66eJdk956ug","size":14,"name":"CSM 2","group":"Securities Systems","size":11}]},{"size":1,"name":"Processes","id":"_kj6SYO4eaeKkdbbiacdmEA","children":[{"size":14,"id":"Retail","children":[{"size":14,"name":"Enkla Lånet", "id": "enkla"}]}]},{"size":2,"id":"Platforms","children":[{"size":14,"id":"Rissne","children":[{"size":14,"id":"wsp1001a"},{"size":14,"id":"wsp1001b"},{"size":14,"id":"wsp1001c"}]},{"size":14,"id":"Grytet","children":[{"size":14,"id":"wsp1002a"},{"size":14,"id":"wsp1002b"},{"size":14,"id":"wsp1002c"}]}]}]}');
+					var lces_tree = JSON.parse('{"id": "root", "size":12,"children":[{"size":1,"name":"remove","id":"_kj6SYO4eEeKkdbsircdmEA"},{"size":12,"name":"Applications","id":"_kj6SYOfeEeKkdbbircdmEA","children":[{"id":"_agmCcNOHEeKnyLpxuAUlyg","size":14,"name":"Aquarius","group":"Financing&Loans Systems","size":6},{"id":"_9zfWAM9uEeKTytfvtcsKjg","size":14,"name":"BIF","group":"Financing&Loans Systems","size":5},{"id":"_327Q8M9uEeKTytfvtcsKjg","size":14,"name":"Origo","group":"Financing&Loans Systems","size":12},{"id":"_Jv-KcKKeEeKvjd3eYA1x1A","size":14,"name":"Säljstöd","group":"Front System","size":53},{"id":"_Jv-KcKKeEeKvjd3eYA2x1A","size":14,"name":"Säljstöd","group":"Front System","size":53},{"id":"_Qv0KULCoEeKB3PjRdgQmKA","size":14,"name":"Kofax (TopCall)","group":"Processing Support Systems","size":7},{"id":"_fQC3AJCSEeKhnLIkYfvrAg","size":14,"name":"VDR","description":"Archive","group":"Processing Support Systems","size":17},{"id":"_4bDBoO4uEeKkdbbircdmEA","size":14,"name":"SPIK/Nödlid","description":"Case Management","group":"Processing Support Systems","size":4},{"id":"_hZVIIOTbEeKA2uegIInhsA","size":14,"name":"SEB Case","description":"Case Management","group":"Processing Support Systems","size":10},{"id":"_MkHKAO4hEeKkdbbircdmEA","size":14,"name":"CGI (Logica)","description":"External","group":"ExternalSystems","size":2},{"id":"_U6pXIO4hEeKkdbbircdmEA","size":14,"name":"Itella","description":"External","group":"ExternalSystems","size":3},{"id":"_HE3ewBryEeO66eJdk956ug","size":14,"name":"CSM 2","group":"Securities Systems","size":11}]},{"size":1,"name":"Processes","id":"_kj6SYO4eaeKkdbbiacdmEA","children":[{"size":14,"id":"Retail","children":[{"size":14,"name":"Enkla Lånet", "id": "enkla"}]}]},{"size":2,"id":"Platforms","children":[{"size":14,"id":"Rissne","children":[{"size":14,"id":"wsp1001a"},{"size":14,"id":"wsp1001b"},{"size":14,"id":"wsp1001c"}]},{"size":14,"id":"Grytet","children":[{"size":14,"id":"wsp1002a"},{"size":14,"id":"wsp1002b"},{"size":14,"id":"wsp1002c"}]}]}]}');
 
 					drawRadial(lces_tree, lces, svg);
 
