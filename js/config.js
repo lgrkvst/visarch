@@ -19,6 +19,9 @@ var faucet = function() {
 				var description = node.description || '&nbsp;';
 				var ret = '<div><span class="tt-name">' + node.name + '<span class="tt-description"><em>' + description + '</em></span></span><span style="background:' + color(node.group) + '" class="label label-info pull-right">' + node.group + '</span></div>';
 				return ret;
+			},
+			groupLabel: function(group) {
+				return group.substring(0,4);
 			}
 		}
 	};
